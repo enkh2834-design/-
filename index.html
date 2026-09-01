@@ -2,388 +2,932 @@
 <html lang="mn">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="MY ДЭВТЭР — 1–5-р ангийн хөгжмийн дасгал ажлын дэвтэр">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="MY ДЭВТЭР — 1-5-р ангийн хөгжмийн дасгал ажлын дэвтэрийн захиалгын сайт">
 <title>MY ДЭВТЭР</title>
 <style>
 :root{
-  --purple:#6c35d4; --purple2:#8e5af0; --ink:#17152d; --muted:#6f6d7d;
-  --line:#ece8f1; --bg:#fff; --soft:#fbf7ff; --pink:#fff5f4; --shadow:0 16px 48px rgba(49,31,93,.08);
+  --bg:#fbf7f2;--paper:#fffdfa;--card:#ffffff;--ink:#16213a;--muted:#6d7283;--line:#e7e2dc;
+  --brand:#1e5ad7;--brand2:#45c3d4;--yellow:#eef23a;--purple:#5950c9;--orange:#f6b04f;--radius:26px;
+  --shadow:0 20px 50px rgba(20,32,70,.08);
 }
-*{box-sizing:border-box} html{scroll-behavior:smooth}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#fff}
-a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit}
-.container{width:min(1500px,calc(100% - 34px));margin:auto}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}
-.nav{height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;gap:13px;align-items:center;font-weight:900}
-.logo{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--purple2),var(--purple));color:#fff;font-size:21px}
-.brand small{display:block;color:var(--muted);font-size:11px;font-weight:650;margin-top:2px}
-.links{display:flex;gap:34px;font-size:14px;font-weight:700}
-.links a:hover{color:var(--purple)}
-.btn{border:0;cursor:pointer;border-radius:10px;padding:13px 22px;font-weight:850}
-.btn-primary{background:linear-gradient(90deg,var(--purple),#7f3fe0);color:#fff;box-shadow:0 8px 20px rgba(108,53,212,.18)}
-.btn-white{background:#fff;color:var(--purple);border:1px solid #ded5ef}
-.hero{margin:14px auto 0;border:1px solid #f0e8e4;border-radius:22px;background:
-  radial-gradient(circle at 85% 15%,rgba(143,86,239,.10),transparent 28%),
-  radial-gradient(circle at 18% 45%,rgba(255,171,160,.10),transparent 30%),
-  linear-gradient(120deg,#fffaf8,#fff);
-  overflow:hidden}
-.hero-grid{display:grid;grid-template-columns:1fr 1.15fr;min-height:430px;align-items:center}
-.hero-copy{padding:48px 34px 48px 58px}
-.pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #e9e2f5;border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;box-shadow:0 4px 14px rgba(80,49,133,.05)}
-h1{font-size:clamp(39px,4.5vw,68px);line-height:1.04;letter-spacing:-.055em;margin:20px 0 14px}
-.hero-copy p{color:var(--muted);line-height:1.7;font-size:17px;max-width:680px}
-.hero-actions{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
-.hero-visual{padding:28px 44px 28px 10px;display:flex;justify-content:center;align-items:center}
-.book-fan{display:flex;align-items:flex-end;justify-content:center;gap:10px;width:100%;min-height:320px}
-.book{width:145px;aspect-ratio:.72;border-radius:11px 11px 5px 5px;padding:17px 12px;box-shadow:0 18px 35px rgba(39,31,64,.13);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8)}
-.book:nth-child(1){background:linear-gradient(#ffd8d8,#fff0ef);transform:rotate(-3deg)}
-.book:nth-child(2){background:linear-gradient(#ffe3aa,#fff6d6);transform:translateY(-8px)}
-.book:nth-child(3){background:linear-gradient(#c8f3b7,#e9ffe3);transform:translateY(-14px)}
-.book:nth-child(4){background:linear-gradient(#b9e9ff,#e9f7ff);transform:translateY(-10px)}
-.book:nth-child(5){background:linear-gradient(#dec8ff,#f2eaff);transform:rotate(3deg)}
-.book .num{font-size:50px;font-weight:900;line-height:1}.book b{display:block;margin-top:8px;font-size:15px}.book small{display:block;margin-top:5px;font-size:9px;color:#555}.book-art{height:95px;margin-top:20px;border-radius:9px;background:rgba(255,255,255,.55);display:grid;place-items:center;font-size:42px}
-.hero-img{width:100%;max-height:390px;object-fit:contain;border-radius:18px}
-.features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:18px 36px 0;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}
-.feature{padding:19px 24px;display:flex;gap:14px;align-items:center}
-.feature+.feature{border-left:1px solid var(--line)}
-.icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#f2eaff;color:var(--purple);font-size:20px;flex:0 0 auto}
-.feature b{display:block;font-size:13px}.feature span{font-size:11px;color:var(--muted)}
-.section{padding:38px 0}
-.section h2{text-align:center;font-size:27px;letter-spacing:-.03em;margin:0 0 22px}
-.products{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.product{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;box-shadow:0 9px 28px rgba(50,34,76,.04)}
-.cover{aspect-ratio:.74;border-radius:9px;overflow:hidden;display:grid;place-items:center;background:#f7f3fb;margin-bottom:12px}
-.cover img{width:100%;height:100%;object-fit:cover}
-.cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
-.product:nth-child(1) .cover-placeholder{background:linear-gradient(#ffdada,#fff0ef);color:#c85c64}
-.product:nth-child(2) .cover-placeholder{background:linear-gradient(#ffe2a7,#fff4d0);color:#bf751a}
-.product:nth-child(3) .cover-placeholder{background:linear-gradient(#c9f2b9,#ebffe5);color:#398d37}
-.product:nth-child(4) .cover-placeholder{background:linear-gradient(#bce8ff,#ebf8ff);color:#287fc1}
-.product:nth-child(5) .cover-placeholder{background:linear-gradient(#dfcaff,#f3ecff);color:#6b3ac0}
-.product h3{font-size:16px;margin:0 0 8px}.product ul{padding-left:17px;margin:0 0 12px;color:#494659;font-size:12px;line-height:1.75}
-.price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.price{font-weight:950;font-size:16px}
-.small-btn{padding:9px 14px;border-radius:8px;font-size:12px}
-.order-wrap{background:linear-gradient(135deg,#fff6f5,#fdfaff);border:1px solid #f0e6ef;border-radius:19px;padding:20px;display:grid;grid-template-columns:1.45fr .55fr .8fr;gap:18px}
-.order-form h2{text-align:left;margin:0 0 6px}.order-form .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.field label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}
-.field input,.field select,.field textarea{width:100%;border:1px solid #e4dfe8;border-radius:7px;padding:10px 11px;background:#fff;outline:none}
-.field textarea{min-height:70px;resize:vertical}.school-hint{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.4}.field input:focus,.field select:focus,.field textarea:focus{border-color:#bfa4ea;box-shadow:0 0 0 3px rgba(108,53,212,.08)}
-.full{grid-column:1/-1}
-.quantities{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}
-.quantities h3{font-size:13px;margin:0 0 11px}.qty-row{display:grid;grid-template-columns:1fr 30px 42px 30px;align-items:center;gap:5px;margin:7px 0;font-size:12px;font-weight:750}
-.qty-row button{width:28px;height:28px;border-radius:50%;border:1px solid #ded6ec;background:#fff;color:var(--purple);cursor:pointer;font-weight:900}.qty-row input{text-align:center;width:42px;padding:6px;border:1px solid #e4dfe8;border-radius:7px}
-.trust{border-radius:13px;padding:17px;background:linear-gradient(150deg,#fff,#f5edff);border:1px solid #eee5f8}
-.trust h3{font-size:15px;margin:0 0 10px;color:var(--purple)}.trust p,.trust li{font-size:12px;color:#4e4b5b;line-height:1.65}.trust ul{padding-left:18px}
-.submit{width:100%;margin-top:12px}
-.confirm{display:none;margin-top:12px;background:#effaf4;border:1px solid #c9ead8;border-radius:10px;padding:12px;color:#246b49;font-size:13px}
-.about{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:15px}
-.about-card{border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff;display:grid;grid-template-columns:130px 1fr;gap:18px;align-items:center}
-.author-img{width:112px;height:112px;border-radius:50%;background:#f1edf5;display:grid;place-items:center;overflow:hidden}.author-img img{width:100%;height:100%;object-fit:cover}
-.cert{width:130px;height:92px;border:1px solid #e5d8b8;background:#fffaf0;border-radius:7px;display:grid;place-items:center;overflow:hidden}.cert img{width:100%;height:100%;object-fit:contain}
-.about-card h3{margin:0 0 6px;font-size:14px}.about-card p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
-footer{margin-top:24px;border-top:1px solid var(--line);padding:22px 0 38px}
-.footer{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:12px}
-.footer strong{color:var(--ink)}
-@media(max-width:1150px){.products{grid-template-columns:repeat(3,1fr)}.hero-grid{grid-template-columns:1fr}.hero-visual{padding:10px 35px 30px}.order-wrap{grid-template-columns:1fr 1fr}.trust{grid-column:1/-1}.features{grid-template-columns:1fr 1fr}.feature:nth-child(3){border-left:0;border-top:1px solid var(--line)}}
-@media(max-width:760px){.container{width:min(100% - 20px,1500px)}.links{display:none}.nav{height:70px}.hero-copy{padding:34px 22px}.book{width:19%;padding:10px 6px}.book .num{font-size:34px}.book-art{height:65px;font-size:28px}.features{margin:12px 0;grid-template-columns:1fr}.feature+.feature{border-left:0;border-top:1px solid var(--line)}.products{grid-template-columns:1fr 1fr}.order-wrap{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}.about{grid-template-columns:1fr}.about-card{grid-template-columns:90px 1fr}.author-img{width:82px;height:82px}.hero-copy p{font-size:15px}}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:linear-gradient(180deg,#fcfaf6,#f6f1ea);color:var(--ink);font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif}
+a{color:inherit;text-decoration:none} img{display:block;max-width:100%} button,input,select,textarea{font:inherit}
+.container{width:min(1240px, calc(100% - 34px));margin:auto}
+.announce{background:linear-gradient(90deg,#1d5ad8,#47c7d6);color:#fff;font-size:13px;font-weight:700}
+.announce .container{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;flex-wrap:wrap}
+.announce b{font-weight:900}
+.header{position:sticky;top:0;z-index:50;background:rgba(252,250,246,.88);backdrop-filter:blur(14px);border-bottom:1px solid rgba(231,226,220,.9)}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:18px;height:82px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:46px;height:46px;border-radius:16px;background:conic-gradient(from 180deg, #50cad6, #1f57d4, #514bc7, #f6b04f, #50cad6);display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 12px 24px rgba(31,87,212,.24)}
+.brand-text strong{display:block;font-size:20px;font-weight:950;letter-spacing:-.03em}
+.brand-text small{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
+.links{display:flex;align-items:center;gap:24px;font-size:14px;font-weight:800;color:#4d5366}
+.links a:hover{color:var(--brand)}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:16px;padding:14px 18px;font-weight:850;cursor:pointer;transition:.18s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(90deg,#1d5ad8,#4acbd6);color:#fff;box-shadow:0 12px 22px rgba(29,90,216,.18)}
+.btn-soft{background:#fff;border:1px solid var(--line);color:#23304e}
+.btn-small{padding:11px 14px;border-radius:13px;font-size:13px}
+.section{padding:26px 0}
+.hero{padding:26px 0 10px}
+.hero-shell{background:
+ radial-gradient(circle at 15% 18%, rgba(80,202,214,.15), transparent 20%),
+ radial-gradient(circle at 83% 18%, rgba(246,176,79,.16), transparent 18%),
+ radial-gradient(circle at 58% 82%, rgba(92,80,201,.12), transparent 18%),
+ linear-gradient(135deg, #ffffff 0%, #fcfffd 52%, #fff9f0 100%);
+ border:1px solid var(--line);border-radius:34px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:24px;align-items:center}
+.hero-copy{padding:56px 24px 56px 54px}
+.label{display:inline-flex;align-items:center;gap:9px;padding:10px 16px;border-radius:999px;background:#fff;border:1px solid #ebdfd4;box-shadow:0 8px 16px rgba(50,30,18,.04);color:#4a5368;font-size:12px;font-weight:900}
+.label i{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,#4acbd6,#1d5ad8);display:inline-block}
+.hero h1{margin:18px 0 16px;font-size:clamp(42px,5vw,74px);line-height:1.02;letter-spacing:-.055em;max-width:650px}
+.hero p{margin:0;max-width:630px;font-size:17px;line-height:1.8;color:var(--muted)}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero-trust{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.pill{padding:10px 14px;border-radius:16px;background:#fff;border:1px solid #ece2d6;font-size:13px;font-weight:800;color:#4f5365}
+.hero-visual{padding:34px 32px 34px 12px;position:relative}
+.hero-display{background:linear-gradient(135deg,#f7fbff,#fff7ef);border:1px solid #ece2d6;border-radius:30px;min-height:520px;padding:30px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.hero-display:before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(86,201,213,.14) 1px, transparent 1px), radial-gradient(rgba(33,86,212,.12) 1px, transparent 1px);background-size:22px 22px, 36px 36px;background-position:0 0, 11px 11px;opacity:.65;pointer-events:none}
+.hero-main-image{position:relative;z-index:1;width:min(500px,100%);max-height:460px;object-fit:contain;border-radius:22px;box-shadow:0 22px 40px rgba(20,32,70,.12)}
+.hero-stack{position:relative;width:100%;height:100%;min-height:460px;z-index:1}
+.hero-book{position:absolute;width:180px;background:#fff;border:1px solid rgba(255,255,255,.7);border-radius:24px;padding:10px 10px 14px;box-shadow:0 18px 34px rgba(16,31,69,.14);overflow:hidden}
+.hero-book:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--soft), transparent 35%);pointer-events:none}
+.hero-book img{width:100%;aspect-ratio:.75;object-fit:cover;border-radius:16px;position:relative;z-index:1}
+.hero-book span{display:block;margin-top:10px;text-align:center;font-size:13px;font-weight:900;color:#2f3550;position:relative;z-index:1}
+.hero-book-1{left:4%;top:5%;transform:rotate(-8deg)}
+.hero-book-2{left:38%;top:0;transform:rotate(4deg)}
+.hero-book-3{left:66%;top:16%;transform:rotate(9deg)}
+.hero-book-4{left:18%;top:46%;transform:rotate(-4deg)}
+.hero-book-5{left:51%;top:48%;transform:rotate(6deg)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 18px 16px;box-shadow:0 10px 22px rgba(20,32,70,.05)}
+.stat b{display:block;font-size:20px;letter-spacing:-.03em;margin-bottom:8px}
+.stat span{display:block;font-size:13px;line-height:1.65;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+.kicker{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.section-head h2{margin:8px 0 0;font-size:36px;letter-spacing:-.045em}
+.section-head p{margin:0;max-width:690px;color:var(--muted);line-height:1.8}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.chip{padding:9px 14px;border-radius:999px;background:color-mix(in srgb, var(--chip) 14%, white);border:1px solid color-mix(in srgb, var(--chip) 30%, white);font-size:13px;font-weight:800;color:#2f3550}
+.collection-shell{display:grid;grid-template-columns:1fr;gap:18px}
+.products{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.product{background:linear-gradient(180deg, var(--soft), #ffffff 36%);border:1px solid var(--border);border-radius:28px;box-shadow:0 16px 34px rgba(20,32,70,.06);padding:16px;display:flex;flex-direction:column}
+.product-cover-wrap{position:relative;margin-bottom:16px}
+.product-cover{border-radius:20px;overflow:hidden;background:#fff;border:1px solid rgba(255,255,255,.75);box-shadow:0 12px 24px rgba(15,33,73,.08)}
+.product-cover img{width:100%;aspect-ratio:.76;object-fit:cover}
+.cover-fallback{aspect-ratio:.76;display:grid;place-items:center;font-size:52px;font-weight:950;background:linear-gradient(180deg,#fff,#f3f6ff)}
+.circle-grade{position:absolute;right:12px;bottom:12px;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;text-align:center;font-size:15px;font-weight:950;color:#1843b7;border:5px solid rgba(255,255,255,.78);box-shadow:0 12px 24px rgba(15,33,73,.1)}
+.product-kicker{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.product h3{margin:0 0 8px;font-size:22px;letter-spacing:-.03em}
+.product-desc{margin:0 0 12px;font-size:14px;line-height:1.72;color:var(--muted);min-height:72px}
+.feature-list{margin:0;padding-left:18px;color:#354056;font-size:13px;line-height:1.72;display:grid;gap:4px;flex:1}
+.product-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:14px;margin-top:14px;border-top:1px dashed color-mix(in srgb, var(--accent) 20%, white)}
+.price-label{font-size:12px;color:var(--muted);margin-bottom:4px} .price{font-size:24px;font-weight:950;letter-spacing:-.04em}
+.story-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
+.story-card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:0 12px 28px rgba(20,32,70,.05)}
+.story-card h3{margin:8px 0 14px;font-size:30px;letter-spacing:-.04em}
+.story-card p{margin:0;color:var(--muted);line-height:1.8}
+.process{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.step{background:linear-gradient(180deg,#fff,#fbfaf7);border:1px solid #ebe3d8;border-radius:20px;padding:16px}
+.step .num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(90deg,#1d5ad8,#4acbd6);color:#fff;font-weight:900;margin-bottom:12px}
+.step b{display:block;margin-bottom:6px} .step span{font-size:13px;color:var(--muted);line-height:1.65}
+.brandboard{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-content:start}
+.brand-card{background:linear-gradient(180deg,#fff,#fbfaf7);border:1px solid #ece3d7;border-radius:24px;padding:16px;box-shadow:0 8px 18px rgba(20,32,70,.04)}
+.brand-card h4{margin:0 0 10px;font-size:18px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap} .sw{width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.95);box-shadow:0 6px 14px rgba(15,33,73,.08)}
+.pattern-box{height:100px;border-radius:18px;background:linear-gradient(135deg,#52cad6,#2469eb 46%, #6356d0);position:relative;overflow:hidden}
+.pattern-box:before{content:'♪ ♫ ♩ ♬';position:absolute;inset:0;display:grid;place-items:center;font-size:38px;color:rgba(255,255,255,.28);letter-spacing:14px}
+.order-grid{display:grid;grid-template-columns:1.02fr .54fr;gap:18px;align-items:start}
+.order-card,.side-card{background:#fff;border:1px solid var(--line);border-radius:28px;box-shadow:0 12px 30px rgba(20,32,70,.05)}
+.order-card{padding:28px} .order-card h2{margin:8px 0 8px;font-size:34px;letter-spacing:-.04em} .sub{color:var(--muted);line-height:1.75;margin-bottom:18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px} .field.full{grid-column:1/-1}
+.field label{display:block;margin-bottom:7px;font-size:12px;font-weight:900}
+.field input,.field select,.field textarea{width:100%;padding:14px 14px;border-radius:16px;border:1px solid #e6dfd8;background:#fffdfa;outline:none;transition:.15s ease}
+.field textarea{min-height:118px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#8fc7ef;box-shadow:0 0 0 4px rgba(53,143,223,.09)}
+.school-hint{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5}
+.submit{width:100%;margin-top:16px}
+.confirm{display:none;margin-top:14px;padding:14px 16px;border-radius:16px;background:#eff8f2;border:1px solid #cce8d2;color:#216847;line-height:1.6}
+.side-stack{display:grid;gap:14px;position:sticky;top:94px} .side-card{padding:18px}
+.side-card h3{margin:0 0 14px;font-size:18px;letter-spacing:-.02em}
+.qty-list{display:grid;gap:12px}
+.qty-row{display:grid;grid-template-columns:1fr 36px 54px 36px;gap:8px;align-items:center}
+.qty-name{font-size:14px;font-weight:900}
+.qty-row button{width:36px;height:36px;border-radius:50%;border:1px solid color-mix(in srgb, var(--accent) 28%, white);background:#fff;color:var(--accent);font-size:18px;font-weight:900;cursor:pointer}
+.qty-row input{width:54px;text-align:center;padding:9px 6px;border-radius:12px;border:1px solid #e8dfe9}
+.total-box{margin-top:16px;padding-top:14px;border-top:1px dashed #e8dfe9;display:grid;gap:10px}
+.total-line{display:flex;justify-content:space-between;font-size:14px;color:#4b5264}
+.total-amount{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-radius:18px;background:linear-gradient(135deg,#edf7ff,#fff9f0);border:1px solid #ddeaf7;color:#1a4ec9}
+.total-amount span{font-size:13px;font-weight:900} .total-amount b{font-size:26px;letter-spacing:-.04em}
+.promise{background:linear-gradient(145deg,#fffdf9,#ffffff)} .promise p,.contact p{margin:0;color:var(--muted);line-height:1.72;font-size:14px}
+.promise ul{margin:10px 0 0;padding-left:18px;color:#3e4557;font-size:13px;line-height:1.75}
+.contact-lines{display:grid;gap:12px;margin-top:8px}
+.contact-line{display:flex;gap:12px;align-items:flex-start;padding-top:12px;border-top:1px dashed #ebe3d9} .contact-line:first-child{padding-top:0;border-top:0}
+.contact-icon{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#eef7ff,#fff);border:1px solid #dde9f7;display:grid;place-items:center;color:#1d5ad8;flex:0 0 auto}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.about-card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:22px;display:grid;grid-template-columns:126px 1fr;gap:18px;align-items:center;box-shadow:0 10px 24px rgba(20,32,70,.04)}
+.author-img{width:126px;height:126px;border-radius:50%;overflow:hidden;background:linear-gradient(180deg,#f2f7ff,#fff);border:1px solid #e3eaf6;display:grid;place-items:center;color:#7a8194}
+.author-img img{width:100%;height:100%;object-fit:cover}
+.cert{width:132px;height:98px;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#fff5df,#fff);border:1px solid #ead9ba;display:grid;place-items:center;color:#8d7a58;font-size:12px;text-align:center;padding:10px}
+.cert img{width:100%;height:100%;object-fit:contain}
+.about-card h3{margin:6px 0 8px;font-size:20px;letter-spacing:-.03em} .about-card p{margin:0;color:var(--muted);line-height:1.72}
+.footer-wrap{padding:24px 0 40px}
+.footer{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 22px rgba(20,32,70,.04);padding:18px 22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px} .footer strong{color:var(--ink)}
+@media(max-width:1180px){.hero-grid,.story-grid,.order-grid{grid-template-columns:1fr}.products{grid-template-columns:repeat(3,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.side-stack{position:static}.hero-visual{padding:0 24px 28px}}
+@media(max-width:860px){.links{display:none}.hero-copy{padding:34px 22px}.products{grid-template-columns:1fr 1fr}.grid3,.process,.about,.brandboard{grid-template-columns:1fr}.about-card{grid-template-columns:1fr}.hero-display{min-height:480px;padding:20px}.hero-book{width:145px}.stats{grid-template-columns:1fr}}
+@media(max-width:560px){.container{width:min(100% - 18px,1240px)}.hero h1{font-size:38px}.products{grid-template-columns:1fr}.hero-display{min-height:430px}.hero-book{width:126px}.hero-book-1{left:2%;top:4%}.hero-book-2{left:34%;top:4%}.hero-book-3{left:61%;top:18%}.hero-book-4{left:10%;top:50%}.hero-book-5{left:45%;top:52%}.order-card{padding:20px}}
+
+/* =========================
+   V7 MOTION SYSTEM
+   ========================= */
+html { scroll-behavior:smooth; }
+body { overflow-x:hidden; }
+
+.reveal {
+  opacity:0;
+  transform:translateY(28px) scale(.985);
+  transition:
+    opacity .75s cubic-bezier(.22,1,.36,1),
+    transform .75s cubic-bezier(.22,1,.36,1);
+  will-change:opacity,transform;
+}
+.reveal.is-visible {
+  opacity:1;
+  transform:none;
+}
+
+.reveal-left {
+  opacity:0;
+  transform:translateX(-34px);
+  transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);
+}
+.reveal-right {
+  opacity:0;
+  transform:translateX(34px);
+  transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);
+}
+.reveal-left.is-visible,.reveal-right.is-visible { opacity:1; transform:none; }
+
+.hero-shell {
+  animation:heroIn .85s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes heroIn {
+  from { opacity:0; transform:translateY(22px) scale(.99); }
+  to { opacity:1; transform:none; }
+}
+
+.brand-mark {
+  animation:brandPulse 5s ease-in-out infinite;
+}
+@keyframes brandPulse {
+  0%,100% { transform:rotate(0deg) scale(1); box-shadow:0 12px 24px rgba(31,87,212,.24); }
+  50% { transform:rotate(4deg) scale(1.055); box-shadow:0 16px 34px rgba(31,87,212,.34); }
+}
+
+.hero-copy .label {
+  animation:badgeFloat 4.6s ease-in-out infinite;
+}
+@keyframes badgeFloat {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-5px); }
+}
+
+.hero-display::after {
+  content:"♫  ♪  ♬  ♩  ♫";
+  position:absolute;
+  inset:auto 3% 4% auto;
+  font-size:clamp(22px,3vw,42px);
+  letter-spacing:10px;
+  color:rgba(32,91,215,.10);
+  animation:notesDrift 9s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes notesDrift {
+  from { transform:translate3d(-10px,5px,0) rotate(-3deg); opacity:.45; }
+  to { transform:translate3d(10px,-9px,0) rotate(4deg); opacity:.9; }
+}
+
+.hero-book {
+  transform-origin:center;
+  transition:transform .35s ease, box-shadow .35s ease;
+  will-change:transform;
+}
+.hero-book:hover {
+  z-index:10;
+  box-shadow:0 28px 50px rgba(16,31,69,.20);
+}
+.hero-book-1 { animation:float1 5.2s ease-in-out infinite; }
+.hero-book-2 { animation:float2 6.2s ease-in-out infinite; }
+.hero-book-3 { animation:float3 5.7s ease-in-out infinite; }
+.hero-book-4 { animation:float4 6.5s ease-in-out infinite; }
+.hero-book-5 { animation:float5 5.9s ease-in-out infinite; }
+
+@keyframes float1 { 0%,100%{transform:rotate(-8deg) translateY(0)} 50%{transform:rotate(-5deg) translateY(-11px)} }
+@keyframes float2 { 0%,100%{transform:rotate(4deg) translateY(0)} 50%{transform:rotate(7deg) translateY(-15px)} }
+@keyframes float3 { 0%,100%{transform:rotate(9deg) translateY(0)} 50%{transform:rotate(6deg) translateY(-9px)} }
+@keyframes float4 { 0%,100%{transform:rotate(-4deg) translateY(0)} 50%{transform:rotate(-1deg) translateY(-13px)} }
+@keyframes float5 { 0%,100%{transform:rotate(6deg) translateY(0)} 50%{transform:rotate(9deg) translateY(-10px)} }
+
+.stat {
+  transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+.stat:hover {
+  transform:translateY(-6px);
+  box-shadow:0 18px 34px rgba(20,32,70,.09);
+  border-color:#d9e4f3;
+}
+
+.product {
+  transform-style:preserve-3d;
+  transition:transform .32s cubic-bezier(.22,1,.36,1), box-shadow .32s ease;
+  will-change:transform;
+}
+.product:hover {
+  box-shadow:0 24px 44px rgba(20,32,70,.12);
+}
+.product-cover img {
+  transition:transform .6s cubic-bezier(.22,1,.36,1), filter .35s ease;
+}
+.product:hover .product-cover img {
+  transform:scale(1.035);
+  filter:saturate(1.04);
+}
+.circle-grade {
+  animation:gradeBob 4.2s ease-in-out infinite;
+}
+@keyframes gradeBob {
+  0%,100% { transform:translateY(0) rotate(0); }
+  50% { transform:translateY(-5px) rotate(2deg); }
+}
+
+.btn {
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.btn::after {
+  content:"";
+  position:absolute;
+  top:-120%;
+  left:-30%;
+  width:34%;
+  height:340%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),transparent);
+  transform:rotate(20deg);
+  transition:left .65s cubic-bezier(.22,1,.36,1);
+  z-index:-1;
+}
+.btn:hover::after { left:115%; }
+
+.brand-card,.story-card,.about-card,.side-card,.order-card {
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+.brand-card:hover,.story-card:hover,.about-card:hover,.side-card:hover {
+  transform:translateY(-4px);
+  box-shadow:0 18px 34px rgba(20,32,70,.08);
+}
+
+.pattern-box::before {
+  animation:patternMove 8s linear infinite alternate;
+}
+@keyframes patternMove {
+  from { transform:translateX(-12px) rotate(-2deg); }
+  to { transform:translateX(12px) rotate(2deg); }
+}
+
+.qty-row button {
+  transition:transform .14s ease, background .14s ease, color .14s ease;
+}
+.qty-row button:active {
+  transform:scale(.88);
+}
+.qty-row input {
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.qty-row input.qty-pop {
+  transform:scale(1.12);
+  box-shadow:0 0 0 5px rgba(31,90,216,.10);
+}
+
+#totalAmount {
+  display:inline-block;
+  transition:transform .22s ease;
+}
+#totalAmount.total-pop {
+  transform:scale(1.10);
+}
+
+.confirm {
+  transform-origin:top center;
+}
+.confirm.show-motion {
+  animation:confirmPop .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes confirmPop {
+  from { opacity:0; transform:translateY(-8px) scale(.98); }
+  to { opacity:1; transform:none; }
+}
+
+.scroll-progress {
+  position:fixed;
+  left:0;
+  top:0;
+  width:0;
+  height:3px;
+  background:linear-gradient(90deg,#57c8d4,#2469eb,#5b4dc7,#f6b04f,#eef23a);
+  z-index:9999;
+  box-shadow:0 0 14px rgba(36,105,235,.25);
+}
+
+.floating-note {
+  position:fixed;
+  pointer-events:none;
+  z-index:0;
+  opacity:.055;
+  color:#245fd8;
+  font-weight:900;
+  animation:screenFloat var(--dur,12s) ease-in-out infinite alternate;
+}
+@keyframes screenFloat {
+  from { transform:translate3d(0,0,0) rotate(-8deg); }
+  to { transform:translate3d(18px,-22px,0) rotate(10deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after {
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal,.reveal-left,.reveal-right { opacity:1 !important; transform:none !important; }
+}
+
 </style>
 </head>
 <body>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="floating-note" style="left:2vw;top:22vh;--dur:13s;font-size:54px">♫</div>
+<div class="floating-note" style="right:3vw;top:62vh;--dur:16s;font-size:46px">♪</div>
+<div class="floating-note" style="left:7vw;top:78vh;--dur:11s;font-size:38px">♬</div>
 <script src="site-data.js"></script>
-<header class="topbar">
+<div class="announce">
+  <div class="container">
+    <div><b>MY ДЭВТЭР</b> · 1–5-р ангийн хөгжмийн дасгал ажлын дэвтэр</div>
+    <div>QR сонсох материал · Захиалга баталгаатай · Админд цэгцтэй бүртгэл</div>
+  </div>
+</div>
+<header class="header">
   <div class="container nav">
-    <a class="brand" href="#top"><span class="logo">♫</span><span><span id="brand">MY ДЭВТЭР</span><small id="tagline"></small></span></a>
-    <nav class="links"><a href="#top">Нүүр</a><a href="#books">Дэвтэрүүд</a><a href="#author">Зохиогч</a><a href="#certificate">Оюуны өмч</a><a href="#contact">Холбоо барих</a></nav>
-    <a class="btn btn-primary" href="#order">Захиалга өгөх ↗</a>
+    <a href="#top" class="brand">
+      <div class="brand-mark">♫</div>
+      <div class="brand-text"><strong id="brand">MY ДЭВТЭР</strong><small id="tagline">Хөгжим · Дасгал · Хөгжил</small></div>
+    </a>
+    <nav class="links">
+      <a href="#collection">Цуглуулга</a>
+      <a href="#story">Брэнд</a>
+      <a href="#order">Захиалга</a>
+      <a href="#about">Тухай</a>
+    </nav>
+    <a href="#order" class="btn btn-primary">Захиалга өгөх</a>
   </div>
 </header>
 
-<main id="top" class="container">
+<main class="container" id="top">
   <section class="hero">
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <span class="pill" id="heroBadge"></span>
-        <h1 id="heroTitle"></h1>
-        <p id="heroText"></p>
-        <div class="hero-actions"><a href="#books" class="btn btn-primary">🛒 Дэвтэрүүдээ үзэх</a><a href="#order" class="btn btn-white">▶ Захиалга өгөх</a></div>
+    <div class="hero-shell">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="label"><i></i><span id="heroBadge">1–5-р ангийн хөгжмийн дэвтэр</span></div>
+          <h1 id="heroTitle">Хүүхэд бүрт тохирсон хөгжмийн ухаалаг дэвтэр</h1>
+          <p id="heroText">QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх агуулгатай цогц ажлын дэвтэр.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#collection">Дэвтэрүүдийг үзэх</a>
+            <a class="btn btn-soft" href="#order">Шууд захиалах</a>
+          </div>
+          <div class="hero-trust">
+            <span class="pill">1–5-р анги тус бүр тусдаа</span>
+            <span class="pill">Зураг, тайлбарыг editor-оор өөрчилнө</span>
+            <span class="pill">Сургууль, дүүрэг, аймгаар бүртгэнэ</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-display" id="heroDisplay">
+            <div class="hero-stack" id="heroStack"></div>
+          </div>
+        </div>
       </div>
-      <div class="hero-visual" id="heroVisual"></div>
     </div>
-    <div class="features">
-      <div class="feature"><span class="icon">⌘</span><div><b>QR сонсох материал</b><span>Дуу, хөгжмийг QR мэдээлэлтэй холбоно.</span></div></div>
-      <div class="feature"><span class="icon">♬</span><div><b>Анги бүрт тохирсон</b><span>Сурагчдын нас, түвшинд тохируулсан.</span></div></div>
-      <div class="feature"><span class="icon">✎</span><div><b>Дасгал, даалгавар</b><span>Олон сонголт, бичих, бүтээх ажил.</span></div></div>
-      <div class="feature"><span class="icon">◉</span><div><b>Бие даан суралцахад</b><span>Гэртээ болон сургууль дээр ашиглана.</span></div></div>
+    <div class="stats">
+      <div class="stat"><b>5 өөр өнгө төрх</b><span>Таны оруулсан 5 нүүрнээс үүсгэсэн өнгө, хээ, дүрсний branding.</span></div>
+      <div class="stat"><b>Book-shop UI</b><span>Printed books / lifestyle shop шиг цэвэр, итгэл төрүүлэх ecommerce харагдац.</span></div>
+      <div class="stat"><b>Ухаалаг захиалга</b><span>Нийт дэвтэр, нийт төлбөр автоматаар тооцоологдоно.</span></div>
+      <div class="stat"><b>Цэгцтэй удирдлага</b><span>Админ талд захиалга сургууль, байршил, төлвөөр ойлгомжтой харагдана.</span></div>
     </div>
   </section>
 
-  <section id="books" class="section">
-    <h2>Анги бүрийн дэвтэр</h2>
-    <div id="products" class="products"></div>
+  <section id="collection" class="section">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Collection</div>
+        <h2>5 өнгө, 5 анги, нэг цэгцтэй брэнд</h2>
+        <div class="chips" id="collectionChips"></div>
+      </div>
+      <p>LPAS-ийн editorial whitespace ба premium бүтэц, DriveBerry-ийн clean conversion-focused card layout, Their Nibs-ийн өнгөлөг product merchandising мэдрэмжийг хослуулж, таны 5 нүүрний зураг дээр суурилсан шинэ MY ДЭВТЭР брэндийг бүрдүүллээ.</p>
+    </div>
+    <div class="collection-shell">
+      <div class="products" id="products"></div>
+    </div>
+  </section>
+
+  <section id="story" class="section">
+    <div class="story-grid">
+      <div class="story-card">
+        <div class="kicker">Brand Story</div>
+        <h3>Нүүр зураг бүр нь сайтын визуал системийн нэг хэсэг</h3>
+        <p>Туркуаз, цэнхэр, улбар шар, нил ягаан, шар accent-уудыг танай 1–5-р ангийн нүүрнүүдээс авч, карт, badge, background tint, action button highlight, product layout дээр шингээлээ. Ингэснээр хүүхдийн хичээлийн дэвтэр атлаа илүү эмх цэгцтэй, мэргэжлийн, брэндтэй харагдана.</p>
+        <div class="process">
+          <div class="step"><div class="num">1</div><b>Сонгоно</b><span>Анги тус бүрийн дэвтэрээ хараад сонирхсон карт дээрээс шууд сонгоно.</span></div>
+          <div class="step"><div class="num">2</div><b>Захиална</b><span>Нэр, утас, имэйл, аймаг / дүүрэг / сургууль мэдээллээ үлдээнэ.</span></div>
+          <div class="step"><div class="num">3</div><b>Баталгаажуулна</b><span>Та өөрөө холбогдож төлбөр, хүргэлтийг баталгаажуулна.</span></div>
+        </div>
+      </div>
+      <div class="story-card">
+        <div class="kicker">Brand Board</div>
+        <h3>Өнгө ба хээний систем</h3>
+        <div class="brandboard">
+          <div class="brand-card">
+            <h4>Palette</h4>
+            <div class="swatches">
+              <span class="sw" style="background:#57c8d4"></span>
+              <span class="sw" style="background:#2469eb"></span>
+              <span class="sw" style="background:#f6b04f"></span>
+              <span class="sw" style="background:#5b4dc7"></span>
+              <span class="sw" style="background:#eef23a"></span>
+            </div>
+          </div>
+          <div class="brand-card">
+            <h4>Pattern</h4>
+            <div class="pattern-box"></div>
+          </div>
+          <div class="brand-card">
+            <h4>Visual rule</h4>
+            <p style="margin:0;color:var(--muted);font-size:14px;line-height:1.7">Дугуй ангийн badge, том product cover, зөөлөн tint background, premium spacing.</p>
+          </div>
+          <div class="brand-card">
+            <h4>Tone</h4>
+            <p style="margin:0;color:var(--muted);font-size:14px;line-height:1.7">Хүүхдэд ээлтэй + итгэл төрүүлэх + захиалга авахад ойлгомжтой.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="order" class="section">
-    <div class="order-wrap">
-      <form class="order-form" id="orderForm">
+    <div class="order-grid">
+      <form class="order-card" id="orderForm">
+        <div class="kicker">Order Form</div>
         <h2>Захиалга өгөх</h2>
-        <div class="sub">Мэдээллээ оруулж, захиалгын дугаараа авна. Бид тантай холбогдож төлбөр ба хүргэлтийг баталгаажуулна.</div>
+        <div class="sub">Мэдээллээ оруулж захиалгын дугаараа аваарай. Бид тантай утас болон имэйлээр холбогдож төлбөр, хүргэлтийн дэлгэрэнгүйг баталгаажуулна.</div>
         <div class="grid3">
           <div class="field"><label>Нэр *</label><input id="name" required placeholder="Нэрээ оруулна уу"></div>
-          <div class="field"><label>Утас *</label><input id="phone" required placeholder="99XXXXXXXX"></div>
+          <div class="field"><label>Утас *</label><input id="phone" required placeholder="99XXXXXX"></div>
           <div class="field"><label>Имэйл *</label><input id="email" type="email" required placeholder="name@example.com"></div>
           <div class="field"><label>Аймаг / хот *</label><select id="province" required><option value="">Ачааллаж байна...</option></select></div>
           <div class="field"><label id="districtLabel">Дүүрэг / сум *</label><select id="district" required disabled><option value="">Эхлээд аймаг / хот сонгоно уу</option></select></div>
-          <div class="field"><label>Сургуулийн нэр *</label><select id="school" required disabled><option value="">Эхлээд дүүрэг / сум сонгоно уу</option></select><input id="schoolOther" style="display:none;margin-top:7px" placeholder="Сургуулийн нэрээ бичнэ үү"><div id="schoolHint" class="school-hint">Сургууль сонгоход газрын зургийн байршил захиалгатай хамт хадгалагдана.</div></div>
+          <div class="field"><label>Сургуулийн нэр *</label><select id="school" required disabled><option value="">Эхлээд дүүрэг / сум сонгоно уу</option></select><input id="schoolOther" style="display:none;margin-top:8px" placeholder="Сургуулийн нэрээ бичнэ үү"><div class="school-hint" id="schoolHint">Сургуулийг сонгоход газрын зургийн байршил захиалгатай хамт хадгалагдана.</div></div>
           <div class="field full"><label>Тайлбар (заавал биш)</label><textarea id="note" placeholder="Хүргэлт, нэмэлт мэдээлэл бичнэ үү..."></textarea></div>
         </div>
         <button class="btn btn-primary submit" type="submit">Захиалгаа илгээх</button>
         <div id="confirm" class="confirm"></div>
       </form>
 
-      <div class="quantities">
-        <h3>Захиалах дэвтэр (тоо ширхэг)</h3>
-        <div id="qtyList"></div>
-        <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;font-size:13px"><span>Нийт дэвтэр</span><b id="totalQty">0</b></div>
+      <div class="side-stack">
+        <div class="side-card">
+          <h3>Захиалах дэвтэр</h3>
+          <div class="qty-list" id="qtyList"></div>
+          <div class="total-box">
+            <div class="total-line"><span>Нийт дэвтэр</span><b id="totalQty">0</b></div>
+            <div class="total-amount"><span>Нийт төлбөр</span><b id="totalAmount">0₮</b></div>
+          </div>
+        </div>
+        <div class="side-card promise">
+          <h3>Баталгаатай захиалга</h3>
+          <p>Захиалга системд хадгалагдаж, танай мэдээлэл алдагдахгүй. Та дараа нь админ хэсгээс захиалгаа цэгцтэй харж, хүмүүстэй өөрөө холбогдоно.</p>
+          <ul>
+            <li>Захиалгын дугаар автоматаар үүснэ</li>
+            <li>Аймаг, дүүрэг, сургууль, утас, имэйл хадгалагдана</li>
+            <li>Нийт тоо ба нийт төлбөр автоматаар бодогдоно</li>
+          </ul>
+        </div>
+        <div class="side-card contact">
+          <h3>Холбоо барих</h3>
+          <div class="contact-lines">
+            <div class="contact-line"><div class="contact-icon">☎</div><div><strong>Утас</strong><p id="phoneText"></p></div></div>
+            <div class="contact-line"><div class="contact-icon">✉</div><div><strong>Имэйл</strong><p id="emailText"></p></div></div>
+            <div class="contact-line"><div class="contact-icon">⌖</div><div><strong>Хаяг</strong><p id="addressText"></p></div></div>
+          </div>
+        </div>
       </div>
-
-      <aside class="trust">
-        <h3>Захиалга тань бүртгэгдлээ</h3>
-        <p>Манай баг таны захиалгыг хүлээн авна. Удахгүй утас болон имэйлээр холбогдож баталгаажуулна.</p>
-        <ul>
-          <li>Хүргэлт болон найдвартай холбоо</li>
-          <li>Хариуцах ажилтан тантай холбогдоно</li>
-          <li>Хаана ч хүргэж үйлчилнэ</li>
-        </ul>
-      </aside>
     </div>
+  </section>
 
+  <section id="about" class="section">
     <div class="about">
-      <div class="about-card" id="author">
-        <div class="author-img" id="authorImage">Зураг</div>
-        <div><h3>Зохиогч · <span id="authorName"></span></h3><p><b id="authorTitle"></b></p><p id="authorBio"></p></div>
+      <div class="about-card">
+        <div class="author-img" id="authorImage">Зохиогчийн зураг</div>
+        <div>
+          <div class="kicker">Author</div>
+          <h3 id="authorName">М.Энхтуяа</h3>
+          <p style="font-weight:800;color:#24314d;margin-bottom:8px" id="authorTitle">Хөгжмийн багш, арга зүйч</p>
+          <p id="authorBio">Зохиогчийн мэдээллийг editor хэсгээс өөрчлөх боломжтой.</p>
+        </div>
       </div>
-      <div class="about-card" id="certificate">
-        <div class="cert" id="certificateImage">Гэрчилгээ</div>
-        <div><h3>Оюуны өмчийн гэрчилгээ</h3><p id="certificateText"></p></div>
+      <div class="about-card">
+        <div class="cert" id="certificateImage">Оюуны өмчийн гэрчилгээ</div>
+        <div>
+          <div class="kicker">Certificate</div>
+          <h3>Оюуны өмчийн гэрчилгээ</h3>
+          <p id="certificateText">Гэрчилгээний зураг болон тайлбарыг editor хэсгээс оруулна.</p>
+        </div>
       </div>
     </div>
   </section>
 </main>
 
-<footer id="contact">
+<footer class="footer-wrap">
   <div class="container footer">
     <strong id="footerBrand">MY ДЭВТЭР</strong>
-    <span id="phoneText"></span>
-    <span id="emailText"></span>
-    <span id="addressText"></span>
+    <span id="phoneTextFooter"></span>
+    <span id="emailTextFooter"></span>
+    <span id="addressTextFooter"></span>
     <span>© <span id="year"></span> MY ДЭВТЭР</span>
   </div>
 </footer>
 
 <script>
-const DATA=window.MYDEWTER_DATA||{};
-const $=id=>document.getElementById(id);
-const money=n=>new Intl.NumberFormat('mn-MN').format(Number(n)||0)+'₮';
-$('brand').textContent=DATA.brand||'MY ДЭВТЭР';
-$('footerBrand').textContent=DATA.brand||'MY ДЭВТЭР';
-$('tagline').textContent=DATA.tagline||'';
-$('heroBadge').textContent=DATA.heroBadge||'';
-$('heroTitle').textContent=DATA.heroTitle||'';
-$('heroText').textContent=DATA.heroText||'';
-$('authorName').textContent=DATA.authorName||'';
-$('authorTitle').textContent=DATA.authorTitle||'';
-$('authorBio').textContent=DATA.authorBio||'';
-$('certificateText').textContent=DATA.certificateText||'';
-$('phoneText').textContent='☎ '+(DATA.phone||'');
-$('emailText').textContent='✉ '+(DATA.email||'');
-$('addressText').textContent='⌖ '+(DATA.address||'');
-$('year').textContent=new Date().getFullYear();
 
-if(DATA.authorImage)$('authorImage').innerHTML=`<img src="${DATA.authorImage}" alt="Зохиогч">`;
-if(DATA.certificateImage)$('certificateImage').innerHTML=`<img src="${DATA.certificateImage}" alt="Оюуны өмчийн гэрчилгээ">`;
+const DATA = window.MYDEWTER_DATA || {};
+const $ = id => document.getElementById(id);
+const money = n => new Intl.NumberFormat('mn-MN').format(Number(n) || 0) + '₮';
+const GRADE_THEME = {
+  1:{accent:'#57c8d4', soft:'#e8fbff', border:'#c8f1f5', badge:'#e9ff4a'},
+  2:{accent:'#f0a24e', soft:'#fff2e3', border:'#f6d6ad', badge:'#fff057'},
+  3:{accent:'#2469eb', soft:'#e9f2ff', border:'#cfe0ff', badge:'#eef4ff'},
+  4:{accent:'#5b4dc7', soft:'#f0edff', border:'#d9d2ff', badge:'#fff056'},
+  5:{accent:'#2e9db8', soft:'#eafaff', border:'#cceff5', badge:'#fff056'}
+};
+const FALLBACK_COVERS = {1:'grade1.png',2:'grade2.png',3:'grade3.png',4:'grade4.png',5:'grade5.png'};
 
-const hero=$('heroVisual');
-if(DATA.heroImage){hero.innerHTML=`<img class="hero-img" src="${DATA.heroImage}" alt="MY Дэвтэр">`}
-else{
-  hero.innerHTML='<div class="book-fan">'+(DATA.grades||[]).map(g=>`<div class="book"><div class="num">${g.grade}</div><b>ХӨГЖИМ</b><small>дасгал ажлын дэвтэр</small><div class="book-art">♫</div></div>`).join('')+'</div>';
+function safe(v,f=''){ return v == null ? f : v; }
+function gradeImage(g){ return g.image || FALLBACK_COVERS[g.grade] || ''; }
+function gradeTheme(grade){ return GRADE_THEME[grade] || GRADE_THEME[1]; }
+
+$('brand').textContent = safe(DATA.brand,'MY ДЭВТЭР');
+$('footerBrand').textContent = safe(DATA.brand,'MY ДЭВТЭР');
+$('tagline').textContent = safe(DATA.tagline,'Хөгжим · Дасгал · Хөгжил');
+$('heroBadge').textContent = safe(DATA.heroBadge,'1–5-р ангийн хөгжмийн дэвтэр');
+$('heroTitle').textContent = safe(DATA.heroTitle,'Хүүхэд бүрт тохирсон хөгжмийн ухаалаг дэвтэр');
+$('heroText').textContent = safe(DATA.heroText,'QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх агуулгатай цогц ажлын дэвтэр.');
+$('authorName').textContent = safe(DATA.authorName,'');
+$('authorTitle').textContent = safe(DATA.authorTitle,'');
+$('authorBio').textContent = safe(DATA.authorBio,'');
+$('certificateText').textContent = safe(DATA.certificateText,'');
+$('phoneText').textContent = safe(DATA.phone,'');
+$('emailText').textContent = safe(DATA.email,'');
+$('addressText').textContent = safe(DATA.address,'');
+$('phoneTextFooter').textContent = '☎ ' + safe(DATA.phone,'');
+$('emailTextFooter').textContent = '✉ ' + safe(DATA.email,'');
+$('addressTextFooter').textContent = '⌖ ' + safe(DATA.address,'');
+$('year').textContent = new Date().getFullYear();
+
+if (DATA.authorImage) $('authorImage').innerHTML = `<img src="${DATA.authorImage}" alt="Зохиогч">`;
+if (DATA.certificateImage) $('certificateImage').innerHTML = `<img src="${DATA.certificateImage}" alt="Оюуны өмчийн гэрчилгээ">`;
+
+const grades = Array.isArray(DATA.grades) ? DATA.grades : [];
+const heroStack = $('heroStack');
+const heroCovers = grades.map(g=>({grade:g.grade, title:g.title, image:gradeImage(g)})).filter(x=>x.image).slice(0,5);
+if (DATA.heroImage) {
+  $('heroDisplay').innerHTML = `<img class="hero-main-image" src="${DATA.heroImage}" alt="MY ДЭВТЭР">`;
+} else {
+  heroStack.innerHTML = heroCovers.map((g, idx) => {
+    const t = gradeTheme(g.grade);
+    return `<div class="hero-book hero-book-${idx+1}" style="--accent:${t.accent};--soft:${t.soft};">
+      <img src="${g.image}" alt="${g.title}">
+      <span>${g.title}</span>
+    </div>`;
+  }).join('');
 }
 
-const products=$('products'), qtyList=$('qtyList');
-(DATA.grades||[]).forEach((g,i)=>{
-  const card=document.createElement('article'); card.className='product';
-  card.innerHTML=`<div class="cover">${g.image?`<img src="${g.image}" alt="${g.title}">`:`<div class="cover-placeholder">${g.grade}<span style="font-size:18px;margin-left:7px">♫</span></div>`}</div>
-    <h3>${g.title}</h3><ul>${(g.bullets||[]).map(x=>`<li>${x}</li>`).join('')}</ul>
-    <div class="price-row"><span class="price">${money(g.price)}</span><a class="btn btn-primary small-btn" href="#order" data-grade="${g.grade}">🛒 Захиалах</a></div>`;
+const collectionChips = $('collectionChips');
+collectionChips.innerHTML = grades.map(g=>`<span class="chip" style="--chip:${gradeTheme(g.grade).accent}">${g.title}</span>`).join('');
+
+const products = $('products');
+const qtyList = $('qtyList');
+products.innerHTML = '';
+qtyList.innerHTML = '';
+
+grades.forEach((g,i) => {
+  const t = gradeTheme(g.grade);
+  const image = gradeImage(g);
+  const bullets = Array.isArray(g.bullets) ? g.bullets : [];
+  const card = document.createElement('article');
+  card.className = 'product';
+  card.style.setProperty('--accent', t.accent);
+  card.style.setProperty('--soft', t.soft);
+  card.style.setProperty('--border', t.border);
+  card.innerHTML = `
+    <div class="product-cover-wrap">
+      <div class="product-cover">${image ? `<img src="${image}" alt="${g.title}">` : `<div class="cover-fallback">${g.grade}</div>`}</div>
+      <div class="circle-grade" style="background:${t.badge}">${g.grade}-р анги</div>
+    </div>
+    <div class="product-body">
+      <div class="product-kicker">Music Workbook Series</div>
+      <h3>${g.title}</h3>
+      <p class="product-desc">${safe(g.description,'')}</p>
+      <ul class="feature-list">${bullets.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="product-bottom">
+        <div>
+          <div class="price-label">Үнэ</div>
+          <div class="price">${money(g.price)}</div>
+        </div>
+        <a href="#order" class="btn btn-primary btn-small" data-grade="${g.grade}">Захиалах</a>
+      </div>
+    </div>`;
   products.appendChild(card);
 
-  const row=document.createElement('div'); row.className='qty-row';
-  row.innerHTML=`<span>${g.grade}-р анги</span><button type="button" data-op="minus" data-i="${i}">−</button><input id="qty${i}" type="number" min="0" value="0"><button type="button" data-op="plus" data-i="${i}">+</button>`;
+  const row = document.createElement('div');
+  row.className = 'qty-row';
+  row.style.setProperty('--accent', t.accent);
+  row.innerHTML = `<span class="qty-name">${g.title}</span>
+    <button type="button" data-op="minus" data-i="${i}">−</button>
+    <input id="qty${i}" type="number" min="0" value="0">
+    <button type="button" data-op="plus" data-i="${i}">+</button>`;
   qtyList.appendChild(row);
 });
 
 function refreshQty(){
-  let total=0;
-  (DATA.grades||[]).forEach((g,i)=> total+=Math.max(0,Number($('qty'+i).value)||0));
-  $('totalQty').textContent=total;
+  let total = 0, amount = 0;
+  grades.forEach((g,i)=>{
+    const qty = Math.max(0, Number($('qty'+i).value) || 0);
+    total += qty;
+    amount += qty * (Number(g.price)||0);
+  });
+  $('totalQty').textContent = total;
+  $('totalAmount').textContent = money(amount);
 }
+
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-op]');
-  if(b){
-    const inp=$('qty'+b.dataset.i),v=Math.max(0,Number(inp.value)||0);
-    inp.value=b.dataset.op==='plus'?v+1:Math.max(0,v-1);refreshQty();
+  const btn=e.target.closest('[data-op]');
+  if(btn){
+    const inp=$('qty'+btn.dataset.i), v=Math.max(0,Number(inp.value)||0);
+    inp.value = btn.dataset.op==='plus' ? v+1 : Math.max(0,v-1);
+    refreshQty();
   }
-  const a=e.target.closest('[data-grade]');
-  if(a){
-    const i=(DATA.grades||[]).findIndex(g=>String(g.grade)===a.dataset.grade);
-    if(i>=0){$('qty'+i).value=Math.max(1,Number($('qty'+i).value)||0);refreshQty()}
+  const link=e.target.closest('[data-grade]');
+  if(link){
+    const i=grades.findIndex(g=>String(g.grade)===String(link.dataset.grade));
+    if(i>=0){ $('qty'+i).value = Math.max(1,Number($('qty'+i).value)||0); refreshQty(); }
   }
 });
-document.addEventListener('input',e=>{if(e.target.id.startsWith('qty'))refreshQty()});
 
-// Mongolia administrative divisions: 22 top-level units + 339 soums/districts.
-// Source is loaded from Open Admin Data's public CORS-enabled JSON API.
-let mnAimag=[],mnSoum=[],selectedDistrict=null;
+document.addEventListener('input',e=>{ if((e.target.id||'').startsWith('qty')) refreshQty(); });
+
+let mnAimag=[], mnSoum=[], selectedDistrict=null;
 const ADMIN_API='https://api.openadmindata.org/api/v1/countries/mn.json';
 
 async function loadAdministrativeData(){
   try{
-    const r=await fetch(ADMIN_API,{cache:'force-cache'});
+    const r = await fetch(ADMIN_API,{cache:'force-cache'});
     if(!r.ok) throw new Error('Location data HTTP '+r.status);
-    const j=await r.json();
-    mnAimag=(j.data&&j.data.aimag)||[];
-    mnSoum=(j.data&&j.data.soum)||[];
+    const j = await r.json();
+    mnAimag = (j.data&&j.data.aimag)||[];
+    mnSoum = (j.data&&j.data.soum)||[];
     mnAimag.sort((a,b)=>a.name_local==='Улаанбаатар'?-1:b.name_local==='Улаанбаатар'?1:(a.name_local||'').localeCompare(b.name_local||'','mn'));
     $('province').innerHTML='<option value="">Сонгоно уу</option>';
-    mnAimag.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name_local;o.dataset.name=a.name_local;$('province').appendChild(o)});
+    mnAimag.forEach(a=>{ const o=document.createElement('option'); o.value=a.id; o.textContent=a.name_local; o.dataset.name=a.name_local; $('province').appendChild(o); });
   }catch(err){
     console.warn(err);
-    $('province').innerHTML='<option value="">Байршлын мэдээлэл ачаалсангүй — дахин оролдоно уу</option>';
-    $('schoolHint').textContent='Интернет холболтоо шалгаад хуудсаа refresh хийнэ үү.';
+    $('province').innerHTML='<option value="">Байршлын мэдээлэл ачаалсангүй</option>';
+    $('schoolHint').textContent='Интернет холболтоо шалгаад дахин refresh хийнэ үү.';
   }
 }
-
-function selectedProvinceRecord(){return mnAimag.find(x=>String(x.id)===String($('province').value))||null}
-function selectedProvinceName(){const x=selectedProvinceRecord();return x?x.name_local:''}
+function selectedProvinceRecord(){ return mnAimag.find(x=>String(x.id)===String($('province').value))||null; }
+function selectedProvinceName(){ const x=selectedProvinceRecord(); return x?x.name_local:''; }
 
 $('province').addEventListener('change',()=>{
   const a=selectedProvinceRecord();
   selectedDistrict=null;
   $('district').innerHTML='<option value="">Сонгоно уу</option>';
   $('school').innerHTML='<option value="">Эхлээд дүүрэг / сум сонгоно уу</option>';
-  $('school').disabled=true;$('schoolOther').style.display='none';$('schoolOther').value='';
-  if(!a){$('district').disabled=true;return}
-  $('districtLabel').textContent=(a.name_local==='Улаанбаатар'?'Дүүрэг *':'Сум / төв *');
-  const children=mnSoum.filter(s=>String(s.parent_id)===String(a.id)).sort((x,y)=>(x.name_local||'').localeCompare(y.name_local||'','mn'));
-  children.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name_local;o.dataset.name=s.name_local;$('district').appendChild(o)});
+  $('school').disabled=true; $('schoolOther').style.display='none'; $('schoolOther').value='';
+  if(!a){ $('district').disabled=true; return; }
+  $('districtLabel').textContent = (a.name_local==='Улаанбаатар'?'Дүүрэг *':'Сум / төв *');
+  const children = mnSoum.filter(s=>String(s.parent_id)===String(a.id)).sort((x,y)=>(x.name_local||'').localeCompare(y.name_local||'','mn'));
+  children.forEach(s=>{ const o=document.createElement('option'); o.value=s.id; o.textContent=s.name_local; o.dataset.name=s.name_local; $('district').appendChild(o); });
   $('district').disabled=false;
 });
 
-$('district').addEventListener('change',async()=>{
-  selectedDistrict=mnSoum.find(x=>String(x.id)===String($('district').value))||null;
-  $('schoolOther').style.display='none';$('schoolOther').value='';
-  if(!selectedDistrict){$('school').disabled=true;return}
+$('district').addEventListener('change', async()=>{
+  selectedDistrict = mnSoum.find(x=>String(x.id)===String($('district').value))||null;
+  $('schoolOther').style.display='none'; $('schoolOther').value='';
+  if(!selectedDistrict){ $('school').disabled=true; return; }
   await loadSchoolsForSelectedArea();
 });
 
 function addSchoolOption(select,name,lat,lng,source){
-  if(!name)return;
-  const key=name.trim().toLowerCase();
-  if([...select.options].some(o=>(o.dataset.key||'')===key))return;
-  const o=document.createElement('option');o.value=name;o.textContent=name;o.dataset.key=key;o.dataset.lat=lat??'';o.dataset.lng=lng??'';o.dataset.source=source||'';select.appendChild(o);
+  if(!name) return;
+  const key = name.trim().toLowerCase();
+  if([...select.options].some(o=>(o.dataset.key||'')===key)) return;
+  const o=document.createElement('option');
+  o.value=name; o.textContent=name; o.dataset.key=key; o.dataset.lat=lat??''; o.dataset.lng=lng??''; o.dataset.source=source||'';
+  select.appendChild(o);
 }
 
 async function loadSchoolsForSelectedArea(){
-  const province=selectedProvinceName(),district=selectedDistrict?.name_local||'';
+  const province=selectedProvinceName(), district=selectedDistrict?.name_local||'';
   const select=$('school');
-  select.disabled=true;select.innerHTML='<option value="">Сургуулиудыг хайж байна...</option>';
-  $('schoolHint').textContent='Сургуулийн жагсаалтыг манай сан болон OpenStreetMap-аас хайж байна...';
+  select.disabled=true; select.innerHTML='<option value="">Сургуулиудыг хайж байна...</option>';
+  $('schoolHint').textContent='Сургуулийн жагсаалтыг хайж байна...';
   const systemSchools=[]; const osmSchools=[];
-  // 1) Schools already known to MY ДЭВТЭР (Google Sheet Schools tab)
   if(DATA.orderApiUrl){
     try{
-      const u=DATA.orderApiUrl+'?action=listSchools&province='+encodeURIComponent(province)+'&district='+encodeURIComponent(district);
-      const r=await fetch(u); const j=await r.json();
-      if(j.ok&&Array.isArray(j.schools)) systemSchools.push(...j.schools);
-    }catch(e){console.warn('School DB:',e)}
+      const u = DATA.orderApiUrl+'?action=listSchools&province='+encodeURIComponent(province)+'&district='+encodeURIComponent(district);
+      const r = await fetch(u); const j = await r.json();
+      if(j.ok && Array.isArray(j.schools)) systemSchools.push(...j.schools);
+    }catch(e){ console.warn('School DB:', e); }
   }
-  // 2) Public OSM suggestions around the selected soum/district center.
-  // It is a suggestion source; users can always choose "Бусад сургууль" below.
-  if(selectedDistrict?.lat&&selectedDistrict?.lon){
+  if(selectedDistrict?.lat && selectedDistrict?.lon){
     try{
-      const radius=province==='Улаанбаатар'?14000:32000;
+      const radius = province==='Улаанбаатар' ? 14000 : 32000;
       const q=`[out:json][timeout:18];(node["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon});way["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon});relation["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon}););out center tags;`;
       const r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q));
       if(r.ok){
         const j=await r.json();
         (j.elements||[]).forEach(el=>{
-          const t=el.tags||{},name=t['name:mn']||t.name;
-          if(!name)return;
-          // If OSM explicitly states another district, exclude it.
+          const t=el.tags||{}, name=t['name:mn']||t.name;
+          if(!name) return;
           const taggedDistrict=t['addr:district']||t['addr:suburb']||'';
-          if(taggedDistrict&&district&&!String(taggedDistrict).includes(district))return;
-          const lat=el.lat??el.center?.lat,lng=el.lon??el.center?.lon;
-          if(lat&&lng)osmSchools.push({school:name,lat,lng,source:'OpenStreetMap'});
+          if(taggedDistrict && district && !String(taggedDistrict).includes(district)) return;
+          const lat=el.lat??el.center?.lat, lng=el.lon??el.center?.lon;
+          if(lat && lng) osmSchools.push({school:name,lat,lng,source:'OpenStreetMap'});
         });
       }
-    }catch(e){console.warn('OSM schools:',e)}
+    }catch(e){ console.warn('OSM schools:', e); }
   }
   select.innerHTML='<option value="">Сургуулиа сонгоно уу</option>';
   systemSchools.sort((a,b)=>(a.school||'').localeCompare(b.school||'','mn')).forEach(s=>addSchoolOption(select,s.school,s.lat,s.lng,'MY Dewter Schools'));
   osmSchools.sort((a,b)=>(a.school||'').localeCompare(b.school||'','mn')).forEach(s=>addSchoolOption(select,s.school,s.lat,s.lng,s.source));
-  const other=document.createElement('option');other.value='__other__';other.textContent='Бусад сургууль — нэрээ өөрөө бичих';select.appendChild(other);
+  const other=document.createElement('option'); other.value='__other__'; other.textContent='Бусад сургууль — нэрээ өөрөө бичих'; select.appendChild(other);
   select.disabled=false;
   const count=select.options.length-2;
-  $('schoolHint').textContent=count>0?`${count} сургуулийн сонголт олдлоо. Танай сургууль байхгүй бол “Бусад сургууль”-г сонгоно уу.`:'Сургуулийн автомат жагсаалт олдсонгүй. “Бусад сургууль”-г сонгоод нэрээ бичнэ үү.';
+  $('schoolHint').textContent = count>0 ? `${count} сургуулийн сонголт олдлоо. Байхгүй бол “Бусад сургууль”-г сонгоно уу.` : 'Сургуулийн автомат жагсаалт олдсонгүй. “Бусад сургууль”-г сонгоод нэрээ бичнэ үү.';
 }
 
 $('school').addEventListener('change',()=>{
-  const other=$('school').value==='__other__';
-  $('schoolOther').style.display=other?'block':'none';
-  $('schoolOther').required=other;
-  if(!other)$('schoolOther').value='';
+  const other = $('school').value==='__other__';
+  $('schoolOther').style.display = other ? 'block' : 'none';
+  $('schoolOther').required = other;
+  if(!other) $('schoolOther').value='';
 });
-
 loadAdministrativeData();
 
-$('orderForm').addEventListener('submit',async e=>{
+$('orderForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const items=(DATA.grades||[]).map((g,i)=>({grade:g.grade,qty:Math.max(0,Number($('qty'+i).value)||0),price:g.price})).filter(x=>x.qty>0);
-  if(!items.length){$('confirm').style.display='block';$('confirm').textContent='Доод тал нь нэг ангийн дэвтэрийн тоог сонгоно уу.';return}
-  const a=selectedProvinceRecord();
-  const d=selectedDistrict;
-  const schoolSelect=$('school');
-  const opt=schoolSelect.options[schoolSelect.selectedIndex];
-  const schoolName=schoolSelect.value==='__other__'?$('schoolOther').value.trim():schoolSelect.value;
-  if(!a||!d||!schoolName){$('confirm').style.display='block';$('confirm').textContent='Аймаг/хот, дүүрэг/сум, сургуулиа бүрэн сонгоно уу.';return}
-  const payload={
+  const items = grades.map((g,i)=>({grade:g.grade, qty:Math.max(0,Number($('qty'+i).value)||0), price:g.price})).filter(x=>x.qty>0);
+  const confirm = $('confirm');
+  if(!items.length){ confirm.style.display='block'; confirm.textContent='Доод тал нь нэг ангийн дэвтэр сонгоно уу.'; return; }
+  const a = selectedProvinceRecord();
+  const d = selectedDistrict;
+  const schoolSelect = $('school');
+  const opt = schoolSelect.options[schoolSelect.selectedIndex];
+  const schoolName = schoolSelect.value==='__other__' ? $('schoolOther').value.trim() : schoolSelect.value;
+  if(!a || !d || !schoolName){ confirm.style.display='block'; confirm.textContent='Аймаг / хот, дүүрэг / сум, сургуулиа бүрэн сонгоно уу.'; return; }
+  const payload = {
     action:'createOrder',
     name:$('name').value.trim(), phone:$('phone').value.trim(), email:$('email').value.trim(),
     province:a.name_local, district:d.name_local, school:schoolName,
-    districtLat:Number(d.lat)||null,districtLng:Number(d.lon)||null,
-    schoolLat:Number(opt?.dataset?.lat)||null,schoolLng:Number(opt?.dataset?.lng)||null,
+    districtLat:Number(d.lat)||null, districtLng:Number(d.lon)||null,
+    schoolLat:Number(opt?.dataset?.lat)||null, schoolLng:Number(opt?.dataset?.lng)||null,
     locationSource:opt?.dataset?.source||'manual',
     note:$('note').value.trim(), items
   };
-  $('confirm').style.display='block';$('confirm').textContent='Захиалгыг илгээж байна...';
+  confirm.style.display='block'; confirm.textContent='Захиалгыг илгээж байна...';
   if(!DATA.orderApiUrl){
     const fake='MYD-'+new Date().toISOString().slice(0,10).replaceAll('-','')+'-'+String(Math.floor(Math.random()*9000)+1000);
-    $('confirm').innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${fake}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
+    confirm.innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${fake}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
     return;
   }
   try{
-    const res=await fetch(DATA.orderApiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    const out=await res.json();
+    const res = await fetch(DATA.orderApiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const out = await res.json();
     if(!out.ok) throw new Error(out.error||'Алдаа');
-    $('confirm').innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${out.orderId}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
-    e.target.reset(); $('district').disabled=true;$('school').disabled=true;$('schoolOther').style.display='none'; selectedDistrict=null; (DATA.grades||[]).forEach((g,i)=>$('qty'+i).value=0); refreshQty();
+    confirm.innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${out.orderId}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
+    e.target.reset(); $('district').disabled=true; $('school').disabled=true; $('schoolOther').style.display='none'; selectedDistrict=null;
+    grades.forEach((g,i)=> $('qty'+i).value=0); refreshQty();
   }catch(err){
-    $('confirm').textContent='Захиалга илгээхэд алдаа гарлаа. Та утсаар холбогдоно уу.';
+    console.warn(err); confirm.textContent='Захиалга илгээхэд алдаа гарлаа. Та дараа дахин оролдоно уу эсвэл утсаар холбогдоно уу.';
   }
 });
 refreshQty();
+
+
+// =========================
+// V7 Motion interactions
+// =========================
+const motionTargets = [
+  ...document.querySelectorAll('.section-head,.product,.story-card,.brand-card,.order-card,.side-card,.about-card,.stat')
+];
+motionTargets.forEach((el,i)=>{
+  el.classList.add('reveal');
+  el.style.transitionDelay = Math.min((i%5)*65,260) + 'ms';
+});
+
+const revealObserver = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+},{threshold:.12,rootMargin:'0px 0px -30px 0px'});
+motionTargets.forEach(el=>revealObserver.observe(el));
+
+// Top scroll progress
+const progress = document.getElementById('scrollProgress');
+function updateProgress(){
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+  progress.style.width = pct + '%';
+}
+window.addEventListener('scroll',updateProgress,{passive:true});
+updateProgress();
+
+// Gentle hero parallax
+const heroDisplayEl = document.getElementById('heroDisplay');
+if(heroDisplayEl && matchMedia('(pointer:fine)').matches){
+  heroDisplayEl.addEventListener('pointermove',e=>{
+    const r=heroDisplayEl.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    document.querySelectorAll('.hero-book').forEach((book,i)=>{
+      const depth=(i+1)*1.5;
+      book.style.translate = `${x*depth*2}px ${y*depth*2}px`;
+    });
+  });
+  heroDisplayEl.addEventListener('pointerleave',()=>{
+    document.querySelectorAll('.hero-book').forEach(book=>book.style.translate='0 0');
+  });
+}
+
+// Product card tilt
+if(matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.product').forEach(card=>{
+    card.addEventListener('pointermove',e=>{
+      const r=card.getBoundingClientRect();
+      const px=(e.clientX-r.left)/r.width-.5;
+      const py=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`perspective(900px) rotateX(${(-py*3.5).toFixed(2)}deg) rotateY(${(px*4.5).toFixed(2)}deg) translateY(-5px)`;
+    });
+    card.addEventListener('pointerleave',()=>card.style.transform='');
+  });
+}
+
+// Quantity pop feedback
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-op]');
+  if(!btn) return;
+  const inp=document.getElementById('qty'+btn.dataset.i);
+  if(inp){
+    inp.classList.remove('qty-pop');
+    void inp.offsetWidth;
+    inp.classList.add('qty-pop');
+    setTimeout(()=>inp.classList.remove('qty-pop'),240);
+  }
+  const amount=document.getElementById('totalAmount');
+  if(amount){
+    amount.classList.remove('total-pop');
+    void amount.offsetWidth;
+    amount.classList.add('total-pop');
+    setTimeout(()=>amount.classList.remove('total-pop'),260);
+  }
+});
+
+// Animate confirmation box whenever it becomes visible/changes
+const confirmEl=document.getElementById('confirm');
+if(confirmEl){
+  const mo=new MutationObserver(()=>{
+    if(getComputedStyle(confirmEl).display!=='none'){
+      confirmEl.classList.remove('show-motion');
+      void confirmEl.offsetWidth;
+      confirmEl.classList.add('show-motion');
+    }
+  });
+  mo.observe(confirmEl,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['style']});
+}
+
 </script>
 </body>
 </html>
