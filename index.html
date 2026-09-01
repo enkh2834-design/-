@@ -1,68 +1,278 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="mn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Шинэ өглөө</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: auto;
-      padding: 30px 20px;
-      background: #f7f7f7;
-      color: #222;
-    }
-
-    .card {
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-    }
-
-    h1 {
-      margin-bottom: 8px;
-    }
-
-    .authors {
-      color: #666;
-      margin-bottom: 30px;
-    }
-
-    .exercise {
-      color: #666;
-      margin-bottom: 20px;
-    }
-
-    audio {
-      width: 100%;
-      margin-top: 15px;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="MY ДЭВТЭР — 1–5-р ангийн хөгжмийн дасгал ажлын дэвтэр">
+<title>MY ДЭВТЭР</title>
+<style>
+:root{
+  --purple:#6c35d4; --purple2:#8e5af0; --ink:#17152d; --muted:#6f6d7d;
+  --line:#ece8f1; --bg:#fff; --soft:#fbf7ff; --pink:#fff5f4; --shadow:0 16px 48px rgba(49,31,93,.08);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#fff}
+a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit}
+.container{width:min(1500px,calc(100% - 34px));margin:auto}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}
+.nav{height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;gap:13px;align-items:center;font-weight:900}
+.logo{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--purple2),var(--purple));color:#fff;font-size:21px}
+.brand small{display:block;color:var(--muted);font-size:11px;font-weight:650;margin-top:2px}
+.links{display:flex;gap:34px;font-size:14px;font-weight:700}
+.links a:hover{color:var(--purple)}
+.btn{border:0;cursor:pointer;border-radius:10px;padding:13px 22px;font-weight:850}
+.btn-primary{background:linear-gradient(90deg,var(--purple),#7f3fe0);color:#fff;box-shadow:0 8px 20px rgba(108,53,212,.18)}
+.btn-white{background:#fff;color:var(--purple);border:1px solid #ded5ef}
+.hero{margin:14px auto 0;border:1px solid #f0e8e4;border-radius:22px;background:
+  radial-gradient(circle at 85% 15%,rgba(143,86,239,.10),transparent 28%),
+  radial-gradient(circle at 18% 45%,rgba(255,171,160,.10),transparent 30%),
+  linear-gradient(120deg,#fffaf8,#fff);
+  overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 1.15fr;min-height:430px;align-items:center}
+.hero-copy{padding:48px 34px 48px 58px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #e9e2f5;border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;box-shadow:0 4px 14px rgba(80,49,133,.05)}
+h1{font-size:clamp(39px,4.5vw,68px);line-height:1.04;letter-spacing:-.055em;margin:20px 0 14px}
+.hero-copy p{color:var(--muted);line-height:1.7;font-size:17px;max-width:680px}
+.hero-actions{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.hero-visual{padding:28px 44px 28px 10px;display:flex;justify-content:center;align-items:center}
+.book-fan{display:flex;align-items:flex-end;justify-content:center;gap:10px;width:100%;min-height:320px}
+.book{width:145px;aspect-ratio:.72;border-radius:11px 11px 5px 5px;padding:17px 12px;box-shadow:0 18px 35px rgba(39,31,64,.13);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8)}
+.book:nth-child(1){background:linear-gradient(#ffd8d8,#fff0ef);transform:rotate(-3deg)}
+.book:nth-child(2){background:linear-gradient(#ffe3aa,#fff6d6);transform:translateY(-8px)}
+.book:nth-child(3){background:linear-gradient(#c8f3b7,#e9ffe3);transform:translateY(-14px)}
+.book:nth-child(4){background:linear-gradient(#b9e9ff,#e9f7ff);transform:translateY(-10px)}
+.book:nth-child(5){background:linear-gradient(#dec8ff,#f2eaff);transform:rotate(3deg)}
+.book .num{font-size:50px;font-weight:900;line-height:1}.book b{display:block;margin-top:8px;font-size:15px}.book small{display:block;margin-top:5px;font-size:9px;color:#555}.book-art{height:95px;margin-top:20px;border-radius:9px;background:rgba(255,255,255,.55);display:grid;place-items:center;font-size:42px}
+.hero-img{width:100%;max-height:390px;object-fit:contain;border-radius:18px}
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:18px 36px 0;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}
+.feature{padding:19px 24px;display:flex;gap:14px;align-items:center}
+.feature+.feature{border-left:1px solid var(--line)}
+.icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#f2eaff;color:var(--purple);font-size:20px;flex:0 0 auto}
+.feature b{display:block;font-size:13px}.feature span{font-size:11px;color:var(--muted)}
+.section{padding:38px 0}
+.section h2{text-align:center;font-size:27px;letter-spacing:-.03em;margin:0 0 22px}
+.products{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.product{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff;box-shadow:0 9px 28px rgba(50,34,76,.04)}
+.cover{aspect-ratio:.74;border-radius:9px;overflow:hidden;display:grid;place-items:center;background:#f7f3fb;margin-bottom:12px}
+.cover img{width:100%;height:100%;object-fit:cover}
+.cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
+.product:nth-child(1) .cover-placeholder{background:linear-gradient(#ffdada,#fff0ef);color:#c85c64}
+.product:nth-child(2) .cover-placeholder{background:linear-gradient(#ffe2a7,#fff4d0);color:#bf751a}
+.product:nth-child(3) .cover-placeholder{background:linear-gradient(#c9f2b9,#ebffe5);color:#398d37}
+.product:nth-child(4) .cover-placeholder{background:linear-gradient(#bce8ff,#ebf8ff);color:#287fc1}
+.product:nth-child(5) .cover-placeholder{background:linear-gradient(#dfcaff,#f3ecff);color:#6b3ac0}
+.product h3{font-size:16px;margin:0 0 8px}.product ul{padding-left:17px;margin:0 0 12px;color:#494659;font-size:12px;line-height:1.75}
+.price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.price{font-weight:950;font-size:16px}
+.small-btn{padding:9px 14px;border-radius:8px;font-size:12px}
+.order-wrap{background:linear-gradient(135deg,#fff6f5,#fdfaff);border:1px solid #f0e6ef;border-radius:19px;padding:20px;display:grid;grid-template-columns:1.45fr .55fr .8fr;gap:18px}
+.order-form h2{text-align:left;margin:0 0 6px}.order-form .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid #e4dfe8;border-radius:7px;padding:10px 11px;background:#fff;outline:none}
+.field textarea{min-height:70px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#bfa4ea;box-shadow:0 0 0 3px rgba(108,53,212,.08)}
+.full{grid-column:1/-1}
+.quantities{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}
+.quantities h3{font-size:13px;margin:0 0 11px}.qty-row{display:grid;grid-template-columns:1fr 30px 42px 30px;align-items:center;gap:5px;margin:7px 0;font-size:12px;font-weight:750}
+.qty-row button{width:28px;height:28px;border-radius:50%;border:1px solid #ded6ec;background:#fff;color:var(--purple);cursor:pointer;font-weight:900}.qty-row input{text-align:center;width:42px;padding:6px;border:1px solid #e4dfe8;border-radius:7px}
+.trust{border-radius:13px;padding:17px;background:linear-gradient(150deg,#fff,#f5edff);border:1px solid #eee5f8}
+.trust h3{font-size:15px;margin:0 0 10px;color:var(--purple)}.trust p,.trust li{font-size:12px;color:#4e4b5b;line-height:1.65}.trust ul{padding-left:18px}
+.submit{width:100%;margin-top:12px}
+.confirm{display:none;margin-top:12px;background:#effaf4;border:1px solid #c9ead8;border-radius:10px;padding:12px;color:#246b49;font-size:13px}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:15px}
+.about-card{border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff;display:grid;grid-template-columns:130px 1fr;gap:18px;align-items:center}
+.author-img{width:112px;height:112px;border-radius:50%;background:#f1edf5;display:grid;place-items:center;overflow:hidden}.author-img img{width:100%;height:100%;object-fit:cover}
+.cert{width:130px;height:92px;border:1px solid #e5d8b8;background:#fffaf0;border-radius:7px;display:grid;place-items:center;overflow:hidden}.cert img{width:100%;height:100%;object-fit:contain}
+.about-card h3{margin:0 0 6px;font-size:14px}.about-card p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
+footer{margin-top:24px;border-top:1px solid var(--line);padding:22px 0 38px}
+.footer{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.footer strong{color:var(--ink)}
+@media(max-width:1150px){.products{grid-template-columns:repeat(3,1fr)}.hero-grid{grid-template-columns:1fr}.hero-visual{padding:10px 35px 30px}.order-wrap{grid-template-columns:1fr 1fr}.trust{grid-column:1/-1}.features{grid-template-columns:1fr 1fr}.feature:nth-child(3){border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:760px){.container{width:min(100% - 20px,1500px)}.links{display:none}.nav{height:70px}.hero-copy{padding:34px 22px}.book{width:19%;padding:10px 6px}.book .num{font-size:34px}.book-art{height:65px;font-size:28px}.features{margin:12px 0;grid-template-columns:1fr}.feature+.feature{border-left:0;border-top:1px solid var(--line)}.products{grid-template-columns:1fr 1fr}.order-wrap{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}.about{grid-template-columns:1fr}.about-card{grid-template-columns:90px 1fr}.author-img{width:82px;height:82px}.hero-copy p{font-size:15px}}
+</style>
 </head>
-
 <body>
-
-  <div class="card">
-
-    <h1>🎵 Шинэ өглөө</h1>
-
-    <p class="authors">
-      Үг. Ж. Дашдондог<br>
-      Ая. Г. Пүрэвдорж
-    </p>
-
-    <p class="exercise">
-      4-р ангийн дасгал ажлын дэвтэрийн дасгал 4
-    </p>
-
-    <audio controls>
-      <source src="angi4_d4_shine_ugluu.mp3" type="audio/mpeg">
-      Таны төхөөрөмж аудио тоглуулах боломжгүй байна.
-    </audio>
-
+<script src="site-data.js"></script>
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="#top"><span class="logo">♫</span><span><span id="brand">MY ДЭВТЭР</span><small id="tagline"></small></span></a>
+    <nav class="links"><a href="#top">Нүүр</a><a href="#books">Дэвтэрүүд</a><a href="#author">Зохиогч</a><a href="#certificate">Оюуны өмч</a><a href="#contact">Холбоо барих</a></nav>
+    <a class="btn btn-primary" href="#order">Захиалга өгөх ↗</a>
   </div>
+</header>
 
+<main id="top" class="container">
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="pill" id="heroBadge"></span>
+        <h1 id="heroTitle"></h1>
+        <p id="heroText"></p>
+        <div class="hero-actions"><a href="#books" class="btn btn-primary">🛒 Дэвтэрүүдээ үзэх</a><a href="#order" class="btn btn-white">▶ Захиалга өгөх</a></div>
+      </div>
+      <div class="hero-visual" id="heroVisual"></div>
+    </div>
+    <div class="features">
+      <div class="feature"><span class="icon">⌘</span><div><b>QR сонсох материал</b><span>Дуу, хөгжмийг QR мэдээлэлтэй холбоно.</span></div></div>
+      <div class="feature"><span class="icon">♬</span><div><b>Анги бүрт тохирсон</b><span>Сурагчдын нас, түвшинд тохируулсан.</span></div></div>
+      <div class="feature"><span class="icon">✎</span><div><b>Дасгал, даалгавар</b><span>Олон сонголт, бичих, бүтээх ажил.</span></div></div>
+      <div class="feature"><span class="icon">◉</span><div><b>Бие даан суралцахад</b><span>Гэртээ болон сургууль дээр ашиглана.</span></div></div>
+    </div>
+  </section>
+
+  <section id="books" class="section">
+    <h2>Анги бүрийн дэвтэр</h2>
+    <div id="products" class="products"></div>
+  </section>
+
+  <section id="order" class="section">
+    <div class="order-wrap">
+      <form class="order-form" id="orderForm">
+        <h2>Захиалга өгөх</h2>
+        <div class="sub">Мэдээллээ оруулж, захиалгын дугаараа авна. Бид тантай холбогдож төлбөр ба хүргэлтийг баталгаажуулна.</div>
+        <div class="grid3">
+          <div class="field"><label>Нэр *</label><input id="name" required placeholder="Нэрээ оруулна уу"></div>
+          <div class="field"><label>Утас *</label><input id="phone" required placeholder="99XXXXXXXX"></div>
+          <div class="field"><label>Имэйл *</label><input id="email" type="email" required placeholder="name@example.com"></div>
+          <div class="field"><label>Аймаг / хот *</label><select id="province" required><option value="">Сонгоно уу</option></select></div>
+          <div class="field"><label>Дүүрэг / сум *</label><input id="district" required placeholder="Дүүрэг / сум"></div>
+          <div class="field"><label>Сургуулийн нэр *</label><input id="school" required placeholder="Сургуулийн нэр"></div>
+          <div class="field full"><label>Тайлбар (заавал биш)</label><textarea id="note" placeholder="Хүргэлт, нэмэлт мэдээлэл бичнэ үү..."></textarea></div>
+        </div>
+        <button class="btn btn-primary submit" type="submit">Захиалгаа илгээх</button>
+        <div id="confirm" class="confirm"></div>
+      </form>
+
+      <div class="quantities">
+        <h3>Захиалах дэвтэр (тоо ширхэг)</h3>
+        <div id="qtyList"></div>
+        <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;font-size:13px"><span>Нийт дэвтэр</span><b id="totalQty">0</b></div>
+      </div>
+
+      <aside class="trust">
+        <h3>Захиалга тань бүртгэгдлээ</h3>
+        <p>Манай баг таны захиалгыг хүлээн авна. Удахгүй утас болон имэйлээр холбогдож баталгаажуулна.</p>
+        <ul>
+          <li>Хүргэлт болон найдвартай холбоо</li>
+          <li>Хариуцах ажилтан тантай холбогдоно</li>
+          <li>Хаана ч хүргэж үйлчилнэ</li>
+        </ul>
+      </aside>
+    </div>
+
+    <div class="about">
+      <div class="about-card" id="author">
+        <div class="author-img" id="authorImage">Зураг</div>
+        <div><h3>Зохиогч · <span id="authorName"></span></h3><p><b id="authorTitle"></b></p><p id="authorBio"></p></div>
+      </div>
+      <div class="about-card" id="certificate">
+        <div class="cert" id="certificateImage">Гэрчилгээ</div>
+        <div><h3>Оюуны өмчийн гэрчилгээ</h3><p id="certificateText"></p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="container footer">
+    <strong id="footerBrand">MY ДЭВТЭР</strong>
+    <span id="phoneText"></span>
+    <span id="emailText"></span>
+    <span id="addressText"></span>
+    <span>© <span id="year"></span> MY ДЭВТЭР</span>
+  </div>
+</footer>
+
+<script>
+const DATA=window.MYDEWTER_DATA||{};
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('mn-MN').format(Number(n)||0)+'₮';
+$('brand').textContent=DATA.brand||'MY ДЭВТЭР';
+$('footerBrand').textContent=DATA.brand||'MY ДЭВТЭР';
+$('tagline').textContent=DATA.tagline||'';
+$('heroBadge').textContent=DATA.heroBadge||'';
+$('heroTitle').textContent=DATA.heroTitle||'';
+$('heroText').textContent=DATA.heroText||'';
+$('authorName').textContent=DATA.authorName||'';
+$('authorTitle').textContent=DATA.authorTitle||'';
+$('authorBio').textContent=DATA.authorBio||'';
+$('certificateText').textContent=DATA.certificateText||'';
+$('phoneText').textContent='☎ '+(DATA.phone||'');
+$('emailText').textContent='✉ '+(DATA.email||'');
+$('addressText').textContent='⌖ '+(DATA.address||'');
+$('year').textContent=new Date().getFullYear();
+
+if(DATA.authorImage)$('authorImage').innerHTML=`<img src="${DATA.authorImage}" alt="Зохиогч">`;
+if(DATA.certificateImage)$('certificateImage').innerHTML=`<img src="${DATA.certificateImage}" alt="Оюуны өмчийн гэрчилгээ">`;
+
+const hero=$('heroVisual');
+if(DATA.heroImage){hero.innerHTML=`<img class="hero-img" src="${DATA.heroImage}" alt="MY Дэвтэр">`}
+else{
+  hero.innerHTML='<div class="book-fan">'+(DATA.grades||[]).map(g=>`<div class="book"><div class="num">${g.grade}</div><b>ХӨГЖИМ</b><small>дасгал ажлын дэвтэр</small><div class="book-art">♫</div></div>`).join('')+'</div>';
+}
+
+const products=$('products'), qtyList=$('qtyList');
+(DATA.grades||[]).forEach((g,i)=>{
+  const card=document.createElement('article'); card.className='product';
+  card.innerHTML=`<div class="cover">${g.image?`<img src="${g.image}" alt="${g.title}">`:`<div class="cover-placeholder">${g.grade}<span style="font-size:18px;margin-left:7px">♫</span></div>`}</div>
+    <h3>${g.title}</h3><ul>${(g.bullets||[]).map(x=>`<li>${x}</li>`).join('')}</ul>
+    <div class="price-row"><span class="price">${money(g.price)}</span><a class="btn btn-primary small-btn" href="#order" data-grade="${g.grade}">🛒 Захиалах</a></div>`;
+  products.appendChild(card);
+
+  const row=document.createElement('div'); row.className='qty-row';
+  row.innerHTML=`<span>${g.grade}-р анги</span><button type="button" data-op="minus" data-i="${i}">−</button><input id="qty${i}" type="number" min="0" value="0"><button type="button" data-op="plus" data-i="${i}">+</button>`;
+  qtyList.appendChild(row);
+});
+
+function refreshQty(){
+  let total=0;
+  (DATA.grades||[]).forEach((g,i)=> total+=Math.max(0,Number($('qty'+i).value)||0));
+  $('totalQty').textContent=total;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-op]');
+  if(b){
+    const inp=$('qty'+b.dataset.i),v=Math.max(0,Number(inp.value)||0);
+    inp.value=b.dataset.op==='plus'?v+1:Math.max(0,v-1);refreshQty();
+  }
+  const a=e.target.closest('[data-grade]');
+  if(a){
+    const i=(DATA.grades||[]).findIndex(g=>String(g.grade)===a.dataset.grade);
+    if(i>=0){$('qty'+i).value=Math.max(1,Number($('qty'+i).value)||0);refreshQty()}
+  }
+});
+document.addEventListener('input',e=>{if(e.target.id.startsWith('qty'))refreshQty()});
+
+const provinces=["Улаанбаатар","Архангай","Баян-Өлгий","Баянхонгор","Булган","Говь-Алтай","Говьсүмбэр","Дархан-Уул","Дорноговь","Дорнод","Дундговь","Завхан","Орхон","Өвөрхангай","Өмнөговь","Сүхбаатар","Сэлэнгэ","Төв","Увс","Ховд","Хөвсгөл","Хэнтий"];
+provinces.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;$('province').appendChild(o)});
+
+$('orderForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const items=(DATA.grades||[]).map((g,i)=>({grade:g.grade,qty:Math.max(0,Number($('qty'+i).value)||0),price:g.price})).filter(x=>x.qty>0);
+  if(!items.length){$('confirm').style.display='block';$('confirm').textContent='Доод тал нь нэг ангийн дэвтэрийн тоог сонгоно уу.';return}
+  const payload={
+    action:'createOrder',
+    name:$('name').value.trim(), phone:$('phone').value.trim(), email:$('email').value.trim(),
+    province:$('province').value, district:$('district').value.trim(), school:$('school').value.trim(),
+    note:$('note').value.trim(), items
+  };
+  $('confirm').style.display='block';$('confirm').textContent='Захиалгыг илгээж байна...';
+  if(!DATA.orderApiUrl){
+    const fake='MYD-'+new Date().toISOString().slice(0,10).replaceAll('-','')+'-'+String(Math.floor(Math.random()*9000)+1000);
+    $('confirm').innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${fake}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
+    return;
+  }
+  try{
+    const res=await fetch(DATA.orderApiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const out=await res.json();
+    if(!out.ok) throw new Error(out.error||'Алдаа');
+    $('confirm').innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${out.orderId}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
+    e.target.reset(); (DATA.grades||[]).forEach((g,i)=>$('qty'+i).value=0); refreshQty();
+  }catch(err){
+    $('confirm').textContent='Захиалга илгээхэд алдаа гарлаа. Та утсаар холбогдоно уу.';
+  }
+});
+refreshQty();
+</script>
 </body>
 </html>

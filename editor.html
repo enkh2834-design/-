@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MY ДЭВТЭР — Content Editor</title>
+<style>
+:root{--p:#6d35d5;--bg:#f7f6fa;--line:#e6e1ec;--muted:#77727d}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial;color:#1d1830}
+.wrap{width:min(1050px,calc(100% - 24px));margin:28px auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;margin:14px 0}h1{margin:0}h2{font-size:19px}
+label{display:block;font-size:12px;font-weight:800;margin:10px 0 5px}input,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit}textarea{min-height:90px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grade{border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0}.preview{width:150px;aspect-ratio:.74;border:1px dashed #ccc;border-radius:10px;display:grid;place-items:center;overflow:hidden;color:var(--muted);margin-top:7px}.preview img{width:100%;height:100%;object-fit:cover}
+.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer}.primary{background:var(--p);color:#fff}.ghost{background:#fff;border:1px solid var(--line)}.note{font-size:12px;color:var(--muted)}.actions{position:sticky;bottom:0;padding:12px;background:rgba(247,246,250,.96);display:flex;justify-content:flex-end;gap:10px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<script src="site-data.js"></script>
+<div class="wrap">
+  <div class="top"><div><h1>Агуулга засах</h1><div class="note">Зураг, тайлбар, үнэ, зохиогчийн мэдээллээ кодгүйгээр өөрчилнө.</div></div><div><a class="btn ghost" href="index.html">Нийтийн сайт</a> <a class="btn ghost" href="admin.html">Захиалгын админ</a></div></div>
+  <div class="card">
+    <h2>Нүүр хэсэг</h2><label>Брэнд</label><input id="brand"><label>Гарчиг</label><input id="heroTitle"><label>Тайлбар</label><textarea id="heroText"></textarea>
+    <label>Нүүр зураг (заавал биш)</label><input id="heroFile" type="file" accept="image/*"><div id="heroPreview" class="preview"></div>
+  </div>
+  <div class="card"><h2>1–5-р ангийн дэвтэр</h2><div id="gradeEditors"></div></div>
+  <div class="card"><h2>Зохиогч / Оюуны өмч</h2><div class="grid"><div><label>Зохиогчийн нэр</label><input id="authorName"><label>Албан тушаал</label><input id="authorTitle"><label>Танилцуулга</label><textarea id="authorBio"></textarea><label>Зохиогчийн зураг</label><input id="authorFile" type="file" accept="image/*"><div id="authorPreview" class="preview"></div></div><div><label>Гэрчилгээний тайлбар</label><textarea id="certificateText"></textarea><label>Гэрчилгээний зураг</label><input id="certificateFile" type="file" accept="image/*"><div id="certificatePreview" class="preview"></div></div></div></div>
+  <div class="card"><h2>Холбоо / Backend</h2><div class="grid"><div><label>Утас</label><input id="phone"><label>Имэйл</label><input id="email"></div><div><label>Хаяг</label><input id="address"><label>Google Apps Script URL</label><input id="orderApiUrl"></div></div></div>
+  <div class="actions"><button class="btn primary" id="download">Шинэ site-data.js татах</button></div>
+</div>
+<script>
+let data=structuredClone(window.MYDEWTER_DATA||{}),$=id=>document.getElementById(id);
+function prev(el,src,text){el.innerHTML=src?`<img src="${src}">`:text}
+function bindFile(input,el,setter,text){input.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{setter(r.result);prev(el,r.result,text)};r.readAsDataURL(f)}}
+['brand','heroTitle','heroText','authorName','authorTitle','authorBio','certificateText','phone','email','address','orderApiUrl'].forEach(k=>{$(k).value=data[k]||'';$(k).oninput=e=>data[k]=e.target.value});
+prev($('heroPreview'),data.heroImage,'Нүүр зураг');prev($('authorPreview'),data.authorImage,'Зохиогчийн зураг');prev($('certificatePreview'),data.certificateImage,'Гэрчилгээ');
+bindFile($('heroFile'),$('heroPreview'),v=>data.heroImage=v,'Нүүр зураг');bindFile($('authorFile'),$('authorPreview'),v=>data.authorImage=v,'Зохиогч');bindFile($('certificateFile'),$('certificatePreview'),v=>data.certificateImage=v,'Гэрчилгээ');
+const box=$('gradeEditors');
+(data.grades||[]).forEach((g,i)=>{
+  const d=document.createElement('div');d.className='grade';d.innerHTML=`<h3>${g.grade}-р анги</h3><div class="grid"><div><label>Нэр</label><input data-i="${i}" data-k="title" value="${g.title||''}"><label>Тайлбар</label><textarea data-i="${i}" data-k="description">${g.description||''}</textarea><label>Үнэ</label><input data-i="${i}" data-k="price" type="number" value="${g.price||0}"><label>Bullet мэдээлэл (мөр бүрээр)</label><textarea data-i="${i}" data-k="bullets">${(g.bullets||[]).join('\n')}</textarea></div><div><label>${g.grade}-р ангийн нүүр зураг</label><input id="file${i}" type="file" accept="image/*"><div id="preview${i}" class="preview"></div></div></div>`;box.appendChild(d);prev($('preview'+i),g.image,`${g.grade}-р ангийн нүүр`);bindFile($('file'+i),$('preview'+i),v=>data.grades[i].image=v,'Нүүр зураг')
+});
+box.querySelectorAll('[data-i]').forEach(el=>el.oninput=e=>{const i=+e.target.dataset.i,k=e.target.dataset.k;data.grades[i][k]=k==='price'?+e.target.value:k==='bullets'?e.target.value.split('\n').filter(Boolean):e.target.value});
+$('download').onclick=()=>{const blob=new Blob(['window.MYDEWTER_DATA = '+JSON.stringify(data,null,2)+';'],{type:'application/javascript;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='site-data.js';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+</script>
+</body>
+</html>

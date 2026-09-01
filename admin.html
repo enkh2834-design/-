@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MY ДЭВТЭР — Admin</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--nav:#121a36;--purple:#6d35d5;--ink:#17152d;--muted:#73717f;--line:#e8e8ef;--bg:#f7f8fc;--card:#fff;--red:#ff5b62;--green:#26a269;--orange:#f59e0b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit}.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#121a36,#15213e);color:#fff;padding:24px 18px;position:sticky;top:0;height:100vh}
+.brand{font-weight:900;font-size:18px;display:flex;gap:11px;align-items:center;margin-bottom:30px}.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#8c59ed,#6732d4);display:grid;place-items:center}
+.menu a{display:block;color:#ccd4e8;padding:12px 13px;border-radius:9px;margin:5px 0;text-decoration:none;font-size:13px}.menu a.active,.menu a:hover{background:#6f3bd5;color:#fff}
+.main{padding:24px;min-width:0}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.top h1{margin:0;font-size:24px}.top p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.loginbox{display:flex;gap:8px;align-items:center}.loginbox input{border:1px solid var(--line);border-radius:8px;padding:9px 10px}.btn{border:0;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--purple);color:#fff}.ghost{background:#fff;border:1px solid var(--line)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px}.metric span{color:var(--muted);font-size:12px}.metric b{font-size:27px;display:block;margin-top:6px}
+.dashboard{display:grid;grid-template-columns:1.3fr .7fr;gap:14px;margin-top:14px}.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px}.card h2{font-size:15px;margin:0 0 10px}.card small{color:var(--muted)}
+#map{height:360px;border-radius:10px;overflow:hidden;background:#eef3f8}.attention{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto}.attention-item{border:1px solid var(--line);border-radius:10px;padding:11px}.attention-item b{font-size:12px}.attention-item p{font-size:11px;color:#555;margin:5px 0}.age{float:right;font-size:10px;background:#ffe7e6;color:#c84848;padding:4px 7px;border-radius:999px}
+.orders{margin-top:14px}.filters{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:9px;margin-bottom:12px}.filters input,.filters select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:11px;min-width:1040px}th{text-align:left;color:#6e6c79;font-weight:800;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:10px;border-bottom:1px solid #f0f0f3;vertical-align:top}.status{border:0;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800}.s-new{background:#ffe9ec;color:#c84356}.s-contact{background:#fff2d9;color:#b56f00}.s-confirm{background:#e7f2ff;color:#2d70ba}.s-paid{background:#e7f8ed;color:#267b49}.s-delivery{background:#eee9ff;color:#6942b4}.s-done{background:#e7f8ed;color:#267b49}
+.bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}.bar{display:grid;grid-template-columns:110px 1fr 38px;gap:8px;align-items:center;margin:9px 0;font-size:11px}.track{height:9px;background:#edf0f5;border-radius:999px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#5aa8ff,#8a5ff0)}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+@media(max-width:1100px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.menu{display:flex;gap:7px;overflow:auto}.brand{margin-bottom:12px}.metrics{grid-template-columns:1fr 1fr}.dashboard,.bottom{grid-template-columns:1fr}}
+@media(max-width:650px){.main{padding:12px}.metrics{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.loginbox{width:100%}.loginbox input{flex:1}}
+</style>
+</head>
+<body>
+<script src="site-data.js"></script>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">♫</span><span>MY ДЭВТЭР<br><small style="font-weight:500;color:#aab6cf">Админ панел</small></span></div>
+    <nav class="menu"><a class="active" href="#overview">Хяналтын самбар</a><a href="#orders">Захиалгууд</a><a href="#mapcard">Газрын зураг</a><a href="#schools">Сургуулиуд</a><a href="editor.html">Агуулга / Дэвтэр</a><a href="index.html">Нийтийн сайт</a></nav>
+  </aside>
+  <main class="main">
+    <div class="top">
+      <div><h1>Захиалгын удирдлага</h1><p>Шинэ захиалга, сургуулиуд, байршил, төлөвийг нэг дор хянаарай.</p></div>
+      <div class="loginbox"><input id="adminKey" type="password" placeholder="Admin key"><button class="btn primary" id="loadBtn">Нэвтрэх / Шинэчлэх</button></div>
+    </div>
+
+    <section id="overview" class="metrics">
+      <div class="metric"><span>Нийт захиалга</span><b id="mOrders">0</b></div>
+      <div class="metric"><span>Шинэ / холбогдоогүй</span><b id="mNew" style="color:#e54f61">0</b></div>
+      <div class="metric"><span>Нийт дэвтэр</span><b id="mBooks">0</b></div>
+      <div class="metric"><span>Сургууль</span><b id="mSchools">0</b></div>
+    </section>
+
+    <section class="dashboard">
+      <div class="card" id="mapcard"><h2>Захиалгын байршлын зураг <small>(Аймаг / дүүрэг / сургууль)</small></h2><div id="map"></div></div>
+      <div class="card"><h2>Анхаарах захиалга</h2><div id="attention" class="attention"><div class="empty">Admin key оруулаад захиалгаа ачаална уу.</div></div></div>
+    </section>
+
+    <section id="orders" class="card orders">
+      <h2>Захиалгууд</h2>
+      <div class="filters"><input id="search" placeholder="Нэр, утас, сургууль..."><select id="provinceFilter"><option value="">Бүх аймаг / хот</option></select><select id="statusFilter"><option value="">Бүх төлөв</option></select><button class="btn ghost" id="exportBtn">CSV экспорт</button></div>
+      <div class="table-wrap"><table><thead><tr><th>№</th><th>Огноо</th><th>Нэр</th><th>Утас</th><th>Имэйл</th><th>Байршил</th><th>Сургууль</th><th>Захиалга</th><th>Нийт</th><th>Төлөв</th><th>Тэмдэглэл</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+
+    <section class="bottom">
+      <div class="card"><h2>Ангиар тоо ширхэг</h2><div id="byGrade"></div></div>
+      <div class="card" id="schools"><h2>Сургуулиар</h2><div id="bySchool"></div></div>
+      <div class="card"><h2>Төлөвөөр</h2><div id="byStatus"></div></div>
+    </section>
+  </main>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const DATA=window.MYDEWTER_DATA||{}, $=id=>document.getElementById(id);
+const statuses=["Шинэ","Холбогдсон","Баталгаажсан","Төлбөр авсан","Хүргэлтэд гарсан","Дууссан"];
+statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('statusFilter').appendChild(o)});
+const provinceCoords={
+"Улаанбаатар":[47.9184,106.9177],"Архангай":[47.48,101.45],"Баян-Өлгий":[48.97,89.97],"Баянхонгор":[46.19,100.72],
+"Булган":[48.81,103.53],"Говь-Алтай":[46.37,96.26],"Говьсүмбэр":[46.36,108.36],"Дархан-Уул":[49.47,105.96],
+"Дорноговь":[44.90,110.12],"Дорнод":[48.07,114.53],"Дундговь":[45.76,106.27],"Завхан":[48.01,96.85],"Орхон":[49.03,104.04],
+"Өвөрхангай":[46.26,102.78],"Өмнөговь":[43.57,104.43],"Сүхбаатар":[46.68,113.28],"Сэлэнгэ":[49.45,106.20],
+"Төв":[47.70,106.95],"Увс":[49.98,92.07],"Ховд":[48.00,91.64],"Хөвсгөл":[49.63,100.16],"Хэнтий":[47.32,110.65]
+};
+Object.keys(provinceCoords).forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('provinceFilter').appendChild(o)});
+
+let allOrders=[], map=L.map('map',{zoomControl:true}).setView([46.8,103.5],4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+let markerLayer=L.layerGroup().addTo(map);
+
+function api(){return DATA.orderApiUrl||''}
+function key(){return $('adminKey').value.trim()}
+async function loadOrders(){
+  if(!api()){alert('site-data.js дотор orderApiUrl тохируулаагүй байна.');return}
+  if(!key()){alert('Admin key оруулна уу.');return}
+  $('loadBtn').textContent='Ачаалж байна...';
+  try{
+    const r=await fetch(api()+`?action=listOrders&adminKey=${encodeURIComponent(key())}`);
+    const out=await r.json();
+    if(!out.ok) throw new Error(out.error||'Нэвтрэх эрхгүй');
+    sessionStorage.setItem('mydewterAdminKey',key());
+    allOrders=out.orders||[]; render();
+  }catch(e){alert(e.message||'Алдаа гарлаа')}
+  finally{$('loadBtn').textContent='Нэвтрэх / Шинэчлэх'}
+}
+$('adminKey').value=sessionStorage.getItem('mydewterAdminKey')||'';
+$('loadBtn').onclick=loadOrders;
+
+function itemText(o){
+  if(Array.isArray(o.items)) return o.items.map(x=>`${x.grade}-р анги × ${x.qty}`).join(', ');
+  try{return JSON.parse(o.items||'[]').map(x=>`${x.grade}-р анги × ${x.qty}`).join(', ')}catch(e){return o.items||''}
+}
+function itemQty(o){
+  let arr=o.items;if(!Array.isArray(arr)){try{arr=JSON.parse(arr||'[]')}catch(e){arr=[]}}
+  return arr.reduce((a,x)=>a+(Number(x.qty)||0),0)
+}
+function statusClass(s){return s==='Шинэ'?'s-new':s==='Холбогдсон'?'s-contact':s==='Баталгаажсан'?'s-confirm':s==='Төлбөр авсан'?'s-paid':s==='Хүргэлтэд гарсан'?'s-delivery':'s-done'}
+function filtered(){
+  const q=$('search').value.trim().toLowerCase(),p=$('provinceFilter').value,s=$('statusFilter').value;
+  return allOrders.filter(o=>{
+    const hay=[o.orderId,o.name,o.phone,o.email,o.school,o.province,o.district,itemText(o)].join(' ').toLowerCase();
+    return (!q||hay.includes(q))&&(!p||o.province===p)&&(!s||o.status===s)
+  })
+}
+function render(){
+  const orders=filtered();
+  $('mOrders').textContent=allOrders.length;
+  $('mNew').textContent=allOrders.filter(o=>o.status==='Шинэ').length;
+  $('mBooks').textContent=allOrders.reduce((a,o)=>a+itemQty(o),0);
+  $('mSchools').textContent=new Set(allOrders.map(o=>`${o.province}|${o.district}|${o.school}`).filter(x=>!x.endsWith('|'))).size;
+  $('tbody').innerHTML=orders.map(o=>`<tr>
+    <td><b>${o.orderId||''}</b></td><td>${o.createdAt?new Date(o.createdAt).toLocaleString('mn-MN'):''}</td>
+    <td>${o.name||''}</td><td>${o.phone||''}</td><td>${o.email||''}</td>
+    <td>${[o.province,o.district].filter(Boolean).join(' · ')}</td><td>${o.school||''}</td>
+    <td>${itemText(o)}</td><td>${itemQty(o)}</td>
+    <td><select class="status ${statusClass(o.status)}" onchange="updateStatus('${o.orderId}',this.value,this)">${statuses.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+    <td><button class="btn ghost" style="padding:6px 8px;font-size:10px" onclick="editNote('${o.orderId}', ${JSON.stringify(o.adminNote||'')})">Тэмдэглэл</button></td>
+  </tr>`).join('') || '<tr><td colspan="11" class="empty">Захиалга олдсонгүй.</td></tr>';
+  renderAttention(); renderBars(); renderMap();
+}
+async function updateStatus(orderId,status,el){
+  try{
+    const r=await fetch(api(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'updateOrder',adminKey:key(),orderId,status})});
+    const out=await r.json();if(!out.ok)throw new Error(out.error||'Алдаа');
+    const o=allOrders.find(x=>x.orderId===orderId);if(o)o.status=status;render();
+  }catch(e){alert(e.message);loadOrders()}
+}
+async function editNote(orderId,current){
+  const note=prompt('Админ тэмдэглэл:',current||''); if(note===null)return;
+  try{
+    const r=await fetch(api(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'updateOrder',adminKey:key(),orderId,adminNote:note})});
+    const out=await r.json();if(!out.ok)throw new Error(out.error||'Алдаа');
+    const o=allOrders.find(x=>x.orderId===orderId);if(o)o.adminNote=note;
+  }catch(e){alert(e.message)}
+}
+function renderAttention(){
+  const list=allOrders.filter(o=>o.status==='Шинэ').sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt)).slice(0,8);
+  $('attention').innerHTML=list.map(o=>{
+    const days=Math.max(0,Math.floor((Date.now()-new Date(o.createdAt))/86400000));
+    return `<div class="attention-item"><span class="age">${days} хоног</span><b>${o.orderId}</b><p>${o.province||''} · ${o.district||''}<br>${o.school||''}<br>${itemText(o)}</p><p><b>${o.phone||''}</b></p></div>`
+  }).join('')||'<div class="empty">Анхаарах шинэ захиалга алга.</div>';
+}
+function renderBars(){
+  const grade={1:0,2:0,3:0,4:0,5:0},school={},st={};
+  allOrders.forEach(o=>{
+    let arr=o.items;if(!Array.isArray(arr)){try{arr=JSON.parse(arr||'[]')}catch(e){arr=[]}}
+    arr.forEach(x=>grade[x.grade]=(grade[x.grade]||0)+(Number(x.qty)||0));
+    const sk=o.school||'Тодорхойгүй';school[sk]=(school[sk]||0)+itemQty(o);
+    st[o.status||'Шинэ']=(st[o.status||'Шинэ']||0)+1;
+  });
+  const bars=(obj,maxItems=6)=>{
+    const a=Object.entries(obj).sort((x,y)=>y[1]-x[1]).slice(0,maxItems),max=Math.max(...a.map(x=>x[1]),1);
+    return a.map(([k,v])=>`<div class="bar"><span>${k}</span><div class="track"><div class="fill" style="width:${v/max*100}%"></div></div><b>${v}</b></div>`).join('')||'<div class="empty">Мэдээлэл алга.</div>';
+  };
+  $('byGrade').innerHTML=bars(Object.fromEntries(Object.entries(grade).map(([k,v])=>[k+'-р анги',v])));
+  $('bySchool').innerHTML=bars(school);
+  $('byStatus').innerHTML=bars(st);
+}
+function renderMap(){
+  markerLayer.clearLayers();
+  const agg={};
+  allOrders.forEach(o=>{
+    const key=o.province||'';
+    if(!provinceCoords[key])return;
+    if(!agg[key])agg[key]={orders:0,books:0,schools:new Set()};
+    agg[key].orders++;agg[key].books+=itemQty(o);if(o.school)agg[key].schools.add(o.school);
+  });
+  Object.entries(agg).forEach(([p,v])=>{
+    const [lat,lng]=provinceCoords[p];
+    L.circleMarker([lat,lng],{radius:Math.min(22,8+Math.sqrt(v.orders)*2),weight:2,fillOpacity:.55})
+      .bindPopup(`<b>${p}</b><br>${v.orders} захиалга<br>${v.books} дэвтэр<br>${v.schools.size} сургууль`).addTo(markerLayer);
+  });
+}
+$('search').oninput=render;$('provinceFilter').onchange=render;$('statusFilter').onchange=render;
+$('exportBtn').onclick=()=>{
+  const rows=[["Order ID","Date","Name","Phone","Email","Province","District","School","Items","Quantity","Status","Admin Note"],
+  ...filtered().map(o=>[o.orderId,o.createdAt,o.name,o.phone,o.email,o.province,o.district,o.school,itemText(o),itemQty(o),o.status,o.adminNote||''])];
+  const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');
+  const b=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mydewter-orders.csv';a.click();
+};
+if($('adminKey').value && api()) loadOrders();
+</script>
+</body>
+</html>
