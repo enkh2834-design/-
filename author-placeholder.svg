@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eaf9fb"/><stop offset="1" stop-color="#ece9ff"/></linearGradient></defs>
+<rect width="800" height="800" rx="80" fill="url(#g)"/>
+<circle cx="400" cy="315" r="125" fill="#fff" opacity=".92"/>
+<path d="M190 690c30-145 126-215 210-215s180 70 210 215" fill="#fff" opacity=".92"/>
+<text x="400" y="755" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="700" fill="#49556e">Author.jpg файлаа энд оруулна</text>
+</svg>

@@ -139,6 +139,83 @@ a{color:inherit;text-decoration:none} img{display:block;max-width:100%} button,i
 @media(max-width:860px){.links{display:none}.hero-copy{padding:34px 22px}.products{grid-template-columns:1fr 1fr}.grid3,.process,.about,.brandboard{grid-template-columns:1fr}.about-card{grid-template-columns:1fr}.hero-display{min-height:480px;padding:20px}.hero-book{width:145px}.stats{grid-template-columns:1fr}}
 @media(max-width:560px){.container{width:min(100% - 18px,1240px)}.hero h1{font-size:38px}.products{grid-template-columns:1fr}.hero-display{min-height:430px}.hero-book{width:126px}.hero-book-1{left:2%;top:4%}.hero-book-2{left:34%;top:4%}.hero-book-3{left:61%;top:18%}.hero-book-4{left:10%;top:50%}.hero-book-5{left:45%;top:52%}.order-card{padding:20px}}
 
+
+/* =========================
+   V9 AUTHOR CV
+   ========================= */
+.author-side-card{
+  background:
+    radial-gradient(circle at 85% 12%,rgba(75,201,213,.14),transparent 24%),
+    linear-gradient(145deg,#ffffff,#f9fbff);
+  overflow:hidden;
+}
+.author-side-head{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.author-side-photo{
+  width:84px;height:84px;border-radius:22px;overflow:hidden;flex:0 0 auto;
+  background:linear-gradient(135deg,#e7f9fb,#ece9ff);
+  border:1px solid #dce6f3;display:grid;place-items:center;color:#758098;font-size:12px;text-align:center;
+}
+.author-side-photo img{width:100%;height:100%;object-fit:cover}
+.author-side-name{font-size:19px;font-weight:950;letter-spacing:-.03em;margin-bottom:4px}
+.author-side-title{font-size:13px;font-weight:800;color:#255dc8}
+.author-side-summary{font-size:13px;color:var(--muted);line-height:1.7;margin:0}
+.author-side-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.author-side-tags span{padding:7px 10px;border-radius:999px;background:#eef6ff;border:1px solid #dceaf8;color:#315b9a;font-size:11px;font-weight:800}
+
+.author-cv{
+  background:#fff;border:1px solid var(--line);border-radius:30px;
+  box-shadow:0 14px 34px rgba(20,32,70,.055);overflow:hidden;
+}
+.author-cv-top{
+  display:grid;grid-template-columns:310px 1fr;gap:30px;padding:30px;
+  background:
+    radial-gradient(circle at 5% 10%,rgba(75,201,213,.17),transparent 23%),
+    radial-gradient(circle at 96% 5%,rgba(91,77,199,.11),transparent 20%),
+    linear-gradient(135deg,#fbfeff,#fffaf4);
+}
+.author-cv-photo{
+  aspect-ratio:.88;border-radius:26px;overflow:hidden;
+  background:linear-gradient(135deg,#e7f9fb,#ece9ff);
+  border:1px solid #dce6f2;display:grid;place-items:center;color:#778196;font-weight:700;
+  box-shadow:0 16px 30px rgba(20,32,70,.09);
+}
+.author-cv-photo img{width:100%;height:100%;object-fit:cover}
+.author-cv-intro{display:flex;flex-direction:column;justify-content:center}
+.author-cv-intro .eyeline{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#2469d8}
+.author-cv-intro h2{margin:9px 0 7px;font-size:clamp(32px,4vw,52px);letter-spacing:-.05em;line-height:1.03}
+.author-cv-role{font-size:17px;font-weight:850;color:#384766;margin-bottom:16px}
+.author-cv-bio{font-size:15px;line-height:1.85;color:var(--muted);max-width:780px;margin:0}
+.author-specialization{
+  margin-top:18px;padding:14px 16px;border-radius:17px;background:#fff;border:1px solid #e4eaf3;
+  color:#3e4a60;font-size:14px;line-height:1.65
+}
+.author-specialization b{color:#1e5ad7}
+
+.author-cv-body{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #e9e5df}
+.cv-section{padding:25px 28px;border-bottom:1px solid #eee9e3}
+.cv-section:nth-child(odd){border-right:1px solid #eee9e3}
+.cv-section h3{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:17px;letter-spacing:-.025em}
+.cv-icon{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#edf7ff,#f4efff);color:#245fd8;font-size:15px}
+.cv-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.cv-list li{position:relative;padding-left:17px;color:#596174;font-size:14px;line-height:1.65}
+.cv-list li:before{content:"";position:absolute;left:0;top:.68em;width:6px;height:6px;border-radius:50%;background:linear-gradient(90deg,#45c3d4,#2469eb)}
+.cv-empty{font-size:13px;color:#9aa0ae;font-style:italic}
+.certificate-wide{
+  grid-column:1/-1;display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;
+  padding:24px 28px;background:#fffaf2
+}
+.certificate-wide .cert{width:170px;height:120px}
+.certificate-wide h3{margin:6px 0 8px;font-size:20px}
+.certificate-wide p{margin:0;color:var(--muted);line-height:1.7}
+
+@media(max-width:900px){
+  .author-cv-top{grid-template-columns:1fr}
+  .author-cv-photo{max-width:300px}
+  .author-cv-body{grid-template-columns:1fr}
+  .cv-section:nth-child(odd){border-right:0}
+  .certificate-wide{grid-template-columns:1fr}
+}
+
 /* =========================
    V7 MOTION SYSTEM
    ========================= */
@@ -530,27 +607,71 @@ body { overflow-x:hidden; }
             <div class="contact-line"><div class="contact-icon">⌖</div><div><strong>Хаяг</strong><p id="addressText"></p></div></div>
           </div>
         </div>
+        <div class="side-card author-side-card" id="authorQuick">
+          <div class="author-side-head">
+            <div class="author-side-photo" id="authorSideImage">Зохиогчийн<br>зураг</div>
+            <div>
+              <div class="kicker">Author</div>
+              <div class="author-side-name" id="authorSideName">Жамсранжавын Энхсайхан</div>
+              <div class="author-side-title" id="authorSideTitle">Зохиогч</div>
+            </div>
+          </div>
+          <p class="author-side-summary" id="authorSideBio"></p>
+          <div class="author-side-tags" id="authorSideTags"></div>
+          <a href="#about" class="btn btn-soft" style="width:100%;margin-top:14px">Дэлгэрэнгүй танилцуулга</a>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="about" class="section">
-    <div class="about">
-      <div class="about-card">
-        <div class="author-img" id="authorImage">Зохиогчийн зураг</div>
-        <div>
-          <div class="kicker">Author</div>
-          <h3 id="authorName">М.Энхтуяа</h3>
-          <p style="font-weight:800;color:#24314d;margin-bottom:8px" id="authorTitle">Хөгжмийн багш, арга зүйч</p>
-          <p id="authorBio">Зохиогчийн мэдээллийг editor хэсгээс өөрчлөх боломжтой.</p>
+    <div class="section-head">
+      <div>
+        <div class="kicker">Author Profile</div>
+        <h2>Зохиогчийн дэлгэрэнгүй танилцуулга</h2>
+      </div>
+      <p>Зохиогчийн боловсрол, ажлын туршлага, бүтээл, амжилтын мэдээллийг editor хэсгээс CV хэлбэрээр шинэчилж болно.</p>
+    </div>
+
+    <div class="author-cv">
+      <div class="author-cv-top">
+        <div class="author-cv-photo" id="authorImage">Зохиогчийн зураг</div>
+        <div class="author-cv-intro">
+          <div class="eyeline">Зохиогч</div>
+          <h2 id="authorName">Жамсранжавын Энхсайхан</h2>
+          <div class="author-cv-role" id="authorTitle">Зохиогч</div>
+          <p class="author-cv-bio" id="authorBio"></p>
+          <div class="author-specialization" id="authorSpecializationWrap" style="display:none">
+            <b>Чиглэл / мэргэшил:</b> <span id="authorSpecialization"></span>
+          </div>
         </div>
       </div>
-      <div class="about-card">
-        <div class="cert" id="certificateImage">Оюуны өмчийн гэрчилгээ</div>
-        <div>
-          <div class="kicker">Certificate</div>
-          <h3>Оюуны өмчийн гэрчилгээ</h3>
-          <p id="certificateText">Гэрчилгээний зураг болон тайлбарыг editor хэсгээс оруулна.</p>
+
+      <div class="author-cv-body">
+        <div class="cv-section">
+          <h3><span class="cv-icon">🎓</span>Боловсрол</h3>
+          <ul class="cv-list" id="authorEducation"></ul>
+        </div>
+        <div class="cv-section">
+          <h3><span class="cv-icon">💼</span>Ажлын туршлага</h3>
+          <ul class="cv-list" id="authorExperience"></ul>
+        </div>
+        <div class="cv-section">
+          <h3><span class="cv-icon">🏆</span>Амжилт, шагнал</h3>
+          <ul class="cv-list" id="authorAchievements"></ul>
+        </div>
+        <div class="cv-section">
+          <h3><span class="cv-icon">📚</span>Бүтээл, нийтлэл</h3>
+          <ul class="cv-list" id="authorPublications"></ul>
+        </div>
+
+        <div class="certificate-wide">
+          <div class="cert" id="certificateImage">Оюуны өмчийн гэрчилгээ</div>
+          <div>
+            <div class="kicker">Certificate</div>
+            <h3>Оюуны өмчийн гэрчилгээ</h3>
+            <p id="certificateText"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -591,10 +712,33 @@ $('tagline').textContent = safe(DATA.tagline,'Хөгжим · Дасгал · Х
 $('heroBadge').textContent = safe(DATA.heroBadge,'1–5-р ангийн хөгжмийн дэвтэр');
 $('heroTitle').textContent = safe(DATA.heroTitle,'Хүүхэд бүрт тохирсон хөгжмийн ухаалаг дэвтэр');
 $('heroText').textContent = safe(DATA.heroText,'QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх агуулгатай цогц ажлын дэвтэр.');
-$('authorName').textContent = safe(DATA.authorName,'');
-$('authorTitle').textContent = safe(DATA.authorTitle,'');
+$('authorName').textContent = safe(DATA.authorName,'Жамсранжавын Энхсайхан');
+$('authorTitle').textContent = safe(DATA.authorTitle,'Зохиогч');
 $('authorBio').textContent = safe(DATA.authorBio,'');
 $('certificateText').textContent = safe(DATA.certificateText,'');
+
+$('authorSideName').textContent = safe(DATA.authorName,'Жамсранжавын Энхсайхан');
+$('authorSideTitle').textContent = safe(DATA.authorTitle,'Зохиогч');
+$('authorSideBio').textContent = safe(DATA.authorBio,'');
+const sideTags = [];
+if(DATA.authorSpecialization) sideTags.push(DATA.authorSpecialization);
+if(Array.isArray(DATA.authorEducation) && DATA.authorEducation.length) sideTags.push('Боловсрол');
+if(Array.isArray(DATA.authorExperience) && DATA.authorExperience.length) sideTags.push('Туршлага');
+$('authorSideTags').innerHTML = sideTags.slice(0,3).map(x=>`<span>${x}</span>`).join('');
+
+if(DATA.authorSpecialization){
+  $('authorSpecializationWrap').style.display='block';
+  $('authorSpecialization').textContent=DATA.authorSpecialization;
+}
+function renderCvList(id, value){
+  const arr = Array.isArray(value) ? value : String(value||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const el=$(id);
+  el.innerHTML = arr.length ? arr.map(x=>`<li>${x}</li>`).join('') : '<li class="cv-empty">Editor хэсгээс мэдээлэл оруулна.</li>';
+}
+renderCvList('authorEducation',DATA.authorEducation);
+renderCvList('authorExperience',DATA.authorExperience);
+renderCvList('authorAchievements',DATA.authorAchievements);
+renderCvList('authorPublications',DATA.authorPublications);
 $('phoneText').textContent = safe(DATA.phone,'');
 $('emailText').textContent = safe(DATA.email,'');
 $('addressText').textContent = safe(DATA.address,'');
@@ -603,7 +747,10 @@ $('emailTextFooter').textContent = '✉ ' + safe(DATA.email,'');
 $('addressTextFooter').textContent = '⌖ ' + safe(DATA.address,'');
 $('year').textContent = new Date().getFullYear();
 
-if (DATA.authorImage) $('authorImage').innerHTML = `<img src="${DATA.authorImage}" alt="Зохиогч">`;
+if (DATA.authorImage) {
+  $('authorImage').innerHTML = `<img src="${DATA.authorImage}" alt="Зохиогч">`;
+  $('authorSideImage').innerHTML = `<img src="${DATA.authorImage}" alt="Зохиогч">`;
+}
 if (DATA.certificateImage) $('certificateImage').innerHTML = `<img src="${DATA.certificateImage}" alt="Оюуны өмчийн гэрчилгээ">`;
 
 const grades = Array.isArray(DATA.grades) ? DATA.grades : [];
