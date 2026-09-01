@@ -12,7 +12,7 @@ const CONFIG = {
 
 const ORDER_HEADERS = [
   'Order ID','Created At','Name','Phone','Email','Province','District/Soum','School',
-  '1-р анги','2-р анги','3-р анги','4-р анги','5-р анги','Total Qty','Status',
+  '1-р анги','2-р анги','3-р анги','4-р анги','5-р анги','Total Qty','Total Amount','Status',
   'Customer Note','Admin Note','Latitude','Longitude','Location Source','Last Updated'
 ];
 
@@ -90,9 +90,12 @@ function ensureOrdersV3_(ss,sh) {
     // Existing old rows: try to geocode school once during migration.
     if(school){const g=geocodeSchool_(school,district,province);lat=g.lat||'';lng=g.lng||'';source=g.source||''}
     const total=items.length?items.reduce((s,x)=>s+(Number(x.qty)||0),0):(Number(val_(row,oldH,'Total Qty'))||0);
+    const totalAmount=items.length
+      ? items.reduce((sum,x)=>sum+(Number(x.qty)||0)*(Number(x.price)||0),0)
+      : (Number(val_(row,oldH,'Total Amount'))||0);
     migrated.push([
       val_(row,oldH,'Order ID'),val_(row,oldH,'Created At'),val_(row,oldH,'Name'),val_(row,oldH,'Phone'),val_(row,oldH,'Email'),
-      province,district,school,qty(1),qty(2),qty(3),qty(4),qty(5),total,val_(row,oldH,'Status')||'Шинэ',
+      province,district,school,qty(1),qty(2),qty(3),qty(4),qty(5),total,totalAmount,val_(row,oldH,'Status')||'Шинэ',
       val_(row,oldH,'Customer Note'),val_(row,oldH,'Admin Note'),lat,lng,source,val_(row,oldH,'Last Updated')||new Date()
     ]);
   }
@@ -106,7 +109,7 @@ function val_(row,headers,name){const i=headers.indexOf(name);return i>=0?row[i]
 function formatOrdersSheet_(sh){
   sh.getRange(1,1,1,ORDER_HEADERS.length).setFontWeight('bold').setBackground('#eee8ff');
   sh.autoResizeColumns(1,ORDER_HEADERS.length);
-  [9,10,11,12,13,14].forEach(c=>sh.getRange(2,c,Math.max(sh.getMaxRows()-1,1),1).setHorizontalAlignment('center'));
+  [9,10,11,12,13,14,15].forEach(c=>sh.getRange(2,c,Math.max(sh.getMaxRows()-1,1),1).setHorizontalAlignment('center'));
 }
 
 function schoolsSheet_(){
@@ -148,6 +151,7 @@ function createOrder_(d) {
     const orderId = 'MYD-' + Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyyMMdd') + '-' + String(seq).padStart(4,'0');
     const q=n=>{const x=items.find(v=>Number(v.grade)===n);return x?Number(x.qty)||0:0};
     const totalQty=[1,2,3,4,5].reduce((s,n)=>s+q(n),0);
+    const totalAmount=items.reduce((sum,x)=>sum+(Number(x.qty)||0)*(Number(x.price)||0),0);
 
     let lat=Number(d.schoolLat)||null,lng=Number(d.schoolLng)||null,source=d.locationSource||'';
     if(!lat||!lng){
@@ -156,17 +160,17 @@ function createOrder_(d) {
     }
     upsertSchool_(d.province,d.district,d.school,lat,lng,source);
 
-    sh.appendRow([orderId,now,d.name,d.phone,d.email,d.province,d.district,d.school,q(1),q(2),q(3),q(4),q(5),totalQty,'Шинэ',d.note||'','',lat||'',lng||'',source||'',now]);
+    sh.appendRow([orderId,now,d.name,d.phone,d.email,d.province,d.district,d.school,q(1),q(2),q(3),q(4),q(5),totalQty,totalAmount,'Шинэ',d.note||'','',lat||'',lng||'',source||'',now]);
     formatOrdersSheet_(sh);
 
     MailApp.sendEmail({
       to: CONFIG.ADMIN_EMAIL,
       subject: 'Шинэ захиалга — '+orderId+' — '+d.school,
-      htmlBody:`<h2>🎵 MY ДЭВТЭР — Шинэ захиалга</h2><p><b>${orderId}</b></p><p>${d.name} · ${d.phone}<br>${d.email}<br>${d.province} · ${d.district}<br><b>${d.school}</b></p><p>1-р анги: ${q(1)}<br>2-р анги: ${q(2)}<br>3-р анги: ${q(3)}<br>4-р анги: ${q(4)}<br>5-р анги: ${q(5)}</p><p><b>Нийт: ${totalQty} дэвтэр</b></p>`
+      htmlBody:`<h2>🎵 MY ДЭВТЭР — Шинэ захиалга</h2><p><b>${orderId}</b></p><p>${d.name} · ${d.phone}<br>${d.email}<br>${d.province} · ${d.district}<br><b>${d.school}</b></p><p>1-р анги: ${q(1)}<br>2-р анги: ${q(2)}<br>3-р анги: ${q(3)}<br>4-р анги: ${q(4)}<br>5-р анги: ${q(5)}</p><p><b>Нийт: ${totalQty} дэвтэр</b><br><b>Захиалгын нийт дүн: ${totalAmount.toLocaleString('mn-MN')}₮</b></p>`
     });
     MailApp.sendEmail({
       to:d.email,subject:'Таны захиалга бүртгэгдлээ — '+orderId,
-      htmlBody:`<h2>✅ Захиалга амжилттай бүртгэгдлээ</h2><p>Сайн байна уу, <b>${d.name}</b>.</p><p>Захиалгын дугаар: <b>${orderId}</b></p><p>Сургууль: <b>${d.school}</b><br>Нийт: <b>${totalQty} дэвтэр</b></p><p>Бид таны <b>${d.phone}</b> утсаар холбогдож төлбөр болон хүргэлтийг баталгаажуулна.</p><p>${CONFIG.SITE_URL}</p>`
+      htmlBody:`<h2>✅ Захиалга амжилттай бүртгэгдлээ</h2><p>Сайн байна уу, <b>${d.name}</b>.</p><p>Захиалгын дугаар: <b>${orderId}</b></p><p>Сургууль: <b>${d.school}</b><br>Нийт: <b>${totalQty} дэвтэр</b><br>Захиалгын нийт дүн: <b>${totalAmount.toLocaleString('mn-MN')}₮</b></p><p>Бид таны <b>${d.phone}</b> утсаар холбогдож төлбөр болон хүргэлтийг баталгаажуулна.</p><p>${CONFIG.SITE_URL}</p>`
     });
     return {ok:true,orderId};
   } finally { lock.releaseLock(); }
@@ -189,8 +193,8 @@ function listOrders_() {
   const sh=sheet_(),values=sh.getDataRange().getValues();if(values.length<2)return[];
   return values.slice(1).reverse().map(r=>({
     orderId:r[0],createdAt:dateIso_(r[1]),name:r[2],phone:r[3],email:r[4],province:r[5],district:r[6],school:r[7],
-    grade1:Number(r[8])||0,grade2:Number(r[9])||0,grade3:Number(r[10])||0,grade4:Number(r[11])||0,grade5:Number(r[12])||0,totalQty:Number(r[13])||0,
-    status:r[14]||'Шинэ',note:r[15]||'',adminNote:r[16]||'',lat:Number(r[17])||null,lng:Number(r[18])||null,locationSource:r[19]||'',updatedAt:dateIso_(r[20]),
+    grade1:Number(r[8])||0,grade2:Number(r[9])||0,grade3:Number(r[10])||0,grade4:Number(r[11])||0,grade5:Number(r[12])||0,totalQty:Number(r[13])||0,totalAmount:Number(r[14])||0,
+    status:r[15]||'Шинэ',note:r[16]||'',adminNote:r[17]||'',lat:Number(r[18])||null,lng:Number(r[19])||null,locationSource:r[20]||'',updatedAt:dateIso_(r[21]),
     items:[1,2,3,4,5].map((n,i)=>({grade:n,qty:Number(r[8+i])||0})).filter(x=>x.qty>0)
   }));
 }
@@ -199,9 +203,9 @@ function updateOrder_(d) {
   const sh=sheet_(),values=sh.getDataRange().getValues();
   for(let i=1;i<values.length;i++){
     if(String(values[i][0])===String(d.orderId)){
-      if(d.status!==undefined)sh.getRange(i+1,15).setValue(d.status);
-      if(d.adminNote!==undefined)sh.getRange(i+1,17).setValue(d.adminNote);
-      sh.getRange(i+1,21).setValue(new Date());return{ok:true};
+      if(d.status!==undefined)sh.getRange(i+1,16).setValue(d.status);
+      if(d.adminNote!==undefined)sh.getRange(i+1,18).setValue(d.adminNote);
+      sh.getRange(i+1,22).setValue(new Date());return{ok:true};
     }
   }
   return{ok:false,error:'Order not found'};
@@ -211,13 +215,19 @@ function updateOrder_(d) {
 function refreshMissingCoordinates(){
   const sh=sheet_(),v=sh.getDataRange().getValues();let done=0;
   for(let i=1;i<v.length&&done<40;i++){
-    if(v[i][7]&&(!v[i][17]||!v[i][18])){
+    if(v[i][7]&&(!v[i][18]||!v[i][19])){
       const g=geocodeSchool_(v[i][7],v[i][6],v[i][5]);
-      if(g.lat&&g.lng){sh.getRange(i+1,18,1,3).setValues([[g.lat,g.lng,g.source]]);upsertSchool_(v[i][5],v[i][6],v[i][7],g.lat,g.lng,g.source);done++}
+      if(g.lat&&g.lng){sh.getRange(i+1,19,1,3).setValues([[g.lat,g.lng,g.source]]);upsertSchool_(v[i][5],v[i][6],v[i][7],g.lat,g.lng,g.source);done++}
     }
   }
   return done;
 }
 
 function dateIso_(v){if(!v)return'';try{return new Date(v).toISOString()}catch(e){return String(v)}}
+// Нэг удаа гараар Run хийж хуучин Orders хүснэгтийг шинэ ойлгомжтой бүтэц рүү шилжүүлж болно.
+function upgradeOrdersSheetNow(){
+  const sh = sheet_();
+  return 'Orders sheet upgraded. Rows: ' + sh.getLastRow();
+}
+
 function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)}
