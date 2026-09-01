@@ -1,0 +1,24 @@
+MY ДЭВТЭР V3 — БАЙРШИЛ + СУРГУУЛЬ + SHEET БАГАНА
+
+ШИНЭЧЛЭЛ:
+- Google Sheet дээр 1–5-р анги тус бүр тусдаа багана.
+- Улаанбаатар сонгоход 9 дүүрэг; аймаг сонгоход сумд сонголтоор гарна.
+- Сум/дүүрэг сонгосны дараа сургуулийн dropdown гарна.
+- Сургуулийн байршлын lat/lng захиалгад хадгалагдана.
+- Admin map сургуулийн цэг дээр marker байрлуулна.
+- Хуучин Orders sheet автоматаар backup хийгээд шинэ бүтэц рүү migrate хийнэ.
+
+СУУЛГАХ:
+1) GitHub дээр index.html, admin.html-ийг шинэ файлаар солино. site-data.js/editor.html хэвээр ашиглаж болно.
+2) Apps Script дээр Code.gs-г шинэ кодоор солино.
+3) Маш чухал: шинэ Code.gs-ийн ADMIN_EMAIL болон ADMIN_KEY дээр ОДООГИЙН өөрийн утгаа буцааж оруулна.
+4) Save.
+5) Deploy > Manage deployments > Edit (pencil) > Version: New version > Deploy. Web App URL өөрчлөгдөхгүй.
+6) mydewter.mn дээр Ctrl+Shift+R.
+7) Test order өгнө.
+
+SCHOOLS SHEET:
+Apps Script өөрөө Schools tab үүсгэнэ. Website эхлээд энэ tab-аас сургуулиудыг авна, дараа нь OpenStreetMap-аас нэмэлт suggestion хайна. Сонгогдсон сургууль координаттайгаа Schools tab-д хадгалагдаж, дараагийн удаа илүү хурдан гарна.
+
+АНХААР:
+Монголын албан ёсны ESIS school map нь login шаарддаг тул public сайтаас бүх сургуулийн албан ёсны бүрэн жагсаалтыг шууд татах боломжгүй. Иймээс OSM suggestion + өөрөө бичих fallback ашиглаж байна. Хэрэв албан ёсны school list Excel/CSV олдвол Schools tab руу импортлоод 100% controlled dropdown болгож болно.

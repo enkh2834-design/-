@@ -53,7 +53,7 @@ button,input,select{font:inherit}.layout{display:grid;grid-template-columns:240p
     <section id="orders" class="card orders">
       <h2>Захиалгууд</h2>
       <div class="filters"><input id="search" placeholder="Нэр, утас, сургууль..."><select id="provinceFilter"><option value="">Бүх аймаг / хот</option></select><select id="statusFilter"><option value="">Бүх төлөв</option></select><button class="btn ghost" id="exportBtn">CSV экспорт</button></div>
-      <div class="table-wrap"><table><thead><tr><th>№</th><th>Огноо</th><th>Нэр</th><th>Утас</th><th>Имэйл</th><th>Байршил</th><th>Сургууль</th><th>Захиалга</th><th>Нийт</th><th>Төлөв</th><th>Тэмдэглэл</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>№</th><th>Огноо</th><th>Нэр</th><th>Утас</th><th>Имэйл</th><th>Байршил</th><th>Сургууль</th><th>1-р</th><th>2-р</th><th>3-р</th><th>4-р</th><th>5-р</th><th>Нийт</th><th>Төлөв</th><th>Тэмдэглэл</th></tr></thead><tbody id="tbody"></tbody></table></div>
     </section>
 
     <section class="bottom">
@@ -68,14 +68,10 @@ button,input,select{font:inherit}.layout{display:grid;grid-template-columns:240p
 const DATA=window.MYDEWTER_DATA||{}, $=id=>document.getElementById(id);
 const statuses=["Шинэ","Холбогдсон","Баталгаажсан","Төлбөр авсан","Хүргэлтэд гарсан","Дууссан"];
 statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('statusFilter').appendChild(o)});
-const provinceCoords={
-"Улаанбаатар":[47.9184,106.9177],"Архангай":[47.48,101.45],"Баян-Өлгий":[48.97,89.97],"Баянхонгор":[46.19,100.72],
-"Булган":[48.81,103.53],"Говь-Алтай":[46.37,96.26],"Говьсүмбэр":[46.36,108.36],"Дархан-Уул":[49.47,105.96],
-"Дорноговь":[44.90,110.12],"Дорнод":[48.07,114.53],"Дундговь":[45.76,106.27],"Завхан":[48.01,96.85],"Орхон":[49.03,104.04],
-"Өвөрхангай":[46.26,102.78],"Өмнөговь":[43.57,104.43],"Сүхбаатар":[46.68,113.28],"Сэлэнгэ":[49.45,106.20],
-"Төв":[47.70,106.95],"Увс":[49.98,92.07],"Ховд":[48.00,91.64],"Хөвсгөл":[49.63,100.16],"Хэнтий":[47.32,110.65]
+const fallbackCoords={
+"Улаанбаатар":[47.9184,106.9177],"Архангай":[47.48,101.45],"Баян-Өлгий":[48.97,89.97],"Баянхонгор":[46.19,100.72],"Булган":[48.81,103.53],"Говь-Алтай":[46.37,96.26],"Говьсүмбэр":[46.36,108.36],"Дархан-Уул":[49.47,105.96],"Дорноговь":[44.90,110.12],"Дорнод":[48.07,114.53],"Дундговь":[45.76,106.27],"Завхан":[48.01,96.85],"Орхон":[49.03,104.04],"Өвөрхангай":[46.26,102.78],"Өмнөговь":[43.57,104.43],"Сүхбаатар":[46.68,113.28],"Сэлэнгэ":[49.45,106.20],"Төв":[47.70,106.95],"Увс":[49.98,92.07],"Ховд":[48.00,91.64],"Хөвсгөл":[49.63,100.16],"Хэнтий":[47.32,110.65]
 };
-Object.keys(provinceCoords).forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('provinceFilter').appendChild(o)});
+Object.keys(fallbackCoords).forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('provinceFilter').appendChild(o)});
 
 let allOrders=[], map=L.map('map',{zoomControl:true}).setView([46.8,103.5],4);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
@@ -107,6 +103,12 @@ function itemQty(o){
   let arr=o.items;if(!Array.isArray(arr)){try{arr=JSON.parse(arr||'[]')}catch(e){arr=[]}}
   return arr.reduce((a,x)=>a+(Number(x.qty)||0),0)
 }
+function gradeQty(o,n){
+  const direct=Number(o['grade'+n]);
+  if(Number.isFinite(direct))return direct;
+  let arr=o.items;if(!Array.isArray(arr)){try{arr=JSON.parse(arr||'[]')}catch(e){arr=[]}}
+  const x=arr.find(v=>Number(v.grade)===Number(n));return x?Number(x.qty)||0:0;
+}
 function statusClass(s){return s==='Шинэ'?'s-new':s==='Холбогдсон'?'s-contact':s==='Баталгаажсан'?'s-confirm':s==='Төлбөр авсан'?'s-paid':s==='Хүргэлтэд гарсан'?'s-delivery':'s-done'}
 function filtered(){
   const q=$('search').value.trim().toLowerCase(),p=$('provinceFilter').value,s=$('statusFilter').value;
@@ -125,10 +127,10 @@ function render(){
     <td><b>${o.orderId||''}</b></td><td>${o.createdAt?new Date(o.createdAt).toLocaleString('mn-MN'):''}</td>
     <td>${o.name||''}</td><td>${o.phone||''}</td><td>${o.email||''}</td>
     <td>${[o.province,o.district].filter(Boolean).join(' · ')}</td><td>${o.school||''}</td>
-    <td>${itemText(o)}</td><td>${itemQty(o)}</td>
+    <td>${gradeQty(o,1)}</td><td>${gradeQty(o,2)}</td><td>${gradeQty(o,3)}</td><td>${gradeQty(o,4)}</td><td>${gradeQty(o,5)}</td><td><b>${itemQty(o)}</b></td>
     <td><select class="status ${statusClass(o.status)}" onchange="updateStatus('${o.orderId}',this.value,this)">${statuses.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
     <td><button class="btn ghost" style="padding:6px 8px;font-size:10px" onclick="editNote('${o.orderId}', ${JSON.stringify(o.adminNote||'')})">Тэмдэглэл</button></td>
-  </tr>`).join('') || '<tr><td colspan="11" class="empty">Захиалга олдсонгүй.</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="15" class="empty">Захиалга олдсонгүй.</td></tr>';
   renderAttention(); renderBars(); renderMap();
 }
 async function updateStatus(orderId,status,el){
@@ -173,21 +175,30 @@ function renderMap(){
   markerLayer.clearLayers();
   const agg={};
   allOrders.forEach(o=>{
-    const key=o.province||'';
-    if(!provinceCoords[key])return;
-    if(!agg[key])agg[key]={orders:0,books:0,schools:new Set()};
-    agg[key].orders++;agg[key].books+=itemQty(o);if(o.school)agg[key].schools.add(o.school);
+    let lat=Number(o.lat),lng=Number(o.lng);
+    if(!Number.isFinite(lat)||!Number.isFinite(lng)){
+      const f=fallbackCoords[o.province];if(f){lat=f[0];lng=f[1]}
+    }
+    if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+    const key=[o.province,o.district,o.school,lat.toFixed(5),lng.toFixed(5)].join('|');
+    if(!agg[key])agg[key]={province:o.province,district:o.district,school:o.school,lat,lng,orders:0,books:0,grades:{1:0,2:0,3:0,4:0,5:0},exact:Boolean(Number(o.lat)&&Number(o.lng))};
+    const a=agg[key];a.orders++;a.books+=itemQty(o);for(let n=1;n<=5;n++)a.grades[n]+=gradeQty(o,n);
   });
-  Object.entries(agg).forEach(([p,v])=>{
-    const [lat,lng]=provinceCoords[p];
-    L.circleMarker([lat,lng],{radius:Math.min(22,8+Math.sqrt(v.orders)*2),weight:2,fillOpacity:.55})
-      .bindPopup(`<b>${p}</b><br>${v.orders} захиалга<br>${v.books} дэвтэр<br>${v.schools.size} сургууль`).addTo(markerLayer);
+  const points=Object.values(agg);
+  points.forEach(v=>{
+    const gradeLine=[1,2,3,4,5].filter(n=>v.grades[n]>0).map(n=>`${n}-р: ${v.grades[n]}`).join(' · ');
+    L.circleMarker([v.lat,v.lng],{radius:Math.min(20,8+Math.sqrt(v.orders)*2),weight:2,fillOpacity:.65})
+      .bindPopup(`<b>${v.school||'Сургууль'}</b><br>${v.district||''} · ${v.province||''}<br><b>${v.orders}</b> захиалга · <b>${v.books}</b> дэвтэр${gradeLine?'<br>'+gradeLine:''}${v.exact?'':'<br><small>⚠ Байршил ойролцоогоор</small>'}`).addTo(markerLayer);
   });
+  const exact=points.filter(x=>x.exact);
+  if(exact.length===1)map.setView([exact[0].lat,exact[0].lng],14);
+  else if(exact.length>1){const bounds=L.latLngBounds(exact.map(x=>[x.lat,x.lng]));map.fitBounds(bounds.pad(.18));}
 }
+
 $('search').oninput=render;$('provinceFilter').onchange=render;$('statusFilter').onchange=render;
 $('exportBtn').onclick=()=>{
-  const rows=[["Order ID","Date","Name","Phone","Email","Province","District","School","Items","Quantity","Status","Admin Note"],
-  ...filtered().map(o=>[o.orderId,o.createdAt,o.name,o.phone,o.email,o.province,o.district,o.school,itemText(o),itemQty(o),o.status,o.adminNote||''])];
+  const rows=[["Order ID","Date","Name","Phone","Email","Province","District/Soum","School","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Total Qty","Status","Admin Note","Latitude","Longitude"],
+  ...filtered().map(o=>[o.orderId,o.createdAt,o.name,o.phone,o.email,o.province,o.district,o.school,gradeQty(o,1),gradeQty(o,2),gradeQty(o,3),gradeQty(o,4),gradeQty(o,5),itemQty(o),o.status,o.adminNote||'',o.lat||'',o.lng||''])];
   const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');
   const b=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mydewter-orders.csv';a.click();
 };

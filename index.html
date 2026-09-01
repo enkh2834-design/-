@@ -70,7 +70,7 @@ h1{font-size:clamp(39px,4.5vw,68px);line-height:1.04;letter-spacing:-.055em;marg
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .field label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}
 .field input,.field select,.field textarea{width:100%;border:1px solid #e4dfe8;border-radius:7px;padding:10px 11px;background:#fff;outline:none}
-.field textarea{min-height:70px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#bfa4ea;box-shadow:0 0 0 3px rgba(108,53,212,.08)}
+.field textarea{min-height:70px;resize:vertical}.school-hint{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.4}.field input:focus,.field select:focus,.field textarea:focus{border-color:#bfa4ea;box-shadow:0 0 0 3px rgba(108,53,212,.08)}
 .full{grid-column:1/-1}
 .quantities{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}
 .quantities h3{font-size:13px;margin:0 0 11px}.qty-row{display:grid;grid-template-columns:1fr 30px 42px 30px;align-items:center;gap:5px;margin:7px 0;font-size:12px;font-weight:750}
@@ -134,9 +134,9 @@ footer{margin-top:24px;border-top:1px solid var(--line);padding:22px 0 38px}
           <div class="field"><label>Нэр *</label><input id="name" required placeholder="Нэрээ оруулна уу"></div>
           <div class="field"><label>Утас *</label><input id="phone" required placeholder="99XXXXXXXX"></div>
           <div class="field"><label>Имэйл *</label><input id="email" type="email" required placeholder="name@example.com"></div>
-          <div class="field"><label>Аймаг / хот *</label><select id="province" required><option value="">Сонгоно уу</option></select></div>
-          <div class="field"><label>Дүүрэг / сум *</label><input id="district" required placeholder="Дүүрэг / сум"></div>
-          <div class="field"><label>Сургуулийн нэр *</label><input id="school" required placeholder="Сургуулийн нэр"></div>
+          <div class="field"><label>Аймаг / хот *</label><select id="province" required><option value="">Ачааллаж байна...</option></select></div>
+          <div class="field"><label id="districtLabel">Дүүрэг / сум *</label><select id="district" required disabled><option value="">Эхлээд аймаг / хот сонгоно уу</option></select></div>
+          <div class="field"><label>Сургуулийн нэр *</label><select id="school" required disabled><option value="">Эхлээд дүүрэг / сум сонгоно уу</option></select><input id="schoolOther" style="display:none;margin-top:7px" placeholder="Сургуулийн нэрээ бичнэ үү"><div id="schoolHint" class="school-hint">Сургууль сонгоход газрын зургийн байршил захиалгатай хамт хадгалагдана.</div></div>
           <div class="field full"><label>Тайлбар (заавал биш)</label><textarea id="note" placeholder="Хүргэлт, нэмэлт мэдээлэл бичнэ үү..."></textarea></div>
         </div>
         <button class="btn btn-primary submit" type="submit">Захиалгаа илгээх</button>
@@ -243,17 +243,128 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id.startsWith('qty'))refreshQty()});
 
-const provinces=["Улаанбаатар","Архангай","Баян-Өлгий","Баянхонгор","Булган","Говь-Алтай","Говьсүмбэр","Дархан-Уул","Дорноговь","Дорнод","Дундговь","Завхан","Орхон","Өвөрхангай","Өмнөговь","Сүхбаатар","Сэлэнгэ","Төв","Увс","Ховд","Хөвсгөл","Хэнтий"];
-provinces.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;$('province').appendChild(o)});
+// Mongolia administrative divisions: 22 top-level units + 339 soums/districts.
+// Source is loaded from Open Admin Data's public CORS-enabled JSON API.
+let mnAimag=[],mnSoum=[],selectedDistrict=null;
+const ADMIN_API='https://api.openadmindata.org/api/v1/countries/mn.json';
+
+async function loadAdministrativeData(){
+  try{
+    const r=await fetch(ADMIN_API,{cache:'force-cache'});
+    if(!r.ok) throw new Error('Location data HTTP '+r.status);
+    const j=await r.json();
+    mnAimag=(j.data&&j.data.aimag)||[];
+    mnSoum=(j.data&&j.data.soum)||[];
+    mnAimag.sort((a,b)=>a.name_local==='Улаанбаатар'?-1:b.name_local==='Улаанбаатар'?1:(a.name_local||'').localeCompare(b.name_local||'','mn'));
+    $('province').innerHTML='<option value="">Сонгоно уу</option>';
+    mnAimag.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name_local;o.dataset.name=a.name_local;$('province').appendChild(o)});
+  }catch(err){
+    console.warn(err);
+    $('province').innerHTML='<option value="">Байршлын мэдээлэл ачаалсангүй — дахин оролдоно уу</option>';
+    $('schoolHint').textContent='Интернет холболтоо шалгаад хуудсаа refresh хийнэ үү.';
+  }
+}
+
+function selectedProvinceRecord(){return mnAimag.find(x=>String(x.id)===String($('province').value))||null}
+function selectedProvinceName(){const x=selectedProvinceRecord();return x?x.name_local:''}
+
+$('province').addEventListener('change',()=>{
+  const a=selectedProvinceRecord();
+  selectedDistrict=null;
+  $('district').innerHTML='<option value="">Сонгоно уу</option>';
+  $('school').innerHTML='<option value="">Эхлээд дүүрэг / сум сонгоно уу</option>';
+  $('school').disabled=true;$('schoolOther').style.display='none';$('schoolOther').value='';
+  if(!a){$('district').disabled=true;return}
+  $('districtLabel').textContent=(a.name_local==='Улаанбаатар'?'Дүүрэг *':'Сум / төв *');
+  const children=mnSoum.filter(s=>String(s.parent_id)===String(a.id)).sort((x,y)=>(x.name_local||'').localeCompare(y.name_local||'','mn'));
+  children.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name_local;o.dataset.name=s.name_local;$('district').appendChild(o)});
+  $('district').disabled=false;
+});
+
+$('district').addEventListener('change',async()=>{
+  selectedDistrict=mnSoum.find(x=>String(x.id)===String($('district').value))||null;
+  $('schoolOther').style.display='none';$('schoolOther').value='';
+  if(!selectedDistrict){$('school').disabled=true;return}
+  await loadSchoolsForSelectedArea();
+});
+
+function addSchoolOption(select,name,lat,lng,source){
+  if(!name)return;
+  const key=name.trim().toLowerCase();
+  if([...select.options].some(o=>(o.dataset.key||'')===key))return;
+  const o=document.createElement('option');o.value=name;o.textContent=name;o.dataset.key=key;o.dataset.lat=lat??'';o.dataset.lng=lng??'';o.dataset.source=source||'';select.appendChild(o);
+}
+
+async function loadSchoolsForSelectedArea(){
+  const province=selectedProvinceName(),district=selectedDistrict?.name_local||'';
+  const select=$('school');
+  select.disabled=true;select.innerHTML='<option value="">Сургуулиудыг хайж байна...</option>';
+  $('schoolHint').textContent='Сургуулийн жагсаалтыг манай сан болон OpenStreetMap-аас хайж байна...';
+  const systemSchools=[]; const osmSchools=[];
+  // 1) Schools already known to MY ДЭВТЭР (Google Sheet Schools tab)
+  if(DATA.orderApiUrl){
+    try{
+      const u=DATA.orderApiUrl+'?action=listSchools&province='+encodeURIComponent(province)+'&district='+encodeURIComponent(district);
+      const r=await fetch(u); const j=await r.json();
+      if(j.ok&&Array.isArray(j.schools)) systemSchools.push(...j.schools);
+    }catch(e){console.warn('School DB:',e)}
+  }
+  // 2) Public OSM suggestions around the selected soum/district center.
+  // It is a suggestion source; users can always choose "Бусад сургууль" below.
+  if(selectedDistrict?.lat&&selectedDistrict?.lon){
+    try{
+      const radius=province==='Улаанбаатар'?14000:32000;
+      const q=`[out:json][timeout:18];(node["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon});way["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon});relation["amenity"="school"](around:${radius},${selectedDistrict.lat},${selectedDistrict.lon}););out center tags;`;
+      const r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q));
+      if(r.ok){
+        const j=await r.json();
+        (j.elements||[]).forEach(el=>{
+          const t=el.tags||{},name=t['name:mn']||t.name;
+          if(!name)return;
+          // If OSM explicitly states another district, exclude it.
+          const taggedDistrict=t['addr:district']||t['addr:suburb']||'';
+          if(taggedDistrict&&district&&!String(taggedDistrict).includes(district))return;
+          const lat=el.lat??el.center?.lat,lng=el.lon??el.center?.lon;
+          if(lat&&lng)osmSchools.push({school:name,lat,lng,source:'OpenStreetMap'});
+        });
+      }
+    }catch(e){console.warn('OSM schools:',e)}
+  }
+  select.innerHTML='<option value="">Сургуулиа сонгоно уу</option>';
+  systemSchools.sort((a,b)=>(a.school||'').localeCompare(b.school||'','mn')).forEach(s=>addSchoolOption(select,s.school,s.lat,s.lng,'MY Dewter Schools'));
+  osmSchools.sort((a,b)=>(a.school||'').localeCompare(b.school||'','mn')).forEach(s=>addSchoolOption(select,s.school,s.lat,s.lng,s.source));
+  const other=document.createElement('option');other.value='__other__';other.textContent='Бусад сургууль — нэрээ өөрөө бичих';select.appendChild(other);
+  select.disabled=false;
+  const count=select.options.length-2;
+  $('schoolHint').textContent=count>0?`${count} сургуулийн сонголт олдлоо. Танай сургууль байхгүй бол “Бусад сургууль”-г сонгоно уу.`:'Сургуулийн автомат жагсаалт олдсонгүй. “Бусад сургууль”-г сонгоод нэрээ бичнэ үү.';
+}
+
+$('school').addEventListener('change',()=>{
+  const other=$('school').value==='__other__';
+  $('schoolOther').style.display=other?'block':'none';
+  $('schoolOther').required=other;
+  if(!other)$('schoolOther').value='';
+});
+
+loadAdministrativeData();
 
 $('orderForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const items=(DATA.grades||[]).map((g,i)=>({grade:g.grade,qty:Math.max(0,Number($('qty'+i).value)||0),price:g.price})).filter(x=>x.qty>0);
   if(!items.length){$('confirm').style.display='block';$('confirm').textContent='Доод тал нь нэг ангийн дэвтэрийн тоог сонгоно уу.';return}
+  const a=selectedProvinceRecord();
+  const d=selectedDistrict;
+  const schoolSelect=$('school');
+  const opt=schoolSelect.options[schoolSelect.selectedIndex];
+  const schoolName=schoolSelect.value==='__other__'?$('schoolOther').value.trim():schoolSelect.value;
+  if(!a||!d||!schoolName){$('confirm').style.display='block';$('confirm').textContent='Аймаг/хот, дүүрэг/сум, сургуулиа бүрэн сонгоно уу.';return}
   const payload={
     action:'createOrder',
     name:$('name').value.trim(), phone:$('phone').value.trim(), email:$('email').value.trim(),
-    province:$('province').value, district:$('district').value.trim(), school:$('school').value.trim(),
+    province:a.name_local, district:d.name_local, school:schoolName,
+    districtLat:Number(d.lat)||null,districtLng:Number(d.lon)||null,
+    schoolLat:Number(opt?.dataset?.lat)||null,schoolLng:Number(opt?.dataset?.lng)||null,
+    locationSource:opt?.dataset?.source||'manual',
     note:$('note').value.trim(), items
   };
   $('confirm').style.display='block';$('confirm').textContent='Захиалгыг илгээж байна...';
@@ -267,7 +378,7 @@ $('orderForm').addEventListener('submit',async e=>{
     const out=await res.json();
     if(!out.ok) throw new Error(out.error||'Алдаа');
     $('confirm').innerHTML=`✅ Захиалга амжилттай бүртгэгдлээ.<br><b>Захиалгын дугаар: ${out.orderId}</b><br>Бид таны утас болон имэйлээр холбогдоно.`;
-    e.target.reset(); (DATA.grades||[]).forEach((g,i)=>$('qty'+i).value=0); refreshQty();
+    e.target.reset(); $('district').disabled=true;$('school').disabled=true;$('schoolOther').style.display='none'; selectedDistrict=null; (DATA.grades||[]).forEach((g,i)=>$('qty'+i).value=0); refreshQty();
   }catch(err){
     $('confirm').textContent='Захиалга илгээхэд алдаа гарлаа. Та утсаар холбогдоно уу.';
   }
