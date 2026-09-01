@@ -23,11 +23,65 @@ button,input,select{font:inherit}.layout{display:grid;grid-template-columns:250p
 .empty{padding:30px;text-align:center;color:var(--muted)}
 @media(max-width:1100px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.menu{display:flex;gap:7px;overflow:auto}.brand{margin-bottom:12px}.metrics{grid-template-columns:1fr 1fr}.dashboard,.bottom{grid-template-columns:1fr}}
 @media(max-width:650px){.main{padding:12px}.metrics{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.loginbox{width:100%}.loginbox input{flex:1}}
+
+/* V11 — Admin login gate */
+.auth-gate{
+  position:fixed;inset:0;z-index:99999;
+  display:grid;place-items:center;padding:22px;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(111,67,223,.16),transparent 28%),
+    radial-gradient(circle at 82% 20%,rgba(75,201,213,.15),transparent 25%),
+    linear-gradient(135deg,#f8f4ef,#f3f0f8);
+}
+.auth-card{
+  width:min(440px,100%);
+  background:#fff;border:1px solid var(--line);
+  border-radius:26px;padding:28px;
+  box-shadow:0 30px 70px rgba(32,24,58,.16);
+}
+.auth-logo{
+  width:56px;height:56px;border-radius:18px;
+  display:grid;place-items:center;margin-bottom:18px;
+  color:#fff;font-size:25px;
+  background:linear-gradient(145deg,#8e67ef,#6f43df);
+  box-shadow:0 12px 24px rgba(111,67,223,.24);
+}
+.auth-card h1{margin:0 0 8px;font-size:26px;letter-spacing:-.035em}
+.auth-card p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.65}
+.auth-input{
+  width:100%;padding:14px 15px;border-radius:14px;
+  border:1px solid #ddd5e8;background:#fff;outline:none;
+}
+.auth-input:focus{border-color:#9d83e8;box-shadow:0 0 0 4px rgba(111,67,223,.09)}
+.auth-submit{width:100%;margin-top:10px;padding:13px 16px}
+.auth-error{
+  display:none;margin-top:12px;padding:10px 12px;
+  border-radius:12px;background:#fff0f1;color:#b33b4b;
+  border:1px solid #ffd7dc;font-size:12px;line-height:1.5;
+}
+.auth-note{margin-top:13px!important;font-size:11px!important;color:#8a8693!important}
+.session-box{display:flex;gap:9px;align-items:center}
+.session-pill{
+  padding:9px 12px;border-radius:999px;background:#edf8f2;
+  border:1px solid #d5eadc;color:#2f7b4d;font-size:12px;font-weight:800
+}
+
 </style>
 </head>
 <body>
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div class="auth-logo">♫</div>
+    <h1>Админ нэвтрэх</h1>
+    <p>Захиалга болон хэрэглэгчийн мэдээлэл харахын тулд admin key-гээ оруулна уу. Хуудас refresh хийх бүрт дахин нэвтэрнэ.</p>
+    <input class="auth-input" id="loginKey" type="password" autocomplete="off" placeholder="Admin key">
+    <button class="btn primary auth-submit" id="loginBtn">Нэвтрэх</button>
+    <div class="auth-error" id="authError"></div>
+    <p class="auth-note">Admin key browser-д хадгалагдахгүй.</p>
+  </div>
+</div>
 <script src="site-data.js"></script>
-<div class="layout">
+<div class="layout" id="adminApp" style="display:none">
   <aside class="sidebar">
     <div class="brand"><span class="logo">♫</span><span>MY ДЭВТЭР<br><small style="font-weight:500;color:#aab6cf">Админ панел</small></span></div>
     <nav class="menu"><a class="active" href="#overview">Хяналтын самбар</a><a href="#orders">Захиалгууд</a><a href="#mapcard">Газрын зураг</a><a href="#schools">Сургуулиуд</a><a href="editor.html">Агуулга / Дэвтэр</a><a href="index.html">Нийтийн сайт</a></nav>
@@ -35,7 +89,7 @@ button,input,select{font:inherit}.layout{display:grid;grid-template-columns:250p
   <main class="main">
     <div class="top">
       <div><h1>Захиалгын удирдлага</h1><p>Шинэ захиалга, сургуулиуд, байршил, төлөвийг нэг дор хянаарай.</p></div>
-      <div class="loginbox"><input id="adminKey" type="password" placeholder="Admin key"><button class="btn primary" id="loadBtn">Нэвтрэх / Шинэчлэх</button></div>
+      <div class="session-box"><span class="session-pill">● Нэвтэрсэн</span><button class="btn ghost" id="refreshBtn">Шинэчлэх</button><button class="btn ghost" id="logoutBtn">Гарах</button></div>
     </div>
 
     <section id="overview" class="metrics">
@@ -79,22 +133,86 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,att
 let markerLayer=L.layerGroup().addTo(map);
 
 function api(){return DATA.orderApiUrl||''}
-function key(){return $('adminKey').value.trim()}
-async function loadOrders(){
-  if(!api()){alert('site-data.js дотор orderApiUrl тохируулаагүй байна.');return}
-  if(!key()){alert('Admin key оруулна уу.');return}
-  $('loadBtn').textContent='Ачаалж байна...';
-  try{
-    const r=await fetch(api()+`?action=listOrders&adminKey=${encodeURIComponent(key())}`);
-    const out=await r.json();
-    if(!out.ok) throw new Error(out.error||'Нэвтрэх эрхгүй');
-    sessionStorage.setItem('mydewterAdminKey',key());
-    allOrders=out.orders||[]; render();
-  }catch(e){alert(e.message||'Алдаа гарлаа')}
-  finally{$('loadBtn').textContent='Нэвтрэх / Шинэчлэх'}
+let currentAdminKey='';
+
+function key(){return currentAdminKey}
+
+async function fetchOrdersWithKey(adminKey){
+  const r=await fetch(api()+`?action=listOrders&adminKey=${encodeURIComponent(adminKey)}`,{cache:'no-store'});
+  const out=await r.json();
+  if(!out.ok) throw new Error(out.error||'Admin key буруу байна.');
+  return out.orders||[];
 }
-$('adminKey').value=sessionStorage.getItem('mydewterAdminKey')||'';
-$('loadBtn').onclick=loadOrders;
+
+async function login(){
+  const entered=$('loginKey').value.trim();
+  const err=$('authError');
+  err.style.display='none';
+  if(!api()){
+    err.textContent='site-data.js дотор orderApiUrl тохируулаагүй байна.';
+    err.style.display='block';
+    return;
+  }
+  if(!entered){
+    err.textContent='Admin key оруулна уу.';
+    err.style.display='block';
+    return;
+  }
+
+  $('loginBtn').disabled=true;
+  $('loginBtn').textContent='Шалгаж байна...';
+
+  try{
+    const orders=await fetchOrdersWithKey(entered);
+    currentAdminKey=entered;
+    allOrders=orders;
+
+    $('authGate').style.display='none';
+    $('adminApp').style.display='grid';
+    render();
+
+    setTimeout(()=>map.invalidateSize(),100);
+  }catch(e){
+    currentAdminKey='';
+    err.textContent=e.message||'Нэвтрэх боломжгүй байна.';
+    err.style.display='block';
+  }finally{
+    $('loginBtn').disabled=false;
+    $('loginBtn').textContent='Нэвтрэх';
+  }
+}
+
+async function loadOrders(){
+  if(!currentAdminKey)return;
+  $('refreshBtn').disabled=true;
+  $('refreshBtn').textContent='Ачаалж байна...';
+  try{
+    allOrders=await fetchOrdersWithKey(currentAdminKey);
+    render();
+  }catch(e){
+    alert(e.message||'Алдаа гарлаа');
+    logout();
+  }finally{
+    $('refreshBtn').disabled=false;
+    $('refreshBtn').textContent='Шинэчлэх';
+  }
+}
+
+function logout(){
+  currentAdminKey='';
+  allOrders=[];
+  $('loginKey').value='';
+  $('adminApp').style.display='none';
+  $('authGate').style.display='grid';
+  $('authError').style.display='none';
+  setTimeout(()=>$('loginKey').focus(),50);
+}
+
+$('loginBtn').onclick=login;
+$('loginKey').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+$('refreshBtn').onclick=loadOrders;
+$('logoutBtn').onclick=logout;
+setTimeout(()=>$('loginKey').focus(),50);
 
 function itemText(o){
   if(Array.isArray(o.items)) return o.items.map(x=>`${x.grade}-р анги × ${x.qty}`).join(', ');
@@ -220,7 +338,7 @@ $('exportBtn').onclick=()=>{
   const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');
   const b=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mydewter-orders.csv';a.click();
 };
-if($('adminKey').value && api()) loadOrders();
+
 </script>
 </body>
 </html>
