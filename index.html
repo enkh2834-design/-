@@ -1358,6 +1358,122 @@ body { overflow-x:hidden; }
   }
 }
 
+
+/* =========================================================
+   V23 — CONTACT CARDS: FULL WIDTH, NO CRAMPING / OVERLAP
+   ========================================================= */
+
+/* Keep heading + explanation on the top row */
+.order-help-card .help-title-row{
+  grid-column:1;
+  min-width:0;
+}
+
+.order-help-card .help-explain{
+  grid-column:2;
+  min-width:0;
+  margin:0;
+}
+
+/* Critical fix:
+   phone / email / address now span the ENTIRE landscape card */
+.order-help-card .contact-lines{
+  grid-column:1 / -1;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(220px,.8fr) minmax(280px,1fr) minmax(420px,1.7fr);
+  gap:14px;
+  margin-top:4px;
+}
+
+/* Each contact card uses its full available width */
+.order-help-card .contact-line{
+  width:100%;
+  min-width:0;
+  min-height:92px;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  align-items:center;
+  gap:13px;
+  padding:16px 18px;
+  overflow:hidden;
+}
+
+.order-help-card .contact-icon{
+  width:44px;
+  height:44px;
+  flex:none;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+}
+
+.order-help-card .contact-line > div:last-child{
+  min-width:0;
+}
+
+.order-help-card .contact-line strong{
+  font-size:14px;
+  line-height:1.35;
+  white-space:normal;
+}
+
+.order-help-card .contact-line p{
+  margin-top:4px;
+  font-size:13px;
+  line-height:1.55;
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:anywhere;
+}
+
+/* Address is intentionally wider */
+.order-help-card .contact-line:last-child p{
+  max-width:none;
+}
+
+/* Medium desktop/tablet:
+   phone + email on first row, address full width below */
+@media(max-width:1100px){
+  .order-help-card{
+    grid-template-columns:1fr;
+  }
+
+  .order-help-card .help-title-row,
+  .order-help-card .help-explain,
+  .order-help-card .contact-lines{
+    grid-column:1;
+  }
+
+  .order-help-card .help-explain{
+    margin-top:-3px;
+  }
+
+  .order-help-card .contact-lines{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .order-help-card .contact-line:last-child{
+    grid-column:1 / -1;
+  }
+}
+
+/* Phone */
+@media(max-width:700px){
+  .order-help-card .contact-lines{
+    grid-template-columns:1fr;
+  }
+
+  .order-help-card .contact-line:last-child{
+    grid-column:auto;
+  }
+
+  .order-help-card .contact-line{
+    min-height:76px;
+    padding:14px 15px;
+  }
+}
+
 </style>
 </head>
 <body>
