@@ -122,6 +122,40 @@ const $=id=>document.getElementById(id);
 let data=structuredClone(FALLBACK), token='', dirty=false, previewTimer=null;
 const api=()=>data.orderApiUrl||FALLBACK.orderApiUrl||'';
 
+function mergeV22Content(fallback, remote){
+  if(!remote || typeof remote!=='object') return structuredClone(fallback);
+  if(Number(remote.contentVersion||0)>=22){
+    return Object.assign({},structuredClone(fallback),structuredClone(remote));
+  }
+
+  const merged=Object.assign({},structuredClone(fallback),structuredClone(remote));
+  const forceKeys=[
+    'brand','tagline','heroBadge','heroTitle','heroText',
+    'teacherSectionTitle','teacherSectionText','teacherBenefits','teacherSectionClosing',
+    'authorName','authorTitle','authorBio','authorSpecialization',
+    'authorEducation','authorExperience','authorAchievements','authorPublications',
+    'certificateText','phone','email','address'
+  ];
+  forceKeys.forEach(k=>{if(fallback[k]!==undefined)merged[k]=structuredClone(fallback[k])});
+
+  const remoteGrades=Array.isArray(remote.grades)?remote.grades:[];
+  merged.grades=(fallback.grades||[]).map(sg=>{
+    const rg=remoteGrades.find(x=>Number(x.grade)===Number(sg.grade))||{};
+    return Object.assign({},structuredClone(sg),structuredClone(rg),{
+      grade:sg.grade,
+      title:sg.title,
+      description:sg.description,
+      price:sg.price,
+      bullets:structuredClone(sg.bullets||[]),
+      image:rg.image||sg.image,
+      listeningTracks:Array.isArray(rg.listeningTracks)?structuredClone(rg.listeningTracks):structuredClone(sg.listeningTracks||[])
+    });
+  });
+  merged.contentVersion=22;
+  return merged;
+}
+
+
 function showError(msg){const e=$('loginError');e.textContent=msg;e.style.display='block'}
 async function post(payload){
   const r=await fetch(api(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
@@ -135,7 +169,7 @@ async function login(){
   $('loginBtn').disabled=true;$('loginBtn').textContent='Шалгаж байна...';
   try{
     const out=await post({action:'editorLogin',email,password});
-    token=out.token; data=Object.assign({},structuredClone(FALLBACK),structuredClone(out.data||{}));
+    token=out.token; data=mergeV22Content(FALLBACK,out.data||{});
     if(!data.orderApiUrl)data.orderApiUrl=FALLBACK.orderApiUrl;
     $('login').classList.add('hidden');$('app').classList.remove('hidden');
     buildEditor();syncPreview(true);setStatus('Нэвтэрсэн · өөрчлөлтгүй','published');
@@ -178,7 +212,7 @@ function buildEditor(){fillCommon();buildGrades();buildListening();imgPreview('a
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelector(`[data-pane="${t.dataset.tab}"]`).classList.add('active')});
 $('desktopBtn').onclick=()=>{$('device').classList.remove('mobile');$('desktopBtn').classList.add('active');$('mobileBtn').classList.remove('active')};$('mobileBtn').onclick=()=>{$('device').classList.add('mobile');$('mobileBtn').classList.add('active');$('desktopBtn').classList.remove('active')};$('refreshPreview').onclick=()=>syncPreview(true);
 
-$('publishBtn').onclick=async()=>{if(!token)return;const b=$('publishBtn');b.disabled=true;b.textContent='Нийтэлж байна...';try{const out=await post({action:'saveSiteData',token,siteData:data,orderApiUrl:api()});dirty=false;setStatus('Нийтлэгдсэн · '+new Date(out.updatedAt).toLocaleTimeString(),'published');syncPreview(true)}catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Хадгалах & Нийтлэх'}};
+$('publishBtn').onclick=async()=>{if(!token)return;const b=$('publishBtn');b.disabled=true;b.textContent='Нийтэлж байна...';try{data.contentVersion=22;const out=await post({action:'saveSiteData',token,siteData:data,orderApiUrl:api()});dirty=false;setStatus('Нийтлэгдсэн · '+new Date(out.updatedAt).toLocaleTimeString(),'published');syncPreview(true)}catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Хадгалах & Нийтлэх'}};
 $('logoutBtn').onclick=async()=>{try{if(token)await post({action:'editorLogout',token})}catch(e){}token='';localStorage.removeItem('mydewter_editor_preview_data');$('app').classList.add('hidden');$('login').classList.remove('hidden');$('password').value=''};
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 </script>

@@ -689,7 +689,8 @@ body { overflow-x:hidden; }
     "intro quantity"
     "contact quantity"
     "location quantity"
-    "submit help";
+    "submit quantity"
+    "help help";
   gap:16px 18px;
   align-items:start;
 }
@@ -930,6 +931,433 @@ body { overflow-x:hidden; }
   .teacher-benefit-item{min-height:62px;padding:13px 14px}
 }
 
+
+/* =========================================================
+   V20 — NO GAP + PREMIUM TEACHER EDITORIAL SECTION
+   ========================================================= */
+
+/* Critical fix: this section must NEVER be invisible while
+   keeping its layout height. */
+#teacherBenefit{
+  opacity:1 !important;
+  transform:none !important;
+  visibility:visible !important;
+}
+
+.hero{
+  padding-bottom:10px;
+}
+
+.teacher-benefit{
+  position:relative;
+  overflow:hidden;
+  margin:8px 0 12px;
+  padding:0;
+  border:1px solid #e8e1d8;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(75,201,213,.14),transparent 31%),
+    radial-gradient(circle at 100% 100%,rgba(246,176,79,.13),transparent 30%),
+    linear-gradient(135deg,#ffffff 0%,#fffdf9 54%,#f8fbff 100%);
+  box-shadow:0 18px 42px rgba(24,36,69,.065);
+}
+
+.teacher-benefit:after{
+  content:"♪";
+  position:absolute;
+  right:-16px;
+  top:-35px;
+  font-size:145px;
+  font-weight:800;
+  color:rgba(36,105,235,.035);
+  line-height:1;
+  pointer-events:none;
+}
+
+.teacher-editorial{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(370px,.92fr);
+  min-height:0;
+}
+
+.teacher-editorial-main{
+  padding:34px 38px 30px;
+  border-right:1px solid rgba(223,225,232,.8);
+}
+
+.teacher-eyebrow{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:14px;
+  color:#245fd8;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.13em;
+}
+
+.teacher-note-icon{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  color:#fff;
+  font-size:15px;
+  background:linear-gradient(145deg,#2469eb,#4bc9d5);
+  box-shadow:0 8px 18px rgba(36,105,235,.18);
+}
+
+.teacher-editorial-main h2{
+  margin:0 0 14px;
+  max-width:770px;
+  font-size:clamp(28px,3.2vw,43px);
+  line-height:1.08;
+  letter-spacing:-.045em;
+  color:#17213a;
+}
+
+.teacher-editorial-main>p{
+  margin:0;
+  max-width:760px;
+  color:#6e7688;
+  font-size:15px;
+  line-height:1.8;
+}
+
+.teacher-editorial-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+.teacher-text-link{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  color:#1f58c7;
+  font-size:13px;
+  font-weight:900;
+  text-decoration:none;
+}
+
+.teacher-text-link span{
+  transition:transform .2s ease;
+}
+
+.teacher-text-link:hover span{
+  transform:translateX(4px);
+}
+
+.teacher-order-link{
+  padding:10px 15px;
+  border-radius:13px;
+  border:1px solid #dbe3ef;
+  background:#fff;
+  color:#394760;
+  font-size:12px;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:0 6px 16px rgba(24,36,69,.04);
+}
+
+.teacher-benefit-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+  padding:18px 22px;
+  align-content:center;
+  background:rgba(248,250,253,.53);
+}
+
+.teacher-benefit-item{
+  display:grid;
+  grid-template-columns:48px 1fr;
+  gap:13px;
+  align-items:center;
+  min-height:0;
+  padding:15px 8px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  transition:transform .2s ease;
+}
+
+.teacher-benefit-item + .teacher-benefit-item{
+  border-top:1px solid #e5e8ee;
+}
+
+.teacher-benefit-item:hover{
+  transform:translateX(4px);
+  box-shadow:none;
+}
+
+.benefit-symbol{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  font-size:21px;
+  background:#fff;
+  border:1px solid #e4e8ef;
+  box-shadow:0 8px 18px rgba(28,42,78,.06);
+}
+
+.benefit-time .benefit-symbol{background:#fff7e9;border-color:#f3dfba}
+.benefit-class .benefit-symbol{background:#eef8ff;border-color:#d9eaf7}
+.benefit-growth .benefit-symbol{background:#f2efff;border-color:#dfd9fa}
+
+.benefit-small{
+  display:block;
+  margin-bottom:3px;
+  color:#8991a1;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.teacher-benefit-item strong{
+  display:block;
+  color:#24304a;
+  font-size:15px;
+  line-height:1.3;
+}
+
+.teacher-benefit-item p{
+  margin:4px 0 0;
+  color:#7a8293;
+  font-size:11.5px;
+  line-height:1.55;
+}
+
+.teacher-closing-line{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:48px;
+  padding:10px 36px;
+  border-top:1px solid #e8e5df;
+  background:rgba(255,255,255,.72);
+  color:#245fd8;
+  font-size:13px;
+}
+
+.teacher-wave{
+  font-size:18px;
+}
+
+.teacher-line{
+  height:1px;
+  flex:1;
+  background:linear-gradient(90deg,#c7d9fa,transparent);
+}
+
+#collection.section{
+  padding-top:16px;
+}
+
+/* Hide the old closing paragraph style if old data/CSS tries to
+   target it elsewhere. */
+.teacher-benefit-closing{
+  margin:0!important;
+}
+
+@media(max-width:980px){
+  .teacher-editorial{
+    grid-template-columns:1fr;
+  }
+  .teacher-editorial-main{
+    border-right:0;
+    border-bottom:1px solid #e5e8ee;
+  }
+  .teacher-benefit-list{
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    padding:16px 20px 20px;
+  }
+  .teacher-benefit-item{
+    grid-template-columns:1fr;
+    align-items:start;
+    border:1px solid #e5e8ee!important;
+    border-radius:17px;
+    padding:14px;
+    background:#fff;
+  }
+}
+
+@media(max-width:700px){
+  .teacher-benefit{
+    margin-top:4px;
+    border-radius:24px;
+  }
+  .teacher-editorial-main{
+    padding:23px 19px 20px;
+  }
+  .teacher-editorial-main h2{
+    font-size:28px;
+  }
+  .teacher-editorial-main>p{
+    font-size:14px;
+    line-height:1.7;
+  }
+  .teacher-benefit-list{
+    grid-template-columns:1fr;
+    gap:0;
+    padding:7px 18px 12px;
+  }
+  .teacher-benefit-item{
+    grid-template-columns:46px 1fr;
+    border:0!important;
+    border-radius:0;
+    background:transparent;
+    padding:13px 2px;
+  }
+  .teacher-benefit-item + .teacher-benefit-item{
+    border-top:1px solid #e5e8ee!important;
+  }
+  .teacher-closing-line{
+    padding:10px 19px;
+    font-size:12px;
+  }
+}
+
+
+/* =========================================================
+   V21 — FULL-WIDTH LANDSCAPE CONTACT SECTION
+   ========================================================= */
+.order-help-card{
+  grid-area:help;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr);
+  gap:28px;
+  align-items:center;
+  padding:24px 28px;
+  margin-top:2px;
+  background:
+    radial-gradient(circle at 3% 10%,rgba(75,201,213,.12),transparent 28%),
+    radial-gradient(circle at 98% 80%,rgba(36,105,235,.08),transparent 25%),
+    linear-gradient(135deg,#ffffff,#fbfdff);
+  overflow:hidden;
+  position:relative;
+  z-index:2;
+}
+
+.order-help-card .help-title-row{
+  align-items:center;
+}
+
+.order-help-card .help-icon{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  font-size:20px;
+}
+
+.order-help-card .help-title-row h3{
+  margin:4px 0 0;
+  font-size:21px;
+}
+
+.order-help-card .help-explain{
+  margin:12px 0 0;
+  max-width:520px;
+  font-size:13px;
+  line-height:1.65;
+}
+
+.order-help-card .contact-lines{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.order-help-card .contact-line{
+  min-width:0;
+  min-height:82px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:13px 14px;
+  border:1px solid #e4e9f0;
+  border-radius:17px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 7px 18px rgba(27,40,73,.035);
+}
+
+.order-help-card .contact-line + .contact-line{
+  border-top:1px solid #e4e9f0;
+}
+
+.order-help-card .contact-line strong{
+  display:block;
+  margin-bottom:3px;
+  font-size:13px;
+}
+
+.order-help-card .contact-line p{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+  word-break:break-word;
+}
+
+.order-help-card .contact-action:hover{
+  transform:translateY(-2px);
+  background:#f7fbff;
+}
+
+/* The quantity card can remain visible at the side without
+   covering the contact section below. */
+.step-quantity{
+  align-self:start;
+  z-index:1;
+}
+
+@media(max-width:1180px){
+  .order-flow-form{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "intro"
+      "contact"
+      "location"
+      "quantity"
+      "submit"
+      "help";
+  }
+
+  .order-help-card{
+    grid-template-columns:1fr;
+    gap:15px;
+  }
+
+  .order-help-card .contact-lines{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+
+@media(max-width:760px){
+  .order-help-card{
+    padding:18px;
+    border-radius:24px;
+  }
+
+  .order-help-card .contact-lines{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .order-help-card .contact-line{
+    min-height:68px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -981,23 +1409,64 @@ body { overflow-x:hidden; }
     </div>
   </section>
 
-  <section class="teacher-benefit reveal" id="teacherBenefit">
-    <div class="teacher-benefit-grid">
-      <div class="teacher-benefit-copy">
-        <div class="kicker">БАГШИД ЗОРИУЛСАН</div>
-        <h2 id="teacherSectionTitle">🎵 Хөгжмийн дасгал ажлын дэвтэр — таны ажлын ачааллыг хөнгөвчилнө!</h2>
-        <p id="teacherSectionText">Хичээл бүрт дасгал боловсруулах гэж цаг их зарцуулах шаардлагагүй. Багш, сурагчдын хэрэгцээнд нийцсэн бэлэн дасгал, даалгавар бүхий хөгжмийн ажлын дэвтэр нь хичээлээ илүү хялбар, үр дүнтэй зохион байгуулахад тань тусална.</p>
-        <p class="teacher-benefit-closing" id="teacherSectionClosing">🎶 Хөгжмийн хичээлийг илүү хялбар болгоё!</p>
-        <div class="teacher-benefit-actions">
-          <a class="btn btn-primary" href="#collection">Дэвтэрүүдийг үзэх</a>
-          <a class="btn btn-soft" href="#order">Захиалга өгөх</a>
+  <section class="teacher-benefit" id="teacherBenefit">
+    <div class="teacher-editorial">
+      <div class="teacher-editorial-main">
+        <div class="teacher-eyebrow">
+          <span class="teacher-note-icon">♫</span>
+          <span>БАГШ, СУРАГЧДАД ЗОРИУЛСАН</span>
+        </div>
+
+        <h2 id="teacherSectionTitle">
+          Хөгжмийн дасгал ажлын дэвтэр — таны ажлын ачааллыг хөнгөвчилнө!
+        </h2>
+
+        <p id="teacherSectionText">
+          Хичээл бүрт дасгал боловсруулах гэж цаг их зарцуулах шаардлагагүй. Багш, сурагчдын хэрэгцээнд нийцсэн бэлэн дасгал, даалгавар бүхий хөгжмийн ажлын дэвтэр нь хичээлээ илүү хялбар, үр дүнтэй зохион байгуулахад тань тусална.
+        </p>
+
+        <div class="teacher-editorial-actions">
+          <a href="#collection" class="teacher-text-link">
+            1–5-р ангийн дэвтэрүүдийг үзэх <span>→</span>
+          </a>
+          <a href="#order" class="teacher-order-link">Захиалга өгөх</a>
         </div>
       </div>
+
       <div class="teacher-benefit-list" id="teacherBenefits">
-        <div class="teacher-benefit-item"><span class="benefit-index">01</span><span>⏰ Цагаа хэмнэж</span></div>
-        <div class="teacher-benefit-item"><span class="benefit-index">02</span><span>📚 Хичээлээ хөнгөвчилж</span></div>
-        <div class="teacher-benefit-item"><span class="benefit-index">03</span><span>🎼 Сурагчдын хөгжмийн мэдлэг, чадварыг дэмжээрэй!</span></div>
+        <article class="teacher-benefit-item benefit-time">
+          <div class="benefit-symbol">⏰</div>
+          <div>
+            <span class="benefit-small">01 · Багшийн цаг</span>
+            <strong>Цагаа хэмнэж</strong>
+            <p>Хичээл бүрт дасгал шинээр боловсруулах ачааллыг багасгана.</p>
+          </div>
+        </article>
+
+        <article class="teacher-benefit-item benefit-class">
+          <div class="benefit-symbol">📚</div>
+          <div>
+            <span class="benefit-small">02 · Хичээлийн хэрэглээ</span>
+            <strong>Хичээлээ хөнгөвчилж</strong>
+            <p>Бэлэн, цэгцтэй даалгавраар хичээлээ ойлгомжтой зохион байгуулна.</p>
+          </div>
+        </article>
+
+        <article class="teacher-benefit-item benefit-growth">
+          <div class="benefit-symbol">🎼</div>
+          <div>
+            <span class="benefit-small">03 · Сурагчийн хөгжил</span>
+            <strong>Мэдлэг, чадварыг дэмжинэ</strong>
+            <p>Сонсох, унших, бүтээлчээр ажиллах хөгжмийн чадварыг хөгжүүлнэ.</p>
+          </div>
+        </article>
       </div>
+    </div>
+
+    <div class="teacher-closing-line">
+      <span class="teacher-wave">♪</span>
+      <strong id="teacherSectionClosing">Хөгжмийн хичээлийг илүү хялбар болгоё!</strong>
+      <span class="teacher-line"></span>
     </div>
   </section>
 
@@ -1139,7 +1608,7 @@ body { overflow-x:hidden; }
         <div class="help-title-row">
           <span class="help-icon">☎</span>
           <div>
-            <div class="kicker">ТУСЛАМЖ</div>
+            <div class="kicker">ХОЛБОО БАРИХ</div>
             <h3>Захиалгатай холбоотой асуулт байна уу?</h3>
           </div>
         </div>
@@ -1283,12 +1752,32 @@ if ($('teacherSectionText')) $('teacherSectionText').textContent = safe(DATA.tea
 if ($('teacherSectionClosing')) $('teacherSectionClosing').textContent = safe(DATA.teacherSectionClosing,'🎶 Хөгжмийн хичээлийг илүү хялбар болгоё!');
 if ($('teacherBenefits')) {
   const benefitItems = Array.isArray(DATA.teacherBenefits) ? DATA.teacherBenefits : [];
-  $('teacherBenefits').innerHTML = benefitItems.map((item,i)=>`
-    <div class="teacher-benefit-item">
-      <span class="benefit-index">${String(i+1).padStart(2,'0')}</span>
-      <span>${item}</span>
-    </div>
-  `).join('');
+  const benefitMeta = [
+    {icon:'⏰', label:'Багшийн цаг', cls:'benefit-time', fallback:'Цагаа хэмнэж'},
+    {icon:'📚', label:'Хичээлийн хэрэглээ', cls:'benefit-class', fallback:'Хичээлээ хөнгөвчилж'},
+    {icon:'🎼', label:'Сурагчийн хөгжил', cls:'benefit-growth', fallback:'Мэдлэг, чадварыг дэмжинэ'}
+  ];
+  $('teacherBenefits').innerHTML = benefitMeta.map((meta,i)=>{
+    const raw = benefitItems[i] || meta.fallback;
+    const title = String(raw)
+      .replace(/^⏰\s*/,'')
+      .replace(/^📚\s*/,'')
+      .replace(/^🎼\s*/,'');
+    const descriptions = [
+      'Хичээл бүрт дасгал шинээр боловсруулах ачааллыг багасгана.',
+      'Бэлэн, цэгцтэй даалгавраар хичээлээ ойлгомжтой зохион байгуулна.',
+      'Сонсох, унших, бүтээлчээр ажиллах хөгжмийн чадварыг хөгжүүлнэ.'
+    ];
+    return `
+      <article class="teacher-benefit-item ${meta.cls}">
+        <div class="benefit-symbol">${meta.icon}</div>
+        <div>
+          <span class="benefit-small">${String(i+1).padStart(2,'0')} · ${meta.label}</span>
+          <strong>${title}</strong>
+          <p>${descriptions[i]}</p>
+        </div>
+      </article>`;
+  }).join('');
 }
 $('authorName').textContent = safe(DATA.authorName,'Жамсранжавын Энхсайхан');
 $('authorTitle').textContent = safe(DATA.authorTitle,'Зохиогч');

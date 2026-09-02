@@ -2,6 +2,7 @@
 // editor.html дээр өөрчлөлт хийж шинэ site-data.js татаж болно.
 
 window.MYDEWTER_DATA = {
+  contentVersion: 22,
   brand: "Хөгжмийн дасгал ажлын дэвтэр",
   tagline: "Хөгжим · Дасгал · Хөгжил",
 
@@ -11,11 +12,7 @@ window.MYDEWTER_DATA = {
 
   teacherSectionTitle: "🎵 Хөгжмийн дасгал ажлын дэвтэр — таны ажлын ачааллыг хөнгөвчилнө!",
   teacherSectionText: "Хичээл бүрт дасгал боловсруулах гэж цаг их зарцуулах шаардлагагүй. Багш, сурагчдын хэрэгцээнд нийцсэн бэлэн дасгал, даалгавар бүхий хөгжмийн ажлын дэвтэр нь хичээлээ илүү хялбар, үр дүнтэй зохион байгуулахад тань тусална.",
-  teacherBenefits: [
-    "⏰ Цагаа хэмнэж",
-    "📚 Хичээлээ хөнгөвчилж",
-    "🎼 Сурагчдын хөгжмийн мэдлэг, чадварыг дэмжээрэй!"
-  ],
+  teacherBenefits: ["⏰ Цагаа хэмнэж", "📚 Хичээлээ хөнгөвчилж", "🎼 Сурагчдын хөгжмийн мэдлэг, чадварыг дэмжээрэй!"],
   teacherSectionClosing: "🎶 Хөгжмийн хичээлийг илүү хялбар болгоё!",
   heroImage: "",
 
@@ -88,31 +85,77 @@ window.MYDEWTER_DATA = {
 };
 
 
-// V18: Published editor data + exact editor preview support.
+// V22: Published editor data + one-time screenshot-text migration.
 window.MYDEWTER_READY = (async function(){
+  const STATIC = window.MYDEWTER_DATA;
+
+  function migrateOldPublished(remote){
+    if (!remote || typeof remote !== 'object') return STATIC;
+
+    // After V22 is published from Studio, editor changes are respected normally.
+    if (Number(remote.contentVersion || 0) >= 22) {
+      return Object.assign({}, STATIC, remote);
+    }
+
+    // Older backend content may overwrite the screenshot texts.
+    // Keep operational/user-uploaded data, but apply the V22 text defaults once.
+    const merged = Object.assign({}, STATIC, remote);
+
+    const forceKeys = [
+      'brand','tagline','heroBadge','heroTitle','heroText',
+      'teacherSectionTitle','teacherSectionText','teacherBenefits','teacherSectionClosing',
+      'authorName','authorTitle','authorBio','authorSpecialization',
+      'authorEducation','authorExperience','authorAchievements','authorPublications',
+      'certificateText','phone','email','address'
+    ];
+
+    forceKeys.forEach(k => {
+      if (STATIC[k] !== undefined) merged[k] = STATIC[k];
+    });
+
+    const remoteGrades = Array.isArray(remote.grades) ? remote.grades : [];
+    merged.grades = (STATIC.grades || []).map(staticGrade => {
+      const rg = remoteGrades.find(x => Number(x.grade) === Number(staticGrade.grade)) || {};
+      return Object.assign(
+        {},
+        staticGrade,
+        rg,
+        {
+          grade: staticGrade.grade,
+          title: staticGrade.title,
+          description: staticGrade.description,
+          price: staticGrade.price,
+          bullets: staticGrade.bullets,
+          // preserve current uploaded images and audio lists if present
+          image: rg.image || staticGrade.image,
+          listeningTracks: Array.isArray(rg.listeningTracks) ? rg.listeningTracks : staticGrade.listeningTracks
+        }
+      );
+    });
+
+    merged.contentVersion = 22;
+    return merged;
+  }
+
   try {
     const params = new URLSearchParams(location.search);
 
     if (params.get('editorPreview') === '1') {
       const preview = localStorage.getItem('mydewter_editor_preview_data');
       if (preview) {
-        window.MYDEWTER_DATA = Object.assign(
-          {},
-          window.MYDEWTER_DATA,
-          JSON.parse(preview)
-        );
+        window.MYDEWTER_DATA = migrateOldPublished(JSON.parse(preview));
       }
       return window.MYDEWTER_DATA;
     }
 
-    const api = window.MYDEWTER_DATA && window.MYDEWTER_DATA.orderApiUrl;
+    const api = STATIC && STATIC.orderApiUrl;
     if (!api) return window.MYDEWTER_DATA;
 
     const r = await fetch(api + '?action=getSiteData&_=' + Date.now(), {cache:'no-store'});
     const result = await r.json();
 
     if (result && result.ok && result.data) {
-      window.MYDEWTER_DATA = Object.assign({}, window.MYDEWTER_DATA, result.data);
+      window.MYDEWTER_DATA = migrateOldPublished(result.data);
       if (!window.MYDEWTER_DATA.orderApiUrl) {
         window.MYDEWTER_DATA.orderApiUrl = api;
       }
@@ -120,5 +163,6 @@ window.MYDEWTER_READY = (async function(){
   } catch (e) {
     console.warn('Published site data fallback:', e);
   }
+
   return window.MYDEWTER_DATA;
 })();
