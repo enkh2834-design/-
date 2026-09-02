@@ -15,6 +15,13 @@ const CONFIG = {
   EDITOR_EMAIL: 'enkh2834@gmail.com',
   EDITOR_PASSWORD: 'CHANGE-THIS-EDITOR-PASSWORD',
 
+  // Захиалагчид очих төлбөрийн мэдээлэл
+  BANK_NAME: 'Хасбанк (XacBank)',
+  BANK_ACCOUNT: 'MN530032005002379658',
+  BANK_HOLDER: 'Ж.Энхсайхан',
+  CONTACT_PHONE_1: '80080371',
+  CONTACT_PHONE_2: '80620171',
+
   SITE_URL: 'https://mydewter.mn'
 };
 
@@ -479,6 +486,14 @@ function createOrder_(d) {
     };
   }
 
+  const invalidMin = items.find(x => Number(x.qty) > 0 && Number(x.qty) < 10);
+  if (invalidMin) {
+    return {
+      ok: false,
+      error: invalidMin.grade + '-р ангийн хамгийн бага захиалга 10 ширхэг байна.'
+    };
+  }
+
   const sh = sheet_();
 
   const lock = LockService.getScriptLock();
@@ -640,39 +655,63 @@ function createOrder_(d) {
         orderId,
 
       htmlBody: `
-        <h2>✅ Захиалга амжилттай бүртгэгдлээ</h2>
+        <div style="font-family:Arial,sans-serif;line-height:1.65;color:#17213a;max-width:620px">
+          <h2 style="margin-bottom:18px">✅ Захиалга амжилттай бүртгэгдлээ</h2>
 
-        <p>
-          Сайн байна уу,
-          <b>${d.name}</b>.
-        </p>
+          <p>
+            Сайн байна уу, <b>${d.name}</b>.
+          </p>
 
-        <p>
-          Захиалгын дугаар:
-          <b>${orderId}</b>
-        </p>
+          <p>
+            Захиалгын дугаар:
+            <b>${orderId}</b>
+          </p>
 
-        <p>
-          Сургууль:
-          <b>${d.school}</b><br>
+          <p>
+            <b>Сургууль:</b> ${d.school}<br>
+            <b>Аймаг / хот:</b> ${d.province}<br>
+            <b>Дүүрэг / сум:</b> ${d.district}
+          </p>
 
-          Нийт:
-          <b>${totalQty} дэвтэр</b><br>
+          <div style="margin:20px 0;padding:16px 18px;background:#f6f9ff;border:1px solid #dfe9f8;border-radius:14px">
+            <b>Захиалсан дэвтэр:</b><br>
+            1-р анги: <b>${q(1)}</b><br>
+            2-р анги: <b>${q(2)}</b><br>
+            3-р анги: <b>${q(3)}</b><br>
+            4-р анги: <b>${q(4)}</b><br>
+            5-р анги: <b>${q(5)}</b><br><br>
 
-          Нийт төлбөр:
-          <b>${totalAmount.toLocaleString('mn-MN')}₮</b>
-        </p>
+            <b>Нийт: ${totalQty} дэвтэр</b><br>
+            <b>Нийт төлбөр: ${totalAmount.toLocaleString('mn-MN')}₮</b>
+          </div>
 
-        <p>
-          Бид таны
-          <b>${d.phone}</b>
-          утсаар холбогдож төлбөр болон
-          хүргэлтийг баталгаажуулна.
-        </p>
+          <div style="margin:20px 0;padding:16px 18px;background:#fff8e9;border:1px solid #efdfbd;border-radius:14px">
+            <b>💳 Төлбөр хүлээн авах данс</b><br>
+            ${CONFIG.BANK_NAME}<br>
+            Данс: <b>${CONFIG.BANK_ACCOUNT}</b><br>
+            Данс эзэмшигч: <b>${CONFIG.BANK_HOLDER}</b>
+          </div>
 
-        <p>
-          ${CONFIG.SITE_URL}
-        </p>
+          <p>
+            <b>☎ Холбоо барих:</b><br>
+            ${CONFIG.CONTACT_PHONE_1}<br>
+            ${CONFIG.CONTACT_PHONE_2}
+          </p>
+
+          <p>
+            Төлбөр болон хүргэлтийн мэдээллийг баталгаажуулах шаардлагатай тохиолдолд
+            бид тантай холбогдоно.
+          </p>
+
+          <p>
+            <a href="${CONFIG.SITE_URL}">${CONFIG.SITE_URL}</a>
+          </p>
+
+          <p style="margin-top:24px">
+            Баярлалаа.<br>
+            <b>MY ДЭВТЭР</b>
+          </p>
+        </div>
       `
     });
 

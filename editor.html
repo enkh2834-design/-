@@ -62,6 +62,14 @@
           <div class="field"><label>Жижиг гарчиг</label><input data-bind="heroBadge"></div>
           <div class="field"><label>Үндсэн гарчиг</label><textarea data-bind="heroTitle"></textarea></div>
           <div class="field"><label>Тайлбар</label><textarea data-bind="heroText"></textarea></div>
+
+          <div class="card" style="margin-top:16px">
+            <div class="grade-head"><b>Багшид зориулсан мэдээлэл</b><span>Homepage</span></div>
+            <div class="field"><label>Үндсэн гарчиг</label><textarea data-bind="teacherSectionTitle"></textarea></div>
+            <div class="field"><label>Тайлбар</label><textarea data-bind="teacherSectionText"></textarea></div>
+            <div class="field"><label>3 давуу тал — мөр бүрт нэг</label><textarea data-array="teacherBenefits"></textarea></div>
+            <div class="field"><label>Төгсгөлийн өгүүлбэр</label><input data-bind="teacherSectionClosing"></div>
+          </div>
         </section>
 
         <section class="pane" data-pane="grades">
@@ -127,7 +135,7 @@ async function login(){
   $('loginBtn').disabled=true;$('loginBtn').textContent='Шалгаж байна...';
   try{
     const out=await post({action:'editorLogin',email,password});
-    token=out.token; data=structuredClone(out.data||FALLBACK);
+    token=out.token; data=Object.assign({},structuredClone(FALLBACK),structuredClone(out.data||{}));
     if(!data.orderApiUrl)data.orderApiUrl=FALLBACK.orderApiUrl;
     $('login').classList.add('hidden');$('app').classList.remove('hidden');
     buildEditor();syncPreview(true);setStatus('Нэвтэрсэн · өөрчлөлтгүй','published');
