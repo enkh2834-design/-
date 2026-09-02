@@ -30,7 +30,7 @@ window.MYDEWTER_DATA = {
   authorImage: "author.jpg",
 
   certificateText: "Энэхүү дэвтрийн агуулга, дизайн зохиогчийн эрхээр хамгаалагдсан.",
-  certificateImage: "",
+  certificateImage: "copyright_cert.jpg",
 
   phone: "80080371",
   email: "enkh2834@gmail.com",
