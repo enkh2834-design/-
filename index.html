@@ -613,6 +613,66 @@ body { overflow-x:hidden; }
   .order-left .about-compact-grid{grid-template-columns:1fr}
 }
 
+
+/* V13 — Listening library entry */
+.product{cursor:pointer}
+.product-listen-hint{
+  display:flex;align-items:center;gap:7px;margin-top:10px;
+  color:var(--accent);font-size:12px;font-weight:850;
+}
+.product-listen-hint:before{
+  content:"♫";width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;background:var(--soft);
+  border:1px solid var(--border);font-size:13px;
+}
+.product-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-listen{
+  background:#fff;border:1px solid var(--border);color:var(--accent);
+  box-shadow:none;
+}
+.btn-listen:hover{background:var(--soft)}
+
+
+/* =========================
+   V14 MOBILE ORDER FLOW
+   Desktop: form | quantity/contact, then author+certificate full width
+   Mobile:  form -> quantity/contact -> author+certificate
+   ========================= */
+.order-grid-v14{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px;
+  grid-template-areas:
+    "form side"
+    "about about";
+  gap:18px;
+  align-items:start;
+}
+.order-form-slot{grid-area:form;min-width:0}
+.order-side-slot{grid-area:side;min-width:0}
+.order-about-slot{grid-area:about;min-width:0}
+.order-form-slot .order-card{height:auto}
+.order-side-slot .side-stack{position:sticky;top:94px}
+.order-about-slot #about{padding:0;margin-top:0}
+.order-about-slot .about-compact-grid{
+  grid-template-columns:minmax(0,1.3fr) minmax(290px,.7fr);
+}
+@media(max-width:1180px){
+  .order-grid-v14{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "form"
+      "side"
+      "about";
+  }
+  .order-side-slot .side-stack{position:static}
+  .order-about-slot .about-compact-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:720px){
+  .order-about-slot .about-compact-grid{grid-template-columns:1fr}
+  .order-side-slot{margin-top:0}
+  .side-card h3{font-size:20px}
+}
+
 </style>
 </head>
 <body>
@@ -734,9 +794,9 @@ body { overflow-x:hidden; }
   </section>
 
   <section id="order" class="section">
-    <div class="order-grid">
-      <div class="order-left">
-      <form class="order-card" id="orderForm">
+    <div class="order-grid order-grid-v14">
+      <div class="order-form-slot">
+        <form class="order-card" id="orderForm">
         <div class="kicker">Order Form</div>
         <h2>Захиалга өгөх</h2>
         <div class="sub">Мэдээллээ оруулж захиалгын дугаараа аваарай. Бид тантай утас болон имэйлээр холбогдож төлбөр, хүргэлтийн дэлгэрэнгүйг баталгаажуулна.</div>
@@ -752,8 +812,31 @@ body { overflow-x:hidden; }
         <button class="btn btn-primary submit" type="submit">Захиалгаа илгээх</button>
         <div id="confirm" class="confirm"></div>
       </form>
+      </div>
 
-  <section id="about" class="section">
+      <div class="order-side-slot">
+        <div class="side-stack">
+        <div class="side-card">
+          <h3>Захиалах дэвтэр</h3>
+          <div class="qty-list" id="qtyList"></div>
+          <div class="total-box">
+            <div class="total-line"><span>Нийт дэвтэр</span><b id="totalQty">0</b></div>
+            <div class="total-amount"><span>Нийт төлбөр</span><b id="totalAmount">0₮</b></div>
+          </div>
+        </div>
+        <div class="side-card contact">
+          <h3>Холбоо барих</h3>
+          <div class="contact-lines">
+            <div class="contact-line"><div class="contact-icon">☎</div><div><strong>Утас</strong><p id="phoneText"></p></div></div>
+            <div class="contact-line"><div class="contact-icon">✉</div><div><strong>Имэйл</strong><p id="emailText"></p></div></div>
+            <div class="contact-line"><div class="contact-icon">⌖</div><div><strong>Хаяг</strong><p id="addressText"></p></div></div>
+          </div>
+        </div>
+    </div>
+      </div>
+
+      <div class="order-about-slot">
+        <section id="about" class="section">
     <div class="section-head compact-about-head">
       <div>
         <div class="kicker">About</div>
@@ -808,24 +891,6 @@ body { overflow-x:hidden; }
     </div>
   </section>
       </div>
-
-      <div class="side-stack">
-        <div class="side-card">
-          <h3>Захиалах дэвтэр</h3>
-          <div class="qty-list" id="qtyList"></div>
-          <div class="total-box">
-            <div class="total-line"><span>Нийт дэвтэр</span><b id="totalQty">0</b></div>
-            <div class="total-amount"><span>Нийт төлбөр</span><b id="totalAmount">0₮</b></div>
-          </div>
-        </div>
-        <div class="side-card contact">
-          <h3>Холбоо барих</h3>
-          <div class="contact-lines">
-            <div class="contact-line"><div class="contact-icon">☎</div><div><strong>Утас</strong><p id="phoneText"></p></div></div>
-            <div class="contact-line"><div class="contact-icon">✉</div><div><strong>Имэйл</strong><p id="emailText"></p></div></div>
-            <div class="contact-line"><div class="contact-icon">⌖</div><div><strong>Хаяг</strong><p id="addressText"></p></div></div>
-          </div>
-        </div>
     </div>
   </section>
 
@@ -842,6 +907,9 @@ body { overflow-x:hidden; }
 </footer>
 
 <script>
+(async()=>{
+  await (window.MYDEWTER_READY || Promise.resolve());
+
 
 const DATA = window.MYDEWTER_DATA || {};
 const $ = id => document.getElementById(id);
@@ -926,6 +994,7 @@ grades.forEach((g,i) => {
   const bullets = Array.isArray(g.bullets) ? g.bullets : [];
   const card = document.createElement('article');
   card.className = 'product';
+  card.dataset.listenGrade = g.grade;
   card.style.setProperty('--accent', t.accent);
   card.style.setProperty('--soft', t.soft);
   card.style.setProperty('--border', t.border);
@@ -939,12 +1008,16 @@ grades.forEach((g,i) => {
       <h3>${g.title}</h3>
       <p class="product-desc">${safe(g.description,'')}</p>
       <ul class="feature-list">${bullets.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="product-listen-hint">Дээр дарж сонсох хөгжмийн жагсаалтыг нээнэ</div>
       <div class="product-bottom">
         <div>
           <div class="price-label">Үнэ</div>
           <div class="price">${money(g.price)}</div>
         </div>
-        <a href="#order" class="btn btn-primary btn-small" data-grade="${g.grade}">Захиалах</a>
+        <div class="product-actions">
+          <a href="listen.html?grade=${g.grade}" class="btn btn-small btn-listen" data-listen-link="${g.grade}">Сонсох</a>
+          <a href="#order" class="btn btn-primary btn-small" data-grade="${g.grade}">Захиалах</a>
+        </div>
       </div>
     </div>`;
   products.appendChild(card);
@@ -971,6 +1044,12 @@ function refreshQty(){
 }
 
 document.addEventListener('click',e=>{
+  const listenCard=e.target.closest('.product[data-listen-grade]');
+  if(listenCard && !e.target.closest('a,button,input,select,textarea')){
+    window.location.href='listen.html?grade='+encodeURIComponent(listenCard.dataset.listenGrade);
+    return;
+  }
+
   const btn=e.target.closest('[data-op]');
   if(btn){
     const inp=$('qty'+btn.dataset.i), v=Math.max(0,Number(inp.value)||0);
@@ -1219,6 +1298,8 @@ if(confirmEl){
   mo.observe(confirmEl,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['style']});
 }
 
+
+})();
 </script>
 </body>
 </html>

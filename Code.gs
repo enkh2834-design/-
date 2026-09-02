@@ -3,281 +3,1042 @@ const CONFIG = {
   SHEET_NAME: 'Orders',
   SCHOOLS_SHEET_NAME: 'Schools',
 
-  // ӨӨРИЙН ОДООГИЙН УТГУУДАА ЭНД ТАВИНА.
-  ADMIN_EMAIL: 'KEEP_YOUR_CURRENT_ADMIN_EMAIL_HERE',
-  ADMIN_KEY: 'KEEP_YOUR_CURRENT_ADMIN_KEY_HERE',
+  // Захиалга ирэхэд мэдэгдэл авах Gmail
+  ADMIN_EMAIL: 'enkh2834@gmail.com',
+
+  // ШИНЭ admin key — өмнөх key ил болсон тул сольсон.
+  // Энэ key-г GitHub дээр бүү байршуул.
+  ADMIN_KEY: 'MYD-Admin-2026-c8JQSZ8DJNU9CS12qCjt',
+
+  // Editor login. Gmail-ийн ЖИНХЭНЭ password-оо энд ХЭЗЭЭ Ч бүү ашигла.
+  // Энэ нь зөвхөн MY ДЭВТЭР editor-ийн тусдаа password байна.
+  EDITOR_EMAIL: 'enkh2834@gmail.com',
+  EDITOR_PASSWORD: 'CHANGE-THIS-EDITOR-PASSWORD',
 
   SITE_URL: 'https://mydewter.mn'
 };
 
 const ORDER_HEADERS = [
-  'Order ID','Date','Name','Phone','Email','Province','District/Soum','School',
-  'Grade 1','Grade 2','Grade 3','Grade 4','Grade 5',
-  'Total Qty','Total Amount','Status','Customer Note','Admin Note','Latitude','Longitude'
+  'Order ID',
+  'Created At',
+  'Name',
+  'Phone',
+  'Email',
+  'Province',
+  'District/Soum',
+  'School',
+  '1-р анги',
+  '2-р анги',
+  '3-р анги',
+  '4-р анги',
+  '5-р анги',
+  'Total Qty',
+  'Total Amount',
+  'Status',
+  'Customer Note',
+  'Admin Note',
+  'Latitude',
+  'Longitude',
+  'Location Source',
+  'Last Updated'
 ];
 
-function doGet(e){
-  try{
-    const p=e.parameter||{};
-    if(p.action==='listOrders'){
-      if(p.adminKey!==CONFIG.ADMIN_KEY)return json_({ok:false,error:'Unauthorized'});
-      return json_({ok:true,orders:listOrders_()});
+
+/* =========================================================
+   WEB APP ENTRY POINTS
+========================================================= */
+
+function doPost(e) {
+  try {
+    const data = JSON.parse((e.postData && e.postData.contents) || '{}');
+
+    if (data.action === 'editorLogin') {
+      return json_(editorLogin_(data));
     }
-    if(p.action==='listSchools'){
-      return json_({ok:true,schools:listSchools_(p.province||'',p.district||'')});
+
+    if (data.action === 'saveSiteData') {
+      return json_(saveSiteData_(data));
     }
-    return json_({ok:true,service:'MY Dewter Orders V8'});
-  }catch(err){return json_({ok:false,error:String(err)})}
+
+    if (data.action === 'editorLogout') {
+      return json_(editorLogout_(data));
+    }
+
+    if (data.action === 'createOrder') {
+      return json_(createOrder_(data));
+    }
+
+    if (data.action === 'updateOrder') {
+      if (data.adminKey !== CONFIG.ADMIN_KEY) {
+        return json_({ ok: false, error: 'Unauthorized' });
+      }
+      return json_(updateOrder_(data));
+    }
+
+    return json_({ ok: false, error: 'Unknown action' });
+
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
 }
 
-function doPost(e){
-  try{
-    const d=JSON.parse((e.postData&&e.postData.contents)||'{}');
-    if(d.action==='createOrder')return json_(createOrder_(d));
-    if(d.action==='updateOrder'){
-      if(d.adminKey!==CONFIG.ADMIN_KEY)return json_({ok:false,error:'Unauthorized'});
-      return json_(updateOrder_(d));
+
+function doGet(e) {
+  try {
+    const p = e.parameter || {};
+
+    if (p.action === 'getSiteData') {
+      return json_({ ok: true, data: getPublishedSiteData_() });
     }
-    return json_({ok:false,error:'Unknown action'});
-  }catch(err){return json_({ok:false,error:String(err)})}
+
+    if (p.action === 'listOrders') {
+      if (p.adminKey !== CONFIG.ADMIN_KEY) {
+        return json_({ ok: false, error: 'Unauthorized' });
+      }
+
+      return json_({
+        ok: true,
+        orders: listOrders_()
+      });
+    }
+
+    if (p.action === 'listSchools') {
+      return json_({
+        ok: true,
+        schools: listSchools_(p.province || '', p.district || '')
+      });
+    }
+
+    return json_({
+      ok: true,
+      service: 'MY Dewter Orders v10'
+    });
+
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
 }
 
-function sheet_(){
-  const ss=SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  let sh=ss.getSheetByName(CONFIG.SHEET_NAME);
-  if(!sh)sh=ss.insertSheet(CONFIG.SHEET_NAME);
-  ensureOrdersFormat_(ss,sh);
+
+/* =========================================================
+   ORDERS SHEET
+========================================================= */
+
+function sheet_() {
+  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+
+  let sh = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(CONFIG.SHEET_NAME);
+  }
+
+  ensureOrdersLatest_(ss, sh);
   return sh;
 }
 
-function ensureOrdersFormat_(ss,sh){
-  if(sh.getLastRow()===0){
-    sh.getRange(1,1,1,ORDER_HEADERS.length).setValues([ORDER_HEADERS]);
+
+function ensureOrdersLatest_(ss, sh) {
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, ORDER_HEADERS.length).setValues([ORDER_HEADERS]);
     formatOrdersSheet_(sh);
     return;
   }
-  const oldHeaders=sh.getRange(1,1,1,sh.getLastColumn()).getDisplayValues()[0];
-  if(oldHeaders.join('|')===ORDER_HEADERS.join('|')){
-    formatOrdersSheet_(sh);return;
+
+  const lastCol = Math.max(sh.getLastColumn(), 1);
+  const currentHeaders = sh
+    .getRange(1, 1, 1, lastCol)
+    .getDisplayValues()[0]
+    .map(String);
+
+  if (currentHeaders.join('|') === ORDER_HEADERS.join('|')) {
+    formatOrdersSheet_(sh);
+    return;
   }
 
-  const stamp=Utilities.formatDate(new Date(),Session.getScriptTimeZone(),'yyyyMMdd_HHmmss');
-  sh.copyTo(ss).setName('Orders_backup_'+stamp);
+  // Ямар ч хуучин хувилбарыг backup хийгээд шинэ бүтэц рүү аюулгүй шилжүүлнэ.
+  const stamp = Utilities.formatDate(
+    new Date(),
+    Session.getScriptTimeZone(),
+    'yyyyMMdd_HHmmss'
+  );
 
-  const values=sh.getDataRange().getValues();
-  const h=values[0].map(String);
-  const find=(name)=>h.indexOf(name);
-  const val=(row,...names)=>{
-    for(const n of names){const i=find(n);if(i>=0&&row[i]!==''&&row[i]!=null)return row[i]}
-    return '';
+  let backupName = 'Orders_backup_' + stamp;
+  let n = 2;
+  while (ss.getSheetByName(backupName)) {
+    backupName = 'Orders_backup_' + stamp + '_' + n++;
+  }
+  sh.copyTo(ss).setName(backupName);
+
+  const values = sh.getDataRange().getValues();
+  const oldHeaders = values[0].map(String);
+
+  const colIndex = (...names) => {
+    for (const name of names) {
+      const i = oldHeaders.indexOf(name);
+      if (i >= 0) return i;
+    }
+    return -1;
   };
 
-  const rows=[ORDER_HEADERS];
-  for(let r=1;r<values.length;r++){
-    const row=values[r];
-    if(row.every(v=>v===''))continue;
+  const getVal = (row, ...names) => {
+    const i = colIndex(...names);
+    return i >= 0 ? row[i] : '';
+  };
 
-    let items=[];
-    const itemIdx=find('Items JSON');
-    if(itemIdx>=0){try{items=JSON.parse(row[itemIdx]||'[]')}catch(e){items=[]}}
+  const migrated = [ORDER_HEADERS];
 
-    const grade=n=>{
-      const direct=Number(val(row,'Grade '+n,n+'-р анги'))||0;
-      if(direct)return direct;
-      const x=items.find(x=>Number(x.grade)===n);
-      return x?Number(x.qty)||0:0;
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    if (row.every(v => v === '')) continue;
+
+    let items = [];
+    const itemIdx = colIndex('Items JSON');
+
+    if (itemIdx >= 0) {
+      try {
+        items = JSON.parse(row[itemIdx] || '[]');
+        if (!Array.isArray(items)) items = [];
+      } catch (e) {
+        items = [];
+      }
+    }
+
+    const gradeQty = n => {
+      const direct = Number(
+        getVal(row, n + '-р анги', 'Grade ' + n)
+      ) || 0;
+
+      if (direct > 0) return direct;
+
+      const x = items.find(v => Number(v.grade) === n);
+      return x ? Number(x.qty) || 0 : 0;
     };
-    const grades=[1,2,3,4,5].map(grade);
-    const totalQty=Number(val(row,'Total Qty'))||grades.reduce((a,b)=>a+b,0);
-    const totalAmount=Number(val(row,'Total Amount'))||
-      items.reduce((sum,x)=>sum+(Number(x.qty)||0)*(Number(x.price)||0),0);
 
-    rows.push([
-      val(row,'Order ID'),
-      val(row,'Date','Created At'),
-      val(row,'Name'),
-      val(row,'Phone'),
-      val(row,'Email'),
-      val(row,'Province'),
-      val(row,'District/Soum','District'),
-      val(row,'School'),
-      grades[0],grades[1],grades[2],grades[3],grades[4],
-      totalQty,totalAmount,
-      val(row,'Status')||'Шинэ',
-      val(row,'Customer Note'),
-      val(row,'Admin Note'),
-      val(row,'Latitude'),
-      val(row,'Longitude')
+    const grades = [1, 2, 3, 4, 5].map(gradeQty);
+
+    const totalQty =
+      Number(getVal(row, 'Total Qty')) ||
+      grades.reduce((sum, qty) => sum + qty, 0);
+
+    const totalAmount =
+      Number(getVal(row, 'Total Amount')) ||
+      items.reduce(
+        (sum, x) =>
+          sum +
+          (Number(x.qty) || 0) *
+          (Number(x.price) || 0),
+        0
+      );
+
+    const province = getVal(row, 'Province');
+    const district = getVal(row, 'District/Soum', 'District');
+    const school = getVal(row, 'School');
+
+    let lat = Number(getVal(row, 'Latitude')) || null;
+    let lng = Number(getVal(row, 'Longitude')) || null;
+    let source = getVal(row, 'Location Source');
+
+    // Хуучин мөрөнд координат байхгүй бол нэг удаа сургууль хайж үзнэ.
+    if (school && (!lat || !lng)) {
+      const g = geocodeSchool_(school, district, province);
+
+      if (g.lat && g.lng) {
+        lat = g.lat;
+        lng = g.lng;
+        source = g.source;
+      }
+    }
+
+    migrated.push([
+      getVal(row, 'Order ID'),
+      getVal(row, 'Created At', 'Date'),
+      getVal(row, 'Name'),
+      getVal(row, 'Phone'),
+      getVal(row, 'Email'),
+      province,
+      district,
+      school,
+      grades[0],
+      grades[1],
+      grades[2],
+      grades[3],
+      grades[4],
+      totalQty,
+      totalAmount,
+      getVal(row, 'Status') || 'Шинэ',
+      getVal(row, 'Customer Note'),
+      getVal(row, 'Admin Note'),
+      lat || '',
+      lng || '',
+      source || '',
+      getVal(row, 'Last Updated') || new Date()
     ]);
   }
 
   sh.clear();
-  sh.getRange(1,1,rows.length,ORDER_HEADERS.length).setValues(rows);
+
+  sh.getRange(
+    1,
+    1,
+    migrated.length,
+    ORDER_HEADERS.length
+  ).setValues(migrated);
+
   formatOrdersSheet_(sh);
 }
 
-function formatOrdersSheet_(sh){
+
+function formatOrdersSheet_(sh) {
   sh.setFrozenRows(1);
-  sh.getRange(1,1,1,ORDER_HEADERS.length)
+
+  sh
+    .getRange(1, 1, 1, ORDER_HEADERS.length)
     .setFontWeight('bold')
     .setFontColor('#ffffff')
     .setBackground('#234f9b')
-    .setVerticalAlignment('middle');
+    .setVerticalAlignment('middle')
+    .setWrap(true);
 
-  sh.setRowHeight(1,34);
-  const widths=[145,150,130,105,190,120,145,170,72,72,72,72,72,85,110,115,190,190,100,100];
-  widths.forEach((w,i)=>sh.setColumnWidth(i+1,w));
+  sh.setRowHeight(1, 36);
 
-  const rows=Math.max(sh.getMaxRows()-1,1);
-  sh.getRange(2,9,rows,7).setHorizontalAlignment('center');
-  sh.getRange(2,15,rows,1).setNumberFormat('#,##0"₮"');
-  sh.getRange(2,2,rows,1).setNumberFormat('yyyy-mm-dd hh:mm');
-  sh.getRange(1,1,Math.max(sh.getLastRow(),1),ORDER_HEADERS.length).setWrap(true);
+  const widths = [
+    150, 150, 135, 110, 190, 125, 145, 180,
+    75, 75, 75, 75, 75, 90, 120, 115,
+    190, 190, 105, 105, 125, 150
+  ];
 
-  // Alternate soft row shading for easy reading.
-  if(sh.getLastRow()>1){
-    for(let r=2;r<=sh.getLastRow();r++){
-      sh.getRange(r,1,1,ORDER_HEADERS.length).setBackground(r%2===0?'#f7f9fc':'#ffffff');
+  widths.forEach((w, i) => sh.setColumnWidth(i + 1, w));
+
+  const dataRows = Math.max(sh.getMaxRows() - 1, 1);
+
+  // Ангиуд + нийт тоо + нийт дүн
+  sh
+    .getRange(2, 9, dataRows, 7)
+    .setHorizontalAlignment('center');
+
+  sh
+    .getRange(2, 15, dataRows, 1)
+    .setNumberFormat('#,##0"₮"');
+
+  sh
+    .getRange(2, 2, dataRows, 1)
+    .setNumberFormat('yyyy-mm-dd hh:mm');
+
+  sh
+    .getRange(
+      1,
+      1,
+      Math.max(sh.getLastRow(), 1),
+      ORDER_HEADERS.length
+    )
+    .setWrap(true);
+
+  // Зөөлөн alternating row color
+  if (sh.getLastRow() > 1) {
+    for (let r = 2; r <= sh.getLastRow(); r++) {
+      sh
+        .getRange(r, 1, 1, ORDER_HEADERS.length)
+        .setBackground(r % 2 === 0 ? '#f7f9fc' : '#ffffff');
     }
   }
 }
 
-function schoolsSheet_(){
-  const ss=SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  let sh=ss.getSheetByName(CONFIG.SCHOOLS_SHEET_NAME);
-  if(!sh)sh=ss.insertSheet(CONFIG.SCHOOLS_SHEET_NAME);
-  if(sh.getLastRow()===0){
-    sh.appendRow(['Province','District/Soum','School','Latitude','Longitude','Active','Source']);
-    sh.setFrozenRows(1);
-    sh.getRange(1,1,1,7).setFontWeight('bold').setBackground('#dceaff');
+
+/* =========================================================
+   SCHOOLS SHEET
+========================================================= */
+
+function schoolsSheet_() {
+  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+
+  let sh = ss.getSheetByName(CONFIG.SCHOOLS_SHEET_NAME);
+
+  if (!sh) {
+    sh = ss.insertSheet(CONFIG.SCHOOLS_SHEET_NAME);
   }
+
+  if (sh.getLastRow() === 0) {
+    sh.appendRow([
+      'Province',
+      'District/Soum',
+      'School',
+      'Latitude',
+      'Longitude',
+      'Active',
+      'Source'
+    ]);
+
+    sh.setFrozenRows(1);
+
+    sh
+      .getRange(1, 1, 1, 7)
+      .setFontWeight('bold')
+      .setBackground('#eaf4ff');
+  }
+
   return sh;
 }
 
-function listSchools_(province,district){
-  const sh=schoolsSheet_(),v=sh.getDataRange().getValues();
-  if(v.length<2)return[];
-  return v.slice(1)
-    .filter(r=>String(r[0])===String(province)&&String(r[1])===String(district)&&String(r[5]).toLowerCase()!=='false')
-    .map(r=>({school:r[2],lat:Number(r[3])||null,lng:Number(r[4])||null,source:r[6]||'Schools sheet'}));
+
+function listSchools_(province, district) {
+  const sh = schoolsSheet_();
+  const values = sh.getDataRange().getValues();
+
+  if (values.length < 2) return [];
+
+  return values
+    .slice(1)
+    .filter(r =>
+      String(r[0]) === String(province) &&
+      String(r[1]) === String(district) &&
+      String(r[5]).toLowerCase() !== 'false'
+    )
+    .map(r => ({
+      school: r[2],
+      lat: Number(r[3]) || null,
+      lng: Number(r[4]) || null,
+      source: r[6] || 'Schools sheet'
+    }));
 }
 
-function upsertSchool_(province,district,school,lat,lng,source){
-  if(!school)return;
-  const sh=schoolsSheet_(),v=sh.getDataRange().getValues();
-  for(let i=1;i<v.length;i++){
-    if(String(v[i][0])===String(province)&&String(v[i][1])===String(district)&&
-       String(v[i][2]).trim().toLowerCase()===String(school).trim().toLowerCase()){
-      if(lat&&lng)sh.getRange(i+1,4,1,2).setValues([[lat,lng]]);
-      sh.getRange(i+1,6).setValue(true);
-      if(source)sh.getRange(i+1,7).setValue(source);
+
+function upsertSchool_(
+  province,
+  district,
+  school,
+  lat,
+  lng,
+  source
+) {
+  if (!school) return;
+
+  const sh = schoolsSheet_();
+  const values = sh.getDataRange().getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    const same =
+      String(values[i][0]) === String(province) &&
+      String(values[i][1]) === String(district) &&
+      String(values[i][2]).trim().toLowerCase() ===
+        String(school).trim().toLowerCase();
+
+    if (same) {
+      if (lat && lng) {
+        sh
+          .getRange(i + 1, 4, 1, 2)
+          .setValues([[lat, lng]]);
+      }
+
+      sh.getRange(i + 1, 6).setValue(true);
+
+      if (source) {
+        sh.getRange(i + 1, 7).setValue(source);
+      }
+
       return;
     }
   }
-  sh.appendRow([province,district,school,lat||'',lng||'',true,source||'Order']);
+
+  sh.appendRow([
+    province,
+    district,
+    school,
+    lat || '',
+    lng || '',
+    true,
+    source || 'Order'
+  ]);
 }
 
-function createOrder_(d){
-  if(!d.name||!d.phone||!d.email||!d.province||!d.district||!d.school)
-    return{ok:false,error:'Required fields are missing'};
 
-  const items=Array.isArray(d.items)?d.items:[];
-  if(!items.some(x=>Number(x.qty)>0))return{ok:false,error:'No items'};
+/* =========================================================
+   CREATE ORDER
+========================================================= */
 
-  const sh=sheet_();
-  const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
-    const now=new Date();
-    const seq=Math.max(1,sh.getLastRow());
-    const orderId='MYD-'+Utilities.formatDate(now,Session.getScriptTimeZone(),'yyyyMMdd')+'-'+String(seq).padStart(4,'0');
-    const q=n=>{const x=items.find(v=>Number(v.grade)===n);return x?Number(x.qty)||0:0};
-    const totalQty=[1,2,3,4,5].reduce((s,n)=>s+q(n),0);
-    const totalAmount=items.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.price)||0),0);
+function createOrder_(d) {
+  if (
+    !d.name ||
+    !d.phone ||
+    !d.email ||
+    !d.province ||
+    !d.district ||
+    !d.school
+  ) {
+    return {
+      ok: false,
+      error: 'Required fields are missing'
+    };
+  }
 
-    let lat=Number(d.schoolLat)||null,lng=Number(d.schoolLng)||null,source=d.locationSource||'';
-    if(!lat||!lng){
-      const g=geocodeSchool_(d.school,d.district,d.province);
-      lat=g.lat||Number(d.districtLat)||null;
-      lng=g.lng||Number(d.districtLng)||null;
-      source=g.source||(lat&&lng?'District center':'');
+  const items = Array.isArray(d.items) ? d.items : [];
+
+  if (!items.some(x => Number(x.qty) > 0)) {
+    return {
+      ok: false,
+      error: 'No items'
+    };
+  }
+
+  const sh = sheet_();
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    const now = new Date();
+
+    // Мөрийн тооноос хамаарахгүй, давтагдах магадлал маш бага ID.
+    const orderId =
+      'MYD-' +
+      Utilities.formatDate(
+        now,
+        Session.getScriptTimeZone(),
+        'yyyyMMdd-HHmmss'
+      ) +
+      '-' +
+      Utilities
+        .getUuid()
+        .replace(/-/g, '')
+        .slice(0, 4)
+        .toUpperCase();
+
+    const q = n => {
+      const x = items.find(v => Number(v.grade) === n);
+      return x ? Number(x.qty) || 0 : 0;
+    };
+
+    const totalQty = [1, 2, 3, 4, 5]
+      .reduce((sum, n) => sum + q(n), 0);
+
+    const totalAmount = items.reduce(
+      (sum, x) =>
+        sum +
+        (Number(x.qty) || 0) *
+        (Number(x.price) || 0),
+      0
+    );
+
+    let lat = Number(d.schoolLat) || null;
+    let lng = Number(d.schoolLng) || null;
+    let source = d.locationSource || '';
+
+    if (!lat || !lng) {
+      const g = geocodeSchool_(
+        d.school,
+        d.district,
+        d.province
+      );
+
+      lat =
+        g.lat ||
+        Number(d.districtLat) ||
+        null;
+
+      lng =
+        g.lng ||
+        Number(d.districtLng) ||
+        null;
+
+      source =
+        g.source ||
+        (lat && lng ? 'District center' : '');
     }
-    upsertSchool_(d.province,d.district,d.school,lat,lng,source);
+
+    upsertSchool_(
+      d.province,
+      d.district,
+      d.school,
+      lat,
+      lng,
+      source
+    );
 
     sh.appendRow([
-      orderId,now,d.name,d.phone,d.email,d.province,d.district,d.school,
-      q(1),q(2),q(3),q(4),q(5),totalQty,totalAmount,'Шинэ',
-      d.note||'','',lat||'',lng||''
+      orderId,
+      now,
+      d.name,
+      d.phone,
+      d.email,
+      d.province,
+      d.district,
+      d.school,
+      q(1),
+      q(2),
+      q(3),
+      q(4),
+      q(5),
+      totalQty,
+      totalAmount,
+      'Шинэ',
+      d.note || '',
+      '',
+      lat || '',
+      lng || '',
+      source || '',
+      now
     ]);
+
     formatOrdersSheet_(sh);
 
+    // ADMIN EMAIL
     MailApp.sendEmail({
-      to:CONFIG.ADMIN_EMAIL,
-      subject:'Шинэ захиалга — '+orderId+' — '+d.school,
-      htmlBody:`<h2>MY ДЭВТЭР — Шинэ захиалга</h2>
-      <p><b>${orderId}</b></p>
-      <p>${d.name} · ${d.phone}<br>${d.email}<br>${d.province} · ${d.district}<br><b>${d.school}</b></p>
-      <p>1-р анги: ${q(1)}<br>2-р анги: ${q(2)}<br>3-р анги: ${q(3)}<br>4-р анги: ${q(4)}<br>5-р анги: ${q(5)}</p>
-      <p><b>Нийт: ${totalQty} дэвтэр</b><br><b>Нийт төлбөр: ${totalAmount.toLocaleString('mn-MN')}₮</b></p>`
+      to: CONFIG.ADMIN_EMAIL,
+
+      subject:
+        'Шинэ захиалга — ' +
+        orderId +
+        ' — ' +
+        d.school,
+
+      htmlBody: `
+        <h2>🎵 MY ДЭВТЭР — Шинэ захиалга</h2>
+
+        <p>
+          <b>Захиалгын дугаар:</b> ${orderId}
+        </p>
+
+        <p>
+          <b>Нэр:</b> ${d.name}<br>
+          <b>Утас:</b> ${d.phone}<br>
+          <b>Имэйл:</b> ${d.email}
+        </p>
+
+        <p>
+          <b>Аймаг / хот:</b> ${d.province}<br>
+          <b>Дүүрэг / сум:</b> ${d.district}<br>
+          <b>Сургууль:</b> ${d.school}
+        </p>
+
+        <p>
+          1-р анги: ${q(1)}<br>
+          2-р анги: ${q(2)}<br>
+          3-р анги: ${q(3)}<br>
+          4-р анги: ${q(4)}<br>
+          5-р анги: ${q(5)}
+        </p>
+
+        <p>
+          <b>Нийт: ${totalQty} дэвтэр</b><br>
+          <b>Нийт төлбөр:
+          ${totalAmount.toLocaleString('mn-MN')}₮</b>
+        </p>
+
+        ${
+          d.note
+            ? `<p><b>Тайлбар:</b> ${d.note}</p>`
+            : ''
+        }
+      `
     });
 
+    // CUSTOMER EMAIL
     MailApp.sendEmail({
-      to:d.email,
-      subject:'Таны захиалга бүртгэгдлээ — '+orderId,
-      htmlBody:`<h2>Захиалга амжилттай бүртгэгдлээ</h2>
-      <p>Сайн байна уу, <b>${d.name}</b>.</p>
-      <p>Захиалгын дугаар: <b>${orderId}</b></p>
-      <p>Нийт: <b>${totalQty} дэвтэр</b><br>Нийт төлбөр: <b>${totalAmount.toLocaleString('mn-MN')}₮</b></p>
-      <p>Бид таны ${d.phone} дугаараар холбогдож төлбөр, хүргэлтийг баталгаажуулна.</p>`
+      to: d.email,
+
+      subject:
+        'Таны захиалга бүртгэгдлээ — ' +
+        orderId,
+
+      htmlBody: `
+        <h2>✅ Захиалга амжилттай бүртгэгдлээ</h2>
+
+        <p>
+          Сайн байна уу,
+          <b>${d.name}</b>.
+        </p>
+
+        <p>
+          Захиалгын дугаар:
+          <b>${orderId}</b>
+        </p>
+
+        <p>
+          Сургууль:
+          <b>${d.school}</b><br>
+
+          Нийт:
+          <b>${totalQty} дэвтэр</b><br>
+
+          Нийт төлбөр:
+          <b>${totalAmount.toLocaleString('mn-MN')}₮</b>
+        </p>
+
+        <p>
+          Бид таны
+          <b>${d.phone}</b>
+          утсаар холбогдож төлбөр болон
+          хүргэлтийг баталгаажуулна.
+        </p>
+
+        <p>
+          ${CONFIG.SITE_URL}
+        </p>
+      `
     });
-    return{ok:true,orderId};
-  }finally{lock.releaseLock()}
-}
 
-function listOrders_(){
-  const sh=sheet_(),v=sh.getDataRange().getValues();
-  if(v.length<2)return[];
-  return v.slice(1).reverse().map(r=>({
-    orderId:r[0],createdAt:dateIso_(r[1]),name:r[2],phone:r[3],email:r[4],
-    province:r[5],district:r[6],school:r[7],
-    grade1:Number(r[8])||0,grade2:Number(r[9])||0,grade3:Number(r[10])||0,grade4:Number(r[11])||0,grade5:Number(r[12])||0,
-    totalQty:Number(r[13])||0,totalAmount:Number(r[14])||0,status:r[15]||'Шинэ',
-    note:r[16]||'',adminNote:r[17]||'',lat:Number(r[18])||null,lng:Number(r[19])||null,
-    items:[1,2,3,4,5].map((n,i)=>({grade:n,qty:Number(r[8+i])||0})).filter(x=>x.qty>0)
-  }));
-}
+    return {
+      ok: true,
+      orderId: orderId,
+      totalQty: totalQty,
+      totalAmount: totalAmount
+    };
 
-function updateOrder_(d){
-  const sh=sheet_(),v=sh.getDataRange().getValues();
-  for(let i=1;i<v.length;i++){
-    if(String(v[i][0])===String(d.orderId)){
-      if(d.status!==undefined)sh.getRange(i+1,16).setValue(d.status);
-      if(d.adminNote!==undefined)sh.getRange(i+1,18).setValue(d.adminNote);
-      return{ok:true};
-    }
+  } finally {
+    lock.releaseLock();
   }
-  return{ok:false,error:'Order not found'};
 }
 
-function geocodeSchool_(school,district,province){
-  try{
-    const geocoder=Maps.newGeocoder().setLanguage('mn').setRegion('mn');
-    const queries=[`${school}, ${district}, ${province}, Монгол`,`${school}, ${province}, Монгол`];
-    for(const q of queries){
-      const res=geocoder.geocode(q);
-      if(res&&res.status==='OK'&&res.results&&res.results.length){
-        const loc=res.results[0].geometry.location;
-        return{lat:Number(loc.lat),lng:Number(loc.lng),source:'Google geocoder'};
+
+/* =========================================================
+   SCHOOL GEOCODING
+========================================================= */
+
+function geocodeSchool_(
+  school,
+  district,
+  province
+) {
+  try {
+    const geocoder = Maps
+      .newGeocoder()
+      .setLanguage('mn')
+      .setRegion('mn');
+
+    const queries = [
+      `${school}, ${district}, ${province}, Монгол`,
+      `${school}, ${province}, Монгол`
+    ];
+
+    for (const q of queries) {
+      const res = geocoder.geocode(q);
+
+      if (
+        res &&
+        res.status === 'OK' &&
+        res.results &&
+        res.results.length
+      ) {
+        const loc =
+          res.results[0]
+            .geometry
+            .location;
+
+        return {
+          lat: Number(loc.lat),
+          lng: Number(loc.lng),
+          source: 'Google geocoder'
+        };
       }
     }
-  }catch(e){console.log('Geocode failed: '+e)}
-  return{lat:null,lng:null,source:''};
+
+  } catch (e) {
+    console.log(
+      'Geocode failed: ' + e
+    );
+  }
+
+  return {
+    lat: null,
+    lng: null,
+    source: ''
+  };
 }
 
-// Хуучин Orders sheet-ээ CSV шиг ойлгомжтой бүтэц рүү нэг удаа шинэчлэх.
-function upgradeOrdersSheetNow(){
-  const sh=sheet_();
-  return 'Orders upgraded. Rows: '+sh.getLastRow();
+
+/* =========================================================
+   ADMIN — LIST ORDERS
+========================================================= */
+
+function listOrders_() {
+  const sh = sheet_();
+  const values = sh.getDataRange().getValues();
+
+  if (values.length < 2) return [];
+
+  return values
+    .slice(1)
+    .reverse()
+    .filter(r => r.some(v => v !== ''))
+    .map(r => ({
+      orderId: r[0],
+      createdAt: dateIso_(r[1]),
+
+      name: r[2],
+      phone: r[3],
+      email: r[4],
+
+      province: r[5],
+      district: r[6],
+      school: r[7],
+
+      grade1: Number(r[8]) || 0,
+      grade2: Number(r[9]) || 0,
+      grade3: Number(r[10]) || 0,
+      grade4: Number(r[11]) || 0,
+      grade5: Number(r[12]) || 0,
+
+      totalQty: Number(r[13]) || 0,
+      totalAmount: Number(r[14]) || 0,
+
+      status: r[15] || 'Шинэ',
+
+      note: r[16] || '',
+      adminNote: r[17] || '',
+
+      lat: Number(r[18]) || null,
+      lng: Number(r[19]) || null,
+
+      locationSource: r[20] || '',
+      updatedAt: dateIso_(r[21]),
+
+      items: [
+        { grade: 1, qty: Number(r[8]) || 0 },
+        { grade: 2, qty: Number(r[9]) || 0 },
+        { grade: 3, qty: Number(r[10]) || 0 },
+        { grade: 4, qty: Number(r[11]) || 0 },
+        { grade: 5, qty: Number(r[12]) || 0 }
+      ].filter(x => x.qty > 0)
+    }));
 }
 
-function dateIso_(v){if(!v)return'';try{return new Date(v).toISOString()}catch(e){return String(v)}}
-function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)}
+
+/* =========================================================
+   ADMIN — UPDATE ORDER
+========================================================= */
+
+function updateOrder_(d) {
+  const sh = sheet_();
+  const values = sh.getDataRange().getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    if (
+      String(values[i][0]) ===
+      String(d.orderId)
+    ) {
+      if (d.status !== undefined) {
+        sh
+          .getRange(i + 1, 16)
+          .setValue(d.status);
+      }
+
+      if (d.adminNote !== undefined) {
+        sh
+          .getRange(i + 1, 18)
+          .setValue(d.adminNote);
+      }
+
+      sh
+        .getRange(i + 1, 22)
+        .setValue(new Date());
+
+      return {
+        ok: true
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    error: 'Order not found'
+  };
+}
+
+
+/* =========================================================
+   OPTIONAL MAINTENANCE FUNCTIONS
+========================================================= */
+
+// Хуучин Orders sheet-ийг шинэ бүтэц рүү нэг удаа шилжүүлнэ.
+// Backup sheet автоматаар үүснэ.
+function upgradeOrdersSheetNow() {
+  const sh = sheet_();
+
+  return (
+    'Orders sheet upgraded. Rows: ' +
+    sh.getLastRow()
+  );
+}
+
+
+// Координатгүй мөрүүдийг дахин хайх.
+// Нэг удаад хамгийн ихдээ 40 мөр.
+function refreshMissingCoordinates() {
+  const sh = sheet_();
+  const values = sh.getDataRange().getValues();
+
+  let done = 0;
+
+  for (
+    let i = 1;
+    i < values.length && done < 40;
+    i++
+  ) {
+    const school = values[i][7];
+    const lat = values[i][18];
+    const lng = values[i][19];
+
+    if (
+      school &&
+      (!lat || !lng)
+    ) {
+      const g = geocodeSchool_(
+        school,
+        values[i][6],
+        values[i][5]
+      );
+
+      if (g.lat && g.lng) {
+        sh
+          .getRange(i + 1, 19, 1, 3)
+          .setValues([
+            [
+              g.lat,
+              g.lng,
+              g.source
+            ]
+          ]);
+
+        upsertSchool_(
+          values[i][5],
+          values[i][6],
+          values[i][7],
+          g.lat,
+          g.lng,
+          g.source
+        );
+
+        done++;
+      }
+    }
+  }
+
+  return done;
+}
+
+
+// Apps Script setup хурдан шалгах.
+function testSetup() {
+  const sh = sheet_();
+
+  return {
+    ok: true,
+    sheetName: sh.getName(),
+    rows: sh.getLastRow(),
+    headers: sh
+      .getRange(1, 1, 1, ORDER_HEADERS.length)
+      .getDisplayValues()[0]
+  };
+}
+
+
+
+/* =========================================================
+   PRIVATE EDITOR AUTH + PUBLISHED SITE DATA
+========================================================= */
+
+function editorLogin_(d) {
+  const email = String(d.email || '').trim().toLowerCase();
+  const password = String(d.password || '');
+  const allowed = String(CONFIG.EDITOR_EMAIL || '').trim().toLowerCase();
+
+  if (!allowed || CONFIG.EDITOR_PASSWORD === 'CHANGE-THIS-EDITOR-PASSWORD') {
+    return { ok:false, error:'Apps Script CONFIG дээр EDITOR_EMAIL / EDITOR_PASSWORD тохируулна уу.' };
+  }
+
+  if (email !== allowed || password !== String(CONFIG.EDITOR_PASSWORD)) {
+    Utilities.sleep(450);
+    return { ok:false, error:'Имэйл эсвэл editor password буруу байна.' };
+  }
+
+  const token = Utilities.getUuid().replace(/-/g,'');
+  CacheService.getScriptCache().put('editor_session_' + token, email, 21600); // 6 hours
+
+  return {
+    ok:true,
+    token:token,
+    email:email,
+    data:getPublishedSiteData_()
+  };
+}
+
+function editorSessionValid_(token) {
+  if (!token) return false;
+  return !!CacheService.getScriptCache().get('editor_session_' + String(token));
+}
+
+function editorLogout_(d) {
+  if (d.token) CacheService.getScriptCache().remove('editor_session_' + String(d.token));
+  return {ok:true};
+}
+
+function siteDataFile_() {
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty('MYDEWTER_SITE_DATA_FILE_ID');
+  if (id) {
+    try { return DriveApp.getFileById(id); } catch(e) {}
+  }
+  const file = DriveApp.createFile('mydewter-site-data.json', '{}', MimeType.PLAIN_TEXT);
+  props.setProperty('MYDEWTER_SITE_DATA_FILE_ID', file.getId());
+  return file;
+}
+
+function getPublishedSiteData_() {
+  try {
+    const file = siteDataFile_();
+    const text = file.getBlob().getDataAsString('UTF-8');
+    const data = JSON.parse(text || '{}');
+    return data && Object.keys(data).length ? data : null;
+  } catch(e) {
+    console.log('getPublishedSiteData_: ' + e);
+    return null;
+  }
+}
+
+function saveSiteData_(d) {
+  if (!editorSessionValid_(d.token)) {
+    return {ok:false,error:'Editor session дууссан. Дахин нэвтэрнэ үү.'};
+  }
+
+  const data = d.siteData;
+  if (!data || typeof data !== 'object') return {ok:false,error:'Site data хоосон байна.'};
+  if (!Array.isArray(data.grades) || data.grades.length < 5) return {ok:false,error:'1–5-р ангийн мэдээлэл дутуу байна.'};
+
+  // API URL-г editor санамсаргүй хоосолсон ч website эвдрэхгүй.
+  if (!data.orderApiUrl && d.orderApiUrl) data.orderApiUrl = d.orderApiUrl;
+
+  const json = JSON.stringify(data);
+  // Oversized accidental uploads-аас хамгаална (ойролцоогоор 12 MB text).
+  if (json.length > 12000000) {
+    return {ok:false,error:'Зургууд хэт том байна. Editor зураг сонгох үед автоматаар шахагдах ёстой.'};
+  }
+
+  siteDataFile_().setContent(json);
+  PropertiesService.getScriptProperties().setProperty('MYDEWTER_SITE_DATA_UPDATED_AT', new Date().toISOString());
+
+  return {ok:true,updatedAt:new Date().toISOString()};
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function dateIso_(v) {
+  if (!v) return '';
+
+  try {
+    return new Date(v).toISOString();
+  } catch (e) {
+    return String(v);
+  }
+}
+
+
+function json_(obj) {
+  return ContentService
+    .createTextOutput(
+      JSON.stringify(obj)
+    )
+    .setMimeType(
+      ContentService.MimeType.JSON
+    );
+}
