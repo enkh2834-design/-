@@ -13,6 +13,31 @@
 .workspace{display:grid;grid-template-columns:360px minmax(0,1fr);min-height:0}.panel{background:#fff;border-right:1px solid var(--line);display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0}.tabs{display:flex;gap:5px;padding:10px;border-bottom:1px solid var(--line);overflow:auto}.tab{white-space:nowrap;border:0;background:#f6f7f9;color:#566076;border-radius:10px;padding:9px 10px;font-size:11px;font-weight:850}.tab.active{background:#eaf3ff;color:var(--blue)}.controls{overflow:auto;padding:14px}.pane{display:none}.pane.active{display:block}.section-title{margin:0 0 13px;font-size:18px;letter-spacing:-.03em}.field{margin-bottom:12px}.field label{display:block;font-size:11px;font-weight:900;margin-bottom:6px;color:#3e475a}.field input,.field textarea{width:100%;padding:11px 12px;border:1px solid #dfe4ec;border-radius:11px;background:#fbfcfe;outline:none}.field textarea{min-height:82px;resize:vertical}.field input:focus,.field textarea:focus{background:#fff;border-color:#9cc4f3;box-shadow:0 0 0 3px rgba(36,105,235,.07)}.card{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;background:#fff}.grade-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}.grade-head b{font-size:14px}.img-preview{width:92px;aspect-ratio:.76;border-radius:12px;overflow:hidden;background:#eef1f6;border:1px solid #dfe5ee;margin-bottom:8px}.img-preview img{width:100%;height:100%;object-fit:cover}.upload{display:block;width:max-content;padding:8px 10px;border:1px dashed #aab7ca;border-radius:10px;color:#415676;font-size:11px;font-weight:850;cursor:pointer}.upload input{display:none}.track-row{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-top:6px}.track-row input{padding:8px 9px;font-size:11px}.x{border:1px solid #f0d5d9;border-radius:9px;background:#fff3f4;color:#bf4555;font-weight:950}.add{width:100%;margin-top:8px;padding:8px;border:1px dashed #aac0db;border-radius:10px;background:#f8fbff;color:#315f9f;font-size:11px;font-weight:850}.qr{font-size:10px;color:#60708a;word-break:break-all;background:#f5f8fc;border-radius:9px;padding:8px;margin-top:6px}
 .canvas{min-width:0;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding:22px;overflow:auto;background:linear-gradient(135deg,#edf0f4,#e4e8ee)}.device{height:100%;max-height:calc(100vh - 108px);background:#fff;border-radius:16px;box-shadow:0 24px 65px rgba(30,40,68,.16);overflow:hidden;transition:width .28s ease;width:min(1180px,100%);border:1px solid #dce1e8}.device.mobile{width:390px;min-width:390px}.preview{width:100%;height:100%;border:0;background:#fff}.tip{padding:10px 12px;border-radius:12px;background:#eef8ff;border:1px solid #d7eafa;color:#53637b;font-size:11px;line-height:1.55;margin-bottom:12px}.published{color:#2b7b4e}.unsaved{color:#b67819}
 @media(max-width:850px){body{overflow:auto}.app{height:auto;min-height:100vh}.workspace{grid-template-columns:1fr}.panel{border-right:0;min-height:580px}.canvas{height:720px;padding:12px}.device{height:680px;max-height:none}.toolbar{position:sticky;top:0}.brand span:last-child{display:none}.save-status{display:none}}
+
+/* V27 — one QR link = one track */
+.track-editor{
+  margin-top:9px;padding:10px;border:1px solid #e1e6ee;border-radius:13px;background:#fbfcfe
+}
+.track-row{
+  display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-top:0
+}
+.track-row input{padding:8px 9px;font-size:11px}
+.track-qr-row{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;margin-top:7px
+}
+.track-qr-link{
+  min-width:0;padding:8px 9px;border-radius:9px;background:#f0f6ff;border:1px solid #dbe8fb;
+  color:#48607e;font-size:10px;line-height:1.45;word-break:break-all
+}
+.copy-track{
+  border:1px solid #d6e3f6;background:#fff;color:#2469eb;border-radius:9px;
+  padding:8px 9px;font-size:10px;font-weight:900;white-space:nowrap
+}
+.public-list-note{
+  margin:7px 0 0;padding:8px 9px;border-radius:9px;background:#fff8e9;border:1px solid #f0dfbd;
+  color:#76613d;font-size:10px;line-height:1.5
+}
+
 </style>
 </head>
 <body>
@@ -201,11 +226,94 @@ function buildGrades(){
   });
   box.querySelectorAll('[data-g]').forEach(el=>el.oninput=()=>{const i=+el.dataset.g,k=el.dataset.k;if(k==='price')data.grades[i][k]=+el.value||0;else if(k==='bullets')data.grades[i][k]=el.value.split('\n').map(x=>x.trim()).filter(Boolean);else data.grades[i][k]=el.value;markDirty()});
 }
-function buildListening(){
-  const box=$('listenControls');box.innerHTML='';(data.grades||[]).forEach((g,i)=>{if(!Array.isArray(g.listeningTracks))g.listeningTracks=[];const card=document.createElement('div');card.className='card';card.innerHTML=`<div class="grade-head"><b>${g.grade}-р анги</b><span>${g.listeningTracks.length} хөгжим</span></div><div class="qr">https://mydewter.mn/listen.html?grade=${g.grade}</div><div id="tr${i}"></div><button class="add" data-add="${i}">+ Сонсох хөгжим нэмэх</button>`;box.appendChild(card);renderTracks(i)});
-  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const i=+b.dataset.add;data.grades[i].listeningTracks.push({name:'',audio:''});renderTracks(i);markDirty()});
+function makeTrackCode(){
+  try{
+    if(crypto.randomUUID) return crypto.randomUUID().replaceAll('-','').slice(0,16);
+    const a=new Uint8Array(10);crypto.getRandomValues(a);
+    return Array.from(a,x=>x.toString(16).padStart(2,'0')).join('').slice(0,16);
+  }catch(e){
+    return (Date.now().toString(36)+Math.random().toString(36).slice(2)).slice(0,16);
+  }
 }
-function renderTracks(i){const box=$('tr'+i),tracks=data.grades[i].listeningTracks;box.innerHTML=tracks.map((t,j)=>{if(typeof t==='string')t=tracks[j]={name:t,audio:''};return `<div class="track-row"><input placeholder="Хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name)}"><input placeholder="audio/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}"><button class="x" data-tx="${i}:${j}">×</button></div>`}).join('');box.querySelectorAll('[data-tn]').forEach(x=>x.oninput=()=>{const [a,b]=x.dataset.tn.split(':').map(Number);data.grades[a].listeningTracks[b].name=x.value;markDirty()});box.querySelectorAll('[data-ta]').forEach(x=>x.oninput=()=>{const [a,b]=x.dataset.ta.split(':').map(Number);data.grades[a].listeningTracks[b].audio=x.value.trim();markDirty()});box.querySelectorAll('[data-tx]').forEach(x=>x.onclick=()=>{const [a,b]=x.dataset.tx.split(':').map(Number);data.grades[a].listeningTracks.splice(b,1);renderTracks(a);markDirty()})}
+function trackLink(grade,code){
+  return `https://mydewter.mn/listen.html?grade=${encodeURIComponent(grade)}&track=${encodeURIComponent(code)}`;
+}
+function normalizeTrack(t){
+  if(typeof t==='string') t={name:t,audio:''};
+  if(!t || typeof t!=='object') t={name:'',audio:''};
+  if(!t.code) t.code=makeTrackCode();
+  return t;
+}
+function buildListening(){
+  const box=$('listenControls');box.innerHTML='';
+  let generated=false;
+  (data.grades||[]).forEach((g,i)=>{
+    if(!Array.isArray(g.listeningTracks))g.listeningTracks=[];
+    g.listeningTracks=g.listeningTracks.map(t=>{
+      const had=!!(t&&typeof t==='object'&&t.code);
+      const nt=normalizeTrack(t);
+      if(!had)generated=true;
+      return nt;
+    });
+    const card=document.createElement('div');card.className='card';
+    card.innerHTML=`
+      <div class="grade-head"><b>${g.grade}-р анги</b><span>${g.listeningTracks.length} хөгжим</span></div>
+      <div class="qr"><b>Нийтийн жагсаалт:</b><br>https://mydewter.mn/listen.html?grade=${g.grade}</div>
+      <div class="public-list-note">Нийтийн жагсаалт дээр зөвхөн хөгжмийн <b>нэр</b> харагдана. Дуу тоглуулахгүй. Дуу бүрийн доорх тусгай холбоосыг QR болгож дэвтэр дээр байрлуулна.</div>
+      <div id="tr${i}"></div>
+      <button class="add" data-add="${i}">+ Сонсох хөгжим нэмэх</button>`;
+    box.appendChild(card);renderTracks(i)
+  });
+  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.add;
+    data.grades[i].listeningTracks.push({name:'',audio:'',code:makeTrackCode()});
+    renderTracks(i);markDirty()
+  });
+  if(generated){
+    dirty=true;
+    setStatus('QR холбоосууд үүслээ · Хадгалах & Нийтлэх дарна уу','unsaved');
+  }
+}
+function renderTracks(i){
+  const box=$('tr'+i),g=data.grades[i],tracks=g.listeningTracks;
+  box.innerHTML=tracks.map((raw,j)=>{
+    const t=tracks[j]=normalizeTrack(raw);
+    const link=trackLink(g.grade,t.code);
+    return `<div class="track-editor">
+      <div class="track-row">
+        <input placeholder="Хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+        <input placeholder="audio/2/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+        <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
+      </div>
+      <div class="track-qr-row">
+        <div class="track-qr-link">${esc(link)}</div>
+        <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-tn]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.tn.split(':').map(Number);
+    data.grades[a].listeningTracks[b].name=x.value;markDirty()
+  });
+  box.querySelectorAll('[data-ta]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.ta.split(':').map(Number);
+    data.grades[a].listeningTracks[b].audio=x.value.trim();markDirty()
+  });
+  box.querySelectorAll('[data-tx]').forEach(x=>x.onclick=()=>{
+    const [a,b]=x.dataset.tx.split(':').map(Number);
+    data.grades[a].listeningTracks.splice(b,1);renderTracks(a);markDirty()
+  });
+  box.querySelectorAll('[data-copytrack]').forEach(btn=>btn.onclick=async()=>{
+    const [a,b]=btn.dataset.copytrack.split(':').map(Number);
+    const gg=data.grades[a],tt=gg.listeningTracks[b];
+    const link=trackLink(gg.grade,tt.code);
+    try{
+      await navigator.clipboard.writeText(link);
+      const old=btn.textContent;btn.textContent='Хууллаа ✓';
+      setTimeout(()=>btn.textContent=old,1300);
+    }catch(e){prompt('QR болгох холбоос:',link)}
+  });
+}
 
 function buildEditor(){fillCommon();buildGrades();buildListening();imgPreview('authorPreview',data.authorImage);imgPreview('certificatePreview',data.certificateImage);$('authorFile').onchange=async e=>{if(!e.target.files[0])return;data.authorImage=await compress(e.target.files[0],1000,.8);imgPreview('authorPreview',data.authorImage);markDirty()};$('certificateFile').onchange=async e=>{if(!e.target.files[0])return;data.certificateImage=await compress(e.target.files[0],1200,.82);imgPreview('certificatePreview',data.certificateImage);markDirty()}}
 
