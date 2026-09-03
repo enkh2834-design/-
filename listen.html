@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2469eb">
 <title>Сонсох хөгжим — MY ДЭВТЭР</title>
+
+<script>
+(function(){
+  const p=new URLSearchParams(location.search);
+  const grade=Math.max(1,Math.min(5,Number(p.get('grade'))||2));
+  const track=(p.get('track')||'').trim();
+
+  document.documentElement.dataset.grade=String(grade);
+  document.documentElement.dataset.mode=track ? 'track' : 'public';
+
+  // Preload the obvious grade cover before site-data/backend arrives.
+  const img=new Image();
+  img.src='grade'+grade+'.png';
+})();
+</script>
+
 <style>
 :root{
   --accent:#2469eb;--soft:#eaf2ff;--ink:#17213a;--muted:#70788a;--line:#e3e7ee;
@@ -46,6 +62,27 @@ audio{width:100%;height:42px}
 @media(max-width:520px){
   .hero{grid-template-columns:88px 1fr;padding:15px;gap:13px}.cover{width:88px}.hero h1{font-size:23px}
 }
+
+/* V27.2 — DIRECT QR OPEN
+   URL mode is known before the first paint. */
+html[data-mode="track"] #publicSection{display:none!important}
+html[data-mode="track"] #privateSection{display:block!important}
+html[data-mode="public"] #privateSection{display:none!important}
+
+.track-loading{
+  display:flex;align-items:center;gap:10px;color:var(--muted);
+  font-size:13px;font-weight:700
+}
+.track-loading-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--accent);
+  animation:pulseDot .9s ease-in-out infinite alternate
+}
+@keyframes pulseDot{
+  from{opacity:.28;transform:scale(.8)}
+  to{opacity:1;transform:scale(1.15)}
+}
+
 </style>
 </head>
 <body>
@@ -57,11 +94,11 @@ audio{width:100%;height:42px}
   </div>
 
   <section class="hero">
-    <div class="cover" id="cover"></div>
+    <div class="cover" id="cover"><img id="initialCover" src="grade2.png" alt="Дэвтрийн нүүр"></div>
     <div>
       <div class="kicker" id="kicker">Сонсох хөгжмийн жагсаалт</div>
-      <h1 id="title">Дэвтэр</h1>
-      <p id="heroText">Энд олон нийтэд зөвхөн хөгжмийн нэрс харагдана.</p>
+      <h1 id="title">2-р ангийн дэвтэр</h1>
+      <p id="heroText" style="display:none"></p>
     </div>
   </section>
 
@@ -75,23 +112,44 @@ audio{width:100%;height:42px}
 
   <section class="private-card" id="privateSection" style="display:none">
     <span class="private-label">🔒 ДЭВТЭРИЙН QR ХОЛБООС</span>
-    <h2 id="privateTitle"></h2>
-    <p>Энэ холбоос тухайн нэг сонсох материалд зориулагдсан.</p>
-    <div class="audio-box">
-      <audio id="audio" controls preload="metadata" controlsList="nodownload"></audio>
+    <h2 id="privateTitle">Сонсох материалыг нээж байна…</h2>
+    <p id="privateDescription" style="display:none"></p>
+    <div class="audio-box" id="audioBox">
+      <div class="track-loading" id="trackLoading">
+        <span class="track-loading-dot"></span>
+        <span>Дууг ачаалж байна…</span>
+      </div>
+      <audio id="audio" controls preload="metadata" controlsList="nodownload" style="display:none"></audio>
     </div>
-    <div class="notice">QR холбоосыг бусадтай хуваалцвал тухайн холбоостой хүн мөн сонсох боломжтой.</div>
+    
   </section>
 </div>
 
 <script>
 (async()=>{
-  await (window.MYDEWTER_READY || Promise.resolve());
-
   const $=id=>document.getElementById(id);
   const params=new URLSearchParams(location.search);
   const gradeNumber=Math.max(1,Math.min(5,Number(params.get('grade'))||2));
   const trackCode=(params.get('track')||'').trim();
+
+  // Correct first-paint UI immediately from the URL.
+  $('title').textContent=gradeNumber+'-р ангийн дэвтэр';
+  const initialCover=$('initialCover');
+  if(initialCover) initialCover.src='grade'+gradeNumber+'.png';
+
+  if(trackCode){
+    $('kicker').style.display='none';
+    $('heroText').style.display='none';
+    $('publicSection').style.display='none';
+    $('privateSection').style.display='block';
+  }else{
+    $('kicker').textContent='Сонсох хөгжмийн жагсаалт';
+    $('heroText').style.display='none';
+    $('publicSection').style.display='block';
+    $('privateSection').style.display='none';
+  }
+
+  await (window.MYDEWTER_READY || Promise.resolve());
 
   // Start with whatever site-data.js already has.
   let DATA=window.MYDEWTER_DATA||{};
@@ -157,20 +215,19 @@ audio{width:100%;height:42px}
   // QR MODE: one link = one song, and no other list is shown.
   if(trackCode){
     const track=tracks.find(t=>String(t.code||'')===trackCode);
-    $('publicSection').style.display='none';
-    $('privateSection').style.display='block';
-    $('kicker').textContent='QR-аар нээгдсэн сонсох материал';
 
     if(!track || !(track.audio||track.url)){
-      $('privateTitle').textContent='Сонсох материал хараахан нийтлэгдээгүй байна';
-      $('privateSection').querySelector('.audio-box').style.display='none';
-      const note=$('privateSection').querySelector('.notice');
-      if(note) note.textContent='Editor дээр тухайн дууны нэр, audio зам, QR link үүссэний дараа “Хадгалах & Нийтлэх” дарсан эсэхээ шалгана уу.';
+      $('privateTitle').textContent='Сонсох материал олдсонгүй';
+      $('privateDescription').style.display='none';
+      $('trackLoading').style.display='none';
       return;
     }
 
-    $('title').textContent=gradeNumber+'-р анги';
+    $('title').textContent=gradeNumber+'-р ангийн дэвтэр';
     $('privateTitle').textContent=track.name||'Сонсох хөгжим';
+    $('privateDescription').style.display='none';
+    $('trackLoading').style.display='none';
+    $('audio').style.display='block';
     $('audio').src=track.audio||track.url||'';
     return;
   }
