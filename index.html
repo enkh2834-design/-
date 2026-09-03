@@ -1,11 +1,7 @@
 <!doctype html>
 <html lang="mn">
 <head>
-<script>
-  // Prevent the old hard-coded fallback from flashing before
-  // the latest Studio/App Script content has loaded.
-  document.documentElement.classList.add('site-booting');
-</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="MY ДЭВТЭР — 1-5-р ангийн хөгжмийн дасгал ажлын дэвтэрийн захиалгын сайт">
@@ -1480,44 +1476,16 @@ body { overflow-x:hidden; }
 }
 
 
-/* =========================================================
-   V24 — NO OLD-CONTENT FLASH
-   The public UI is hidden only while dynamic site data loads.
-   ========================================================= */
-html.site-booting{
-  background:#fbfaf7;
-}
-html.site-booting body{
-  visibility:hidden;
-}
-html.site-booting::before{
-  content:"♫  MY ДЭВТЭР";
-  position:fixed;
-  inset:0;
-  z-index:2147483647;
-  display:grid;
-  place-items:center;
-  visibility:visible;
-  color:#1d55c8;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  font-size:18px;
-  font-weight:950;
-  letter-spacing:.02em;
-  background:
-    radial-gradient(circle at 28% 28%,rgba(75,201,213,.15),transparent 27%),
-    radial-gradient(circle at 72% 68%,rgba(98,85,212,.10),transparent 27%),
-    #fbfaf7;
-}
-html:not(.site-booting) body{
-  animation:siteReadyFade .18s ease both;
-}
-@keyframes siteReadyFade{
-  from{opacity:.4}
-  to{opacity:1}
+to{opacity:1}
 }
 
 
 .announce{display:none!important;}
+
+/* V26 — INSTANT LOAD
+   Public content is visible immediately; no full-screen loading screen. */
+body{visibility:visible!important;opacity:1!important}
+
 </style>
 </head>
 <body>
@@ -2328,19 +2296,9 @@ if(confirmEl){
 }
 
 
-// Everything above is now rendered from the latest site data.
-// Reveal the page in one paint, so users never see the old fallback.
-requestAnimationFrame(()=>{
-  document.documentElement.classList.remove('site-booting');
-});
-
 })();
 </script>
-<script>
-  setTimeout(()=>{
-    document.documentElement.classList.remove('site-booting');
-  }, 8000);
-</script>
+
 </body>
 </html>
 

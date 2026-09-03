@@ -212,7 +212,16 @@ function buildEditor(){fillCommon();buildGrades();buildListening();imgPreview('a
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelector(`[data-pane="${t.dataset.tab}"]`).classList.add('active')});
 $('desktopBtn').onclick=()=>{$('device').classList.remove('mobile');$('desktopBtn').classList.add('active');$('mobileBtn').classList.remove('active')};$('mobileBtn').onclick=()=>{$('device').classList.add('mobile');$('mobileBtn').classList.add('active');$('desktopBtn').classList.remove('active')};$('refreshPreview').onclick=()=>syncPreview(true);
 
-$('publishBtn').onclick=async()=>{if(!token)return;const b=$('publishBtn');b.disabled=true;b.textContent='Нийтэлж байна...';try{data.contentVersion=22;const out=await post({action:'saveSiteData',token,siteData:data,orderApiUrl:api()});dirty=false;setStatus('Нийтлэгдсэн · '+new Date(out.updatedAt).toLocaleTimeString(),'published');syncPreview(true)}catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Хадгалах & Нийтлэх'}};
+$('publishBtn').onclick=async()=>{if(!token)return;const b=$('publishBtn');b.disabled=true;b.textContent='Нийтэлж байна...';try{
+  data.contentVersion=22;
+  const out=await post({action:'saveSiteData',token,siteData:data,orderApiUrl:api()});
+  // Same-domain cache: the public site will show this content immediately.
+  localStorage.setItem('mydewter_public_cache_v26',JSON.stringify(data));
+  sessionStorage.removeItem('mydewter_v26_refreshed');
+  dirty=false;
+  setStatus('Нийтлэгдсэн · '+new Date(out.updatedAt).toLocaleTimeString(),'published');
+  syncPreview(true);
+}catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='Хадгалах & Нийтлэх'}};
 $('logoutBtn').onclick=async()=>{try{if(token)await post({action:'editorLogout',token})}catch(e){}token='';localStorage.removeItem('mydewter_editor_preview_data');$('app').classList.add('hidden');$('login').classList.remove('hidden');$('password').value=''};
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 </script>
