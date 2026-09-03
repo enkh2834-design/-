@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="mn">
 <head>
+<script>
+  // Prevent the old hard-coded fallback from flashing before
+  // the latest Studio/App Script content has loaded.
+  document.documentElement.classList.add('site-booting');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="MY ДЭВТЭР — 1-5-р ангийн хөгжмийн дасгал ажлын дэвтэрийн захиалгын сайт">
@@ -1474,6 +1479,43 @@ body { overflow-x:hidden; }
   }
 }
 
+
+/* =========================================================
+   V24 — NO OLD-CONTENT FLASH
+   The public UI is hidden only while dynamic site data loads.
+   ========================================================= */
+html.site-booting{
+  background:#fbfaf7;
+}
+html.site-booting body{
+  visibility:hidden;
+}
+html.site-booting::before{
+  content:"♫  MY ДЭВТЭР";
+  position:fixed;
+  inset:0;
+  z-index:2147483647;
+  display:grid;
+  place-items:center;
+  visibility:visible;
+  color:#1d55c8;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-size:18px;
+  font-weight:950;
+  letter-spacing:.02em;
+  background:
+    radial-gradient(circle at 28% 28%,rgba(75,201,213,.15),transparent 27%),
+    radial-gradient(circle at 72% 68%,rgba(98,85,212,.10),transparent 27%),
+    #fbfaf7;
+}
+html:not(.site-booting) body{
+  animation:siteReadyFade .18s ease both;
+}
+@keyframes siteReadyFade{
+  from{opacity:.4}
+  to{opacity:1}
+}
+
 </style>
 </head>
 <body>
@@ -1492,7 +1534,7 @@ body { overflow-x:hidden; }
   <div class="container nav">
     <a href="#top" class="brand">
       <div class="brand-mark">♫</div>
-      <div class="brand-text"><strong id="brand">MY ДЭВТЭР</strong><small id="tagline">Хөгжим · Дасгал · Хөгжил</small></div>
+      <div class="brand-text"><strong id="brand">Хөгжмийн дасгал ажлын дэвтэр</strong><small id="tagline">Хөгжим · Дасгал · Хөгжил</small></div>
     </a>
     <nav class="links">
       <a href="#collection">Цуглуулга</a>
@@ -1508,9 +1550,9 @@ body { overflow-x:hidden; }
     <div class="hero-shell">
       <div class="hero-grid">
         <div class="hero-copy">
-          <div class="label"><i></i><span id="heroBadge">1–5-р ангийн хөгжмийн дэвтэр</span></div>
-          <h1 id="heroTitle">Хүүхэд бүрт тохирсон хөгжмийн ухаалаг дэвтэр</h1>
-          <p id="heroText">QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх агуулгатай цогц ажлын дэвтэр.</p>
+          <div class="label"><i></i><span id="heroBadge">1–5-р ангийн хөгжмийн хичээлийн дэвтэр</span></div>
+          <h1 id="heroTitle">Цэгцтэй, ойлгомжтой дэвтэр хөтлөлт</h1>
+          <p id="heroText">Бага боловсролын сургалтын агуулгын хүрээнд QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх дасгал ажлын дэвтэр.</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#collection">Дэвтэрүүдийг үзэх</a>
             <a class="btn btn-soft" href="#order">Шууд захиалах</a>
@@ -1852,12 +1894,12 @@ function safe(v,f=''){ return v == null ? f : v; }
 function gradeImage(g){ return g.image || FALLBACK_COVERS[g.grade] || ''; }
 function gradeTheme(grade){ return GRADE_THEME[grade] || GRADE_THEME[1]; }
 
-$('brand').textContent = safe(DATA.brand,'MY ДЭВТЭР');
+$('brand').textContent = safe(DATA.brand,'Хөгжмийн дасгал ажлын дэвтэр');
 $('footerBrand').textContent = safe(DATA.brand,'MY ДЭВТЭР');
 $('tagline').textContent = safe(DATA.tagline,'Хөгжим · Дасгал · Хөгжил');
-$('heroBadge').textContent = safe(DATA.heroBadge,'1–5-р ангийн хөгжмийн дэвтэр');
-$('heroTitle').textContent = safe(DATA.heroTitle,'Хүүхэд бүрт тохирсон хөгжмийн ухаалаг дэвтэр');
-$('heroText').textContent = safe(DATA.heroText,'QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх агуулгатай цогц ажлын дэвтэр.');
+$('heroBadge').textContent = safe(DATA.heroBadge,'1–5-р ангийн хөгжмийн хичээлийн дэвтэр');
+$('heroTitle').textContent = safe(DATA.heroTitle,'Цэгцтэй, ойлгомжтой дэвтэр хөтлөлт');
+$('heroText').textContent = safe(DATA.heroText,'Бага боловсролын сургалтын агуулгын хүрээнд QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх дасгал ажлын дэвтэр.');
 if ($('teacherSectionTitle')) {
   $('teacherSectionTitle').textContent = safe(
     DATA.teacherSectionTitle,
@@ -2289,7 +2331,18 @@ if(confirmEl){
 }
 
 
+// Everything above is now rendered from the latest site data.
+// Reveal the page in one paint, so users never see the old fallback.
+requestAnimationFrame(()=>{
+  document.documentElement.classList.remove('site-booting');
+});
+
 })();
+</script>
+<script>
+  setTimeout(()=>{
+    document.documentElement.classList.remove('site-booting');
+  }, 8000);
 </script>
 </body>
 </html>
