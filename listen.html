@@ -88,11 +88,44 @@ audio{width:100%;height:42px}
 (async()=>{
   await (window.MYDEWTER_READY || Promise.resolve());
 
-  const DATA=window.MYDEWTER_DATA||{};
   const $=id=>document.getElementById(id);
   const params=new URLSearchParams(location.search);
   const gradeNumber=Math.max(1,Math.min(5,Number(params.get('grade'))||2));
   const trackCode=(params.get('track')||'').trim();
+
+  // Start with whatever site-data.js already has.
+  let DATA=window.MYDEWTER_DATA||{};
+
+  // IMPORTANT:
+  // For a QR track link, do NOT trust browser cache.
+  // Always ask Apps Script for the latest published Studio data first.
+  if(trackCode){
+    try{
+      const api=DATA.orderApiUrl||'';
+      if(api){
+        const url=api + (api.includes('?')?'&':'?') +
+          'action=getSiteData&_=' + Date.now();
+        const res=await fetch(url,{cache:'no-store'});
+        const fresh=await res.json();
+
+        if(fresh && fresh.ok && fresh.data){
+          DATA=Object.assign({},DATA,fresh.data);
+          window.MYDEWTER_DATA=DATA;
+
+          // Update public cache as well so later visits are current.
+          try{
+            localStorage.setItem(
+              'mydewter_public_cache_v26',
+              JSON.stringify(DATA)
+            );
+          }catch(e){}
+        }
+      }
+    }catch(e){
+      console.warn('QR fresh-data fetch failed:',e);
+    }
+  }
+
   const grade=(DATA.grades||[]).find(g=>Number(g.grade)===gradeNumber);
 
   const theme={
@@ -129,8 +162,10 @@ audio{width:100%;height:42px}
     $('kicker').textContent='QR-аар нээгдсэн сонсох материал';
 
     if(!track || !(track.audio||track.url)){
-      $('privateTitle').textContent='Сонсох материал олдсонгүй';
+      $('privateTitle').textContent='Сонсох материал хараахан нийтлэгдээгүй байна';
       $('privateSection').querySelector('.audio-box').style.display='none';
+      const note=$('privateSection').querySelector('.notice');
+      if(note) note.textContent='Editor дээр тухайн дууны нэр, audio зам, QR link үүссэний дараа “Хадгалах & Нийтлэх” дарсан эсэхээ шалгана уу.';
       return;
     }
 
