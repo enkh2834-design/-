@@ -131,6 +131,89 @@ audio{width:100%;height:42px}
   .active-inline-player{margin-left:42px;margin-right:0}
 }
 
+
+/* V28.4 — "Дагаад дуулаарай" 3-column song table */
+.song-table{
+  width:100%;
+}
+.song-head,
+.song-row-main{
+  display:grid;
+  grid-template-columns:38px 1fr 1fr 1.25fr 38px;
+  gap:10px;
+  align-items:center;
+}
+.song-head{
+  padding:8px 4px 10px;
+  color:#7a8494;
+  font-size:11px;
+  font-weight:900;
+  border-bottom:1px solid #e8ebf0;
+}
+.song-row{
+  padding:10px 4px;
+  border-bottom:1px solid #edf0f4;
+}
+.song-row:last-child{border-bottom:0}
+.song-cell{
+  min-width:0;
+  font-size:13px;
+  line-height:1.45;
+  color:#33405a;
+}
+.song-title{
+  font-weight:900;
+  color:var(--ink);
+}
+.song-player-slot:empty{display:none}
+.song-player{
+  margin:10px 48px 0;
+  padding:10px 12px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff,var(--soft));
+  border:1px solid color-mix(in srgb,var(--accent) 18%,white);
+}
+.song-player audio{width:100%;height:40px;display:block}
+.public-song-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:6px;
+}
+.public-song-table th,
+.public-song-table td{
+  padding:10px 8px;
+  border-bottom:1px solid #edf0f4;
+  text-align:left;
+  vertical-align:top;
+  font-size:13px;
+}
+.public-song-table th{
+  color:#6f7889;
+  font-size:11px;
+  font-weight:900;
+}
+@media(max-width:640px){
+  .song-head{display:none}
+  .song-row-main{
+    grid-template-columns:32px minmax(0,1fr) 36px;
+  }
+  .song-row-main .song-cell.lyricist,
+  .song-row-main .song-cell.composer{
+    grid-column:2;
+    font-size:11px;
+    color:#7a8494;
+  }
+  .song-row-main .song-cell.song-title{
+    grid-column:2;
+    grid-row:1;
+  }
+  .song-row-main .play{
+    grid-column:3;
+    grid-row:1;
+  }
+  .song-player{margin-left:42px;margin-right:0}
+}
+
 </style>
 </head>
 <body>
@@ -185,8 +268,8 @@ audio{width:100%;height:42px}
     $('kicker').textContent='СОНСОХ ХӨГЖИМ';
     $('sectionTitle').textContent='Сонсох хөгжим';
   }else if(group==='songs'){
-    $('kicker').textContent='ДУУ';
-    $('sectionTitle').textContent='Дуу';
+    $('kicker').textContent='ДАГААД ДУУЛААРАЙ';
+    $('sectionTitle').textContent='Дагаад дуулаарай';
   }else if(trackCode){
     $('kicker').textContent='';
     $('sectionTitle').textContent='Сонсох материал';
@@ -209,6 +292,8 @@ audio{width:100%;height:42px}
       if(typeof t==='string') return {name:t,audio:'',type:'assessment',code:''};
       const x=Object.assign({},t||{});
       if(!x.type)x.type='assessment';
+      if(x.lyricist===undefined)x.lyricist='';
+      if(x.composer===undefined)x.composer='';
       return x;
     });
   }
@@ -253,10 +338,10 @@ audio{width:100%;height:42px}
       return true;
     }
 
-    // 2) Group QR = all listening tracks OR all songs
+    // 2) Group QR = all listening tracks OR "Дагаад дуулаарай".
     if(group==='listening' || group==='songs'){
       const selected=tracks.filter(t=>t.type===group);
-      const label=group==='listening'?'Сонсох хөгжим':'Дуу';
+      const label=group==='listening'?'Сонсох хөгжим':'Дагаад дуулаарай';
       $('kicker').textContent=label.toUpperCase();
       $('sectionTitle').textContent=label;
       $('count').textContent=selected.length?selected.length+' материал':'';
@@ -266,9 +351,79 @@ audio{width:100%;height:42px}
         return true;
       }
 
-      // Preserve current selected track if a fresh rerender comes in.
       const previousKey=currentTrackKey;
 
+      if(group==='songs'){
+        $('content').innerHTML=`
+          <div class="song-table">
+            <div class="song-head">
+              <div>№</div>
+              <div>Үг</div>
+              <div>Ая</div>
+              <div>Дууны нэр</div>
+              <div></div>
+            </div>
+            ${selected.map((t,i)=>`
+              <div class="song-row">
+                <div class="song-row-main">
+                  <span class="num">${i+1}</span>
+                  <span class="song-cell lyricist">${esc(t.lyricist||'—')}</span>
+                  <span class="song-cell composer">${esc(t.composer||'—')}</span>
+                  <span class="song-cell song-title">${esc(t.name||'Нэргүй')}</span>
+                  <button class="play" type="button" data-songplay="${i}" aria-label="Сонсох">▶</button>
+                </div>
+                <div class="song-player-slot" data-songslot="${i}"></div>
+              </div>`).join('')}
+          </div>`;
+
+        const buttons=[...document.querySelectorAll('[data-songplay]')];
+
+        function openSongPlayer(i,autoplay=true){
+          const t=selected[i];
+          const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|song|'+i;
+          stopCurrent();
+          currentTrackKey=key;
+
+          document.querySelectorAll('.song-player-slot').forEach(x=>x.innerHTML='');
+          buttons.forEach((b,j)=>{
+            b.classList.toggle('active',j===i);
+            b.textContent=j===i?'❚❚':'▶';
+          });
+
+          const slot=document.querySelector(`[data-songslot="${i}"]`);
+          slot.innerHTML=`
+            <div class="song-player">
+              <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
+            </div>`;
+          currentAudio=slot.querySelector('audio');
+
+          currentAudio.addEventListener('pause',()=>{ if(buttons[i])buttons[i].textContent='▶'; });
+          currentAudio.addEventListener('play',()=>{ if(buttons[i])buttons[i].textContent='❚❚'; });
+          currentAudio.addEventListener('ended',()=>{ if(buttons[i])buttons[i].textContent='▶'; });
+
+          if(autoplay && (t.audio||t.url||'')) currentAudio.play().catch(()=>{});
+        }
+
+        buttons.forEach(btn=>btn.onclick=()=>{
+          const i=+btn.dataset.songplay;
+          const t=selected[i];
+          const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|song|'+i;
+          if(currentAudio && currentTrackKey===key){
+            if(currentAudio.paused) currentAudio.play().catch(()=>{});
+            else currentAudio.pause();
+            return;
+          }
+          openSongPlayer(i,true);
+        });
+
+        if(previousKey){
+          const idx=selected.findIndex((t,i)=>((t.code||'')+'|'+(t.audio||t.url||'')+'|song|'+i)===previousKey);
+          if(idx>=0) openSongPlayer(idx,false);
+        }
+        return true;
+      }
+
+      // Listening music list
       $('content').innerHTML=`
         <div class="track-list" id="groupTracks">
           ${selected.map((t,i)=>`
@@ -284,7 +439,7 @@ audio{width:100%;height:42px}
 
       const buttons=[...document.querySelectorAll('[data-play]')];
 
-      function openPlayer(i, autoplay=true){
+      function openPlayer(i,autoplay=true){
         const t=selected[i];
         const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|'+i;
 
@@ -304,24 +459,11 @@ audio{width:100%;height:42px}
           </div>`;
 
         currentAudio=slot.querySelector('audio');
-        currentAudio.addEventListener('pause',()=>{
-          if(currentAudio && currentAudio.paused){
-            const b=buttons[i];
-            if(b)b.textContent='▶';
-          }
-        });
-        currentAudio.addEventListener('play',()=>{
-          const b=buttons[i];
-          if(b)b.textContent='❚❚';
-        });
-        currentAudio.addEventListener('ended',()=>{
-          const b=buttons[i];
-          if(b)b.textContent='▶';
-        });
+        currentAudio.addEventListener('pause',()=>{ if(buttons[i])buttons[i].textContent='▶'; });
+        currentAudio.addEventListener('play',()=>{ if(buttons[i])buttons[i].textContent='❚❚'; });
+        currentAudio.addEventListener('ended',()=>{ if(buttons[i])buttons[i].textContent='▶'; });
 
-        if(autoplay && (t.audio||t.url)){
-          currentAudio.play().catch(()=>{});
-        }
+        if(autoplay && (t.audio||t.url||'')) currentAudio.play().catch(()=>{});
       }
 
       buttons.forEach(btn=>btn.onclick=()=>{
@@ -329,7 +471,6 @@ audio{width:100%;height:42px}
         const t=selected[i];
         const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|'+i;
 
-        // Clicking the active row toggles play/pause without moving the player.
         if(currentAudio && currentTrackKey===key){
           if(currentAudio.paused) currentAudio.play().catch(()=>{});
           else currentAudio.pause();
@@ -338,7 +479,6 @@ audio{width:100%;height:42px}
         openPlayer(i,true);
       });
 
-      // After fresh data rerender, reopen the same active track if it still exists.
       if(previousKey){
         const idx=selected.findIndex((t,i)=>((t.code||'')+'|'+(t.audio||t.url||'')+'|'+i)===previousKey);
         if(idx>=0) openPlayer(idx,false);
@@ -354,13 +494,31 @@ audio{width:100%;height:42px}
 
     const groups=[
       ['listening','🎧 Сонсох хөгжим'],
-      ['songs','🎤 Дуу'],
+      ['songs','🎤 Дагаад дуулаарай'],
       ['assessment','📝 Гүйцэтгэлийн үнэлгээ']
     ];
 
     const html=groups.map(([type,label])=>{
       const arr=tracks.filter(t=>t.type===type);
       if(!arr.length)return '';
+
+      if(type==='songs'){
+        return `<div class="group-block">
+          <div class="group-title">${label}</div>
+          <table class="public-song-table">
+            <thead><tr><th>Үг</th><th>Ая</th><th>Дууны нэр</th></tr></thead>
+            <tbody>
+              ${arr.map(t=>`
+                <tr>
+                  <td>${esc(t.lyricist||'—')}</td>
+                  <td>${esc(t.composer||'—')}</td>
+                  <td><b>${esc(t.name||'Нэргүй')}</b></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+      }
+
       return `<div class="group-block">
         <div class="group-title">${label}</div>
         <ol class="track-list">

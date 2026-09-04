@@ -101,6 +101,49 @@
   color:#315e9f;font-size:9.5px;font-weight:900
 }
 
+
+/* V28.4 — "Дагаад дуулаарай" song metadata */
+.song-meta-head,
+.song-meta-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1.2fr;
+  gap:7px;
+}
+.song-meta-head{
+  margin:7px 0 4px;
+  padding:0 2px;
+  color:#7b8495;
+  font-size:9px;
+  font-weight:900;
+}
+.song-meta-row input{
+  width:100%;
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid #dfe5ee;
+  border-radius:10px;
+  background:#fff;
+  font-size:10.5px;
+}
+.song-audio-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 34px;
+  gap:7px;
+  margin-top:7px;
+}
+.song-audio-row input{
+  width:100%;
+  padding:9px 10px;
+  border:1px solid #dfe5ee;
+  border-radius:10px;
+  background:#fff;
+  font-size:10.5px;
+}
+@media(max-width:760px){
+  .song-meta-head{display:none}
+  .song-meta-row{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -312,6 +355,8 @@ function normalizeTrack(t,defaultType='assessment'){
   if(!t || typeof t!=='object') t={name:'',audio:''};
   if(!t.type) t.type=defaultType; // old V27 tracks stay individual assessment QR tracks
   if(!['listening','songs','assessment'].includes(t.type)) t.type=defaultType;
+  if(t.lyricist===undefined) t.lyricist='';
+  if(t.composer===undefined) t.composer='';
   if(!t.code) t.code=makeTrackCode();
   return t;
 }
@@ -373,7 +418,7 @@ function buildListening(){
       <section class="listen-category songs">
         <div class="listen-category-head">
           <div>
-            <div class="listen-category-title">🎤 Дуу</div>
+            <div class="listen-category-title">🎤 Дагаад дуулаарай</div>
             <div class="listen-category-desc">Бүх дуу НЭГ QR холбоосоор нээгдэнэ.</div>
           </div>
           <span class="listen-count">${songCount}</span>
@@ -383,10 +428,10 @@ function buildListening(){
           <button type="button" class="copy-group" data-copygroup="${i}:songs">QR link хуулах</button>
         </div>
         <div id="grp-${i}-songs"></div>
-        <button class="add" data-addgroup="${i}:songs">+ Дуу нэмэх</button>
+        <button class="add" data-addgroup="${i}:songs">+ Дагаад дуулах дуу нэмэх</button>
         <details class="bulk-box">
           <summary>Олон дууг бөөнөөр нэмэх</summary>
-          <textarea id="bulk-${i}-songs" placeholder="Мөр бүрт: Нэр | audio/2/file.mp3"></textarea>
+          <textarea id="bulk-${i}-songs" placeholder="Мөр бүрт: Үг | Ая | Дууны нэр | audio/2/file.mp3"></textarea>
           <button type="button" data-bulk="${i}:songs">Бөөнөөр нэмэх</button>
         </details>
       </section>
@@ -417,7 +462,7 @@ function buildListening(){
   box.querySelectorAll('[data-addgroup]').forEach(btn=>btn.onclick=()=>{
     const [i,type]=btn.dataset.addgroup.split(':');
     data.grades[+i].listeningTracks.push({
-      name:'',audio:'',type,code:makeTrackCode()
+      name:'',lyricist:'',composer:'',audio:'',type,code:makeTrackCode()
     });
     buildListening();markDirty();
   });
@@ -429,12 +474,22 @@ function buildListening(){
     if(!rows.length)return;
 
     rows.forEach(row=>{
-      const parts=row.split('|');
-      const name=(parts[0]||'').trim();
-      const audio=(parts.slice(1).join('|')||'').trim();
-      data.grades[+i].listeningTracks.push({
-        name,audio,type,code:makeTrackCode()
-      });
+      const parts=row.split('|').map(x=>x.trim());
+      if(type==='songs'){
+        const lyricist=parts[0]||'';
+        const composer=parts[1]||'';
+        const name=parts[2]||'';
+        const audio=parts.slice(3).join('|').trim();
+        data.grades[+i].listeningTracks.push({
+          lyricist,composer,name,audio,type,code:makeTrackCode()
+        });
+      }else{
+        const name=parts[0]||'';
+        const audio=parts.slice(1).join('|').trim();
+        data.grades[+i].listeningTracks.push({
+          name,lyricist:'',composer:'',audio,type,code:makeTrackCode()
+        });
+      }
     });
     ta.value='';
     buildListening();markDirty();
@@ -454,34 +509,62 @@ function renderCategory(i,type){
     .map((t,j)=>({t:normalizeTrack(t,'assessment'),j}))
     .filter(x=>x.t.type===type);
 
-  box.innerHTML=indexed.map(({t,j},k)=>{
-    if(type==='assessment'){
-      const link=assessmentTrackLink(g.grade,t.code);
-      return `<div class="assessment-track">
-        <div class="track-row">
-          <input placeholder="Нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+  if(type==='songs'){
+    box.innerHTML=(indexed.length?`
+      <div class="song-meta-head">
+        <div>Үг</div>
+        <div>Ая</div>
+        <div>Дууны нэр</div>
+      </div>`:'') + indexed.map(({t,j})=>`
+      <div class="group-track">
+        <div class="song-meta-row">
+          <input placeholder="Үг" data-tl="${i}:${j}" value="${esc(t.lyricist||'')}">
+          <input placeholder="Ая" data-tc="${i}:${j}" value="${esc(t.composer||'')}">
+          <input placeholder="Дууны нэр" data-tn="${i}:${j}" value="${esc(t.name||'')}">
+        </div>
+        <div class="song-audio-row">
           <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
           <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
         </div>
-        <div class="track-qr-row">
-          <div class="track-qr-link">${esc(link)}</div>
-          <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+      </div>`).join('');
+  }else{
+    box.innerHTML=indexed.map(({t,j})=>{
+      if(type==='assessment'){
+        const link=assessmentTrackLink(g.grade,t.code);
+        return `<div class="assessment-track">
+          <div class="track-row">
+            <input placeholder="Нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+            <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+            <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
+          </div>
+          <div class="track-qr-row">
+            <div class="track-qr-link">${esc(link)}</div>
+            <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+          </div>
+        </div>`;
+      }
+
+      return `<div class="group-track">
+        <div class="track-row">
+          <input placeholder="Сонсох хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+          <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+          <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
         </div>
       </div>`;
-    }
-
-    return `<div class="group-track">
-      <div class="track-row">
-        <input placeholder="${type==='listening'?'Сонсох хөгжмийн нэр':'Дууны нэр'}" data-tn="${i}:${j}" value="${esc(t.name)}">
-        <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
-        <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
-      </div>
-    </div>`;
-  }).join('');
+    }).join('');
+  }
 
   box.querySelectorAll('[data-tn]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.tn.split(':').map(Number);
     data.grades[a].listeningTracks[b].name=x.value;markDirty();
+  });
+  box.querySelectorAll('[data-tl]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.tl.split(':').map(Number);
+    data.grades[a].listeningTracks[b].lyricist=x.value;markDirty();
+  });
+  box.querySelectorAll('[data-tc]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.tc.split(':').map(Number);
+    data.grades[a].listeningTracks[b].composer=x.value;markDirty();
   });
   box.querySelectorAll('[data-ta]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.ta.split(':').map(Number);
