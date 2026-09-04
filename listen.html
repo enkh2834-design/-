@@ -214,6 +214,56 @@ audio{width:100%;height:42px}
   .song-player{margin-left:42px;margin-right:0}
 }
 
+
+/* V28.5 — public "Дагаад дуулаарай" matches the other numbered lists */
+.public-song-grid{
+  width:100%;
+  margin-top:6px;
+}
+.public-song-head,
+.public-song-row{
+  display:grid;
+  grid-template-columns:38px 1fr 1fr 1.25fr;
+  gap:10px;
+  align-items:center;
+}
+.public-song-head{
+  padding:8px 4px 10px;
+  border-bottom:1px solid #e8ebf0;
+  color:#6f7889;
+  font-size:11px;
+  font-weight:900;
+}
+.public-song-row{
+  padding:10px 4px;
+  border-bottom:1px solid #edf0f4;
+}
+.public-song-row:last-child{border-bottom:0}
+.public-song-row .song-cell{
+  min-width:0;
+  font-size:13px;
+  line-height:1.45;
+  color:#33405a;
+}
+.public-song-row .song-title{
+  color:var(--ink);
+  font-weight:900;
+}
+@media(max-width:640px){
+  .public-song-head{
+    grid-template-columns:32px 1fr 1fr 1.25fr;
+    gap:7px;
+    font-size:9.5px;
+  }
+  .public-song-row{
+    grid-template-columns:32px 1fr 1fr 1.25fr;
+    gap:7px;
+  }
+  .public-song-row .song-cell{
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -505,17 +555,21 @@ audio{width:100%;height:42px}
       if(type==='songs'){
         return `<div class="group-block">
           <div class="group-title">${label}</div>
-          <table class="public-song-table">
-            <thead><tr><th>Үг</th><th>Ая</th><th>Дууны нэр</th></tr></thead>
-            <tbody>
-              ${arr.map(t=>`
-                <tr>
-                  <td>${esc(t.lyricist||'—')}</td>
-                  <td>${esc(t.composer||'—')}</td>
-                  <td><b>${esc(t.name||'Нэргүй')}</b></td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
+          <div class="public-song-grid">
+            <div class="public-song-head">
+              <div>№</div>
+              <div>Үг</div>
+              <div>Ая</div>
+              <div>Дууны нэр</div>
+            </div>
+            ${arr.map((t,i)=>`
+              <div class="public-song-row">
+                <span class="num">${i+1}</span>
+                <span class="song-cell">${esc(t.lyricist||'—')}</span>
+                <span class="song-cell">${esc(t.composer||'—')}</span>
+                <span class="song-cell song-title">${esc(t.name||'Нэргүй')}</span>
+              </div>`).join('')}
+          </div>
         </div>`;
       }
 
