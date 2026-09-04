@@ -47,10 +47,94 @@ audio{width:100%;height:42px}
   .hero{grid-template-columns:88px 1fr;padding:15px;gap:13px}.cover{width:88px}.hero h1{font-size:23px}
   .track{grid-template-columns:32px minmax(0,1fr) 34px}
 }
+
+/* V28.2 — player directly under every song */
+.track-inline{
+  border-bottom:1px solid #edf0f4;
+  padding:12px 4px 14px;
+}
+.track-inline:last-child{border-bottom:0}
+.track-inline-head{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  margin-bottom:9px;
+}
+.track-inline audio{
+  width:100%;
+  height:40px;
+  display:block;
+}
+.track-inline-player{
+  margin-left:48px;
+  padding:9px 11px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#fff,var(--soft));
+  border:1px solid color-mix(in srgb,var(--accent) 16%,white);
+}
+@media(max-width:520px){
+  .track-inline-player{margin-left:42px}
+}
+
+
+/* V28.3 — only the active song shows a player */
+.track-select{
+  border-bottom:1px solid #edf0f4;
+  padding:11px 4px;
+}
+.track-select:last-child{border-bottom:0}
+.track-select-head{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 38px;
+  gap:10px;
+  align-items:center;
+}
+.active-player-slot:empty{display:none}
+.active-inline-player{
+  margin:10px 48px 2px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff,var(--soft));
+  border:1px solid color-mix(in srgb,var(--accent) 18%,white);
+  animation:playerIn .18s ease both;
+}
+.active-inline-player audio{
+  width:100%;
+  height:40px;
+  display:block;
+}
+@keyframes playerIn{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:none}
+}
+.instant-loading{
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  color:#7a8494;
+  font-size:12px;
+  font-weight:750;
+}
+.instant-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  animation:instantPulse .8s ease-in-out infinite alternate;
+}
+@keyframes instantPulse{
+  from{opacity:.3;transform:scale(.8)}
+  to{opacity:1;transform:scale(1.12)}
+}
+@media(max-width:520px){
+  .active-inline-player{margin-left:42px;margin-right:0}
+}
+
 </style>
 </head>
 <body>
-<script src="site-data.js"></script>
+<script src="site-data.js?v=28.3"></script>
 <div class="wrap">
   <div class="topbar">
     <div class="brand"><span class="logo">♫</span><span id="brand">Хөгжмийн дасгал ажлын дэвтэр</span></div>
@@ -76,33 +160,12 @@ audio{width:100%;height:42px}
 
 <script>
 (async()=>{
-  await (window.MYDEWTER_READY || Promise.resolve());
-
   const $=id=>document.getElementById(id);
   const params=new URLSearchParams(location.search);
   const gradeNumber=Math.max(1,Math.min(5,Number(params.get('grade'))||2));
   const group=(params.get('group')||'').trim();
   const trackCode=(params.get('track')||'').trim();
 
-  let DATA=window.MYDEWTER_DATA||{};
-
-  // QR/group pages always ask backend for newest published Studio data.
-  if(group || trackCode){
-    try{
-      const api=DATA.orderApiUrl||'';
-      if(api){
-        const res=await fetch(api+(api.includes('?')?'&':'?')+'action=getSiteData&_='+Date.now(),{cache:'no-store'});
-        const fresh=await res.json();
-        if(fresh&&fresh.ok&&fresh.data){
-          DATA=Object.assign({},DATA,fresh.data);
-          window.MYDEWTER_DATA=DATA;
-          try{localStorage.setItem('mydewter_public_cache_v26',JSON.stringify(DATA))}catch(e){}
-        }
-      }
-    }catch(e){console.warn('Fresh audio data fetch failed',e)}
-  }
-
-  const grade=(DATA.grades||[]).find(g=>Number(g.grade)===gradeNumber);
   const theme={
     1:{accent:'#57c8d4',soft:'#e8fbff'},
     2:{accent:'#f0a24e',soft:'#fff2e3'},
@@ -113,114 +176,259 @@ audio{width:100%;height:42px}
 
   document.documentElement.style.setProperty('--accent',theme.accent);
   document.documentElement.style.setProperty('--soft',theme.soft);
-  $('brand').textContent=DATA.brand||'Хөгжмийн дасгал ажлын дэвтэр';
-  $('title').textContent=(grade&&grade.title)||gradeNumber+'-р ангийн дэвтэр';
-  if(grade&&grade.image)$('cover').innerHTML=`<img src="${escAttr(grade.image)}" alt="">`;
 
-  if(!grade){
-    $('content').innerHTML='<div class="empty">Мэдээлэл олдсонгүй.</div>';
-    return;
-  }
+  // -------- FIRST PAINT: never show an empty generic page --------
+  $('title').textContent=gradeNumber+'-р ангийн дэвтэр';
+  $('cover').innerHTML=`<img src="grade${gradeNumber}.png" alt="${gradeNumber}-р ангийн дэвтэр">`;
 
-  const tracks=(Array.isArray(grade.listeningTracks)?grade.listeningTracks:[]).map(t=>{
-    if(typeof t==='string')return {name:t,audio:'',type:'assessment',code:''};
-    const x=Object.assign({},t||{});
-    if(!x.type)x.type='assessment';
-    return x;
-  });
-
-  // 1) One assessment QR = one track.
-  if(trackCode){
+  if(group==='listening'){
+    $('kicker').textContent='СОНСОХ ХӨГЖИМ';
+    $('sectionTitle').textContent='Сонсох хөгжим';
+  }else if(group==='songs'){
+    $('kicker').textContent='ДУУ';
+    $('sectionTitle').textContent='Дуу';
+  }else if(trackCode){
     $('kicker').textContent='';
-    const t=tracks.find(x=>String(x.code||'')===trackCode);
-    $('sectionTitle').textContent=t&&t.name?t.name:'Сонсох материал';
-    $('count').textContent='';
-    if(!t || !(t.audio||t.url)){
-      $('content').innerHTML='<div class="empty">Сонсох материал олдсонгүй.</div>';
-      return;
-    }
-    $('content').innerHTML=`
-      <div class="player-card">
-        <div class="now">Сонсох материал</div>
-        <div class="now-title">${esc(t.name||'')}</div>
-        <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
-      </div>`;
-    return;
+    $('sectionTitle').textContent='Сонсох материал';
+  }else{
+    $('kicker').textContent='СОНСОХ ХӨГЖМИЙН ЖАГСААЛТ';
+    $('sectionTitle').textContent='Нэрс';
   }
 
-  // 2) One group QR = all listening tracks OR all songs.
-  if(group==='listening' || group==='songs'){
-    const selected=tracks.filter(t=>t.type===group);
-    const label=group==='listening'?'Сонсох хөгжим':'Дуу';
-    $('kicker').textContent=label.toUpperCase();
-    $('sectionTitle').textContent=label;
-    $('count').textContent=selected.length?selected.length+' материал':'';
-
-    if(!selected.length){
-      $('content').innerHTML='<div class="empty">Материал хараахан нэмэгдээгүй байна.</div>';
-      return;
-    }
-
-    $('content').innerHTML=`
-      <ol class="track-list" id="groupTracks">
-        ${selected.map((t,i)=>`
-          <li class="track">
-            <span class="num">${i+1}</span>
-            <span class="track-name">${esc(t.name||'Нэргүй')}</span>
-            <button class="play" type="button" data-play="${i}" aria-label="Сонсох">▶</button>
-          </li>`).join('')}
-      </ol>
-      <div class="player-card">
-        <div class="now">Одоо сонсож байна</div>
-        <div class="now-title" id="nowTitle">${esc(selected[0].name||'')}</div>
-        <audio id="groupAudio" controls preload="metadata" controlsList="nodownload"></audio>
-      </div>`;
-
-    const audio=$('groupAudio');
-    const buttons=[...document.querySelectorAll('[data-play]')];
-
-    function loadTrack(i,autoplay=false){
-      const t=selected[i];
-      audio.src=t.audio||t.url||'';
-      $('nowTitle').textContent=t.name||'';
-      buttons.forEach((b,j)=>b.classList.toggle('active',j===i));
-      if(autoplay && audio.src)audio.play().catch(()=>{});
-    }
-    buttons.forEach(btn=>btn.onclick=()=>loadTrack(+btn.dataset.play,true));
-    loadTrack(0,false);
-    return;
-  }
-
-  // 3) Public page = names only, no audio.
-  $('kicker').textContent='СОНСОХ ХӨГЖМИЙН ЖАГСААЛТ';
-  $('sectionTitle').textContent='Нэрс';
-  $('count').textContent=tracks.length?tracks.length+' материал':'';
-
-  const groups=[
-    ['listening','🎧 Сонсох хөгжим'],
-    ['songs','🎤 Дуу'],
-    ['assessment','📝 Гүйцэтгэлийн үнэлгээ']
-  ];
-
-  const html=groups.map(([type,label])=>{
-    const arr=tracks.filter(t=>t.type===type);
-    if(!arr.length)return '';
-    return `<div class="group-block">
-      <div class="group-title">${label}</div>
-      <ol class="track-list">
-        ${arr.map((t,i)=>`
-          <li class="track" style="grid-template-columns:38px minmax(0,1fr)">
-            <span class="num">${i+1}</span>
-            <span class="track-name">${esc(t.name||'Нэргүй')}</span>
-          </li>`).join('')}
-      </ol>
+  $('content').innerHTML=`
+    <div class="instant-loading">
+      <span class="instant-dot"></span>
+      <span>Жагсаалтыг шинэчилж байна…</span>
     </div>`;
-  }).join('');
 
-  $('content').innerHTML=html||'<div class="empty">Сонсох материал хараахан нэмэгдээгүй байна.</div>';
+  let currentAudio=null;
+  let currentTrackKey='';
+
+  function normalizeTracks(grade){
+    return (Array.isArray(grade?.listeningTracks)?grade.listeningTracks:[]).map(t=>{
+      if(typeof t==='string') return {name:t,audio:'',type:'assessment',code:''};
+      const x=Object.assign({},t||{});
+      if(!x.type)x.type='assessment';
+      return x;
+    });
+  }
+
+  function stopCurrent(){
+    if(currentAudio){
+      try{ currentAudio.pause(); }catch(e){}
+      currentAudio=null;
+    }
+  }
+
+  function render(DATA){
+    if(!DATA || typeof DATA!=='object') return false;
+
+    $('brand').textContent=DATA.brand||'Хөгжмийн дасгал ажлын дэвтэр';
+
+    const grade=(DATA.grades||[]).find(g=>Number(g.grade)===gradeNumber);
+    if(!grade) return false;
+
+    $('title').textContent=grade.title||gradeNumber+'-р ангийн дэвтэр';
+    if(grade.image){
+      $('cover').innerHTML=`<img src="${escAttr(grade.image)}" alt="${escAttr(grade.title||'')}">`;
+    }
+
+    const tracks=normalizeTracks(grade);
+
+    // 1) Individual assessment QR = one track
+    if(trackCode){
+      const t=tracks.find(x=>String(x.code||'')===trackCode);
+      $('count').textContent='';
+      if(!t || !(t.audio||t.url)){
+        $('sectionTitle').textContent=t?.name||'Сонсох материал';
+        $('content').innerHTML='<div class="empty">Сонсох материал олдсонгүй.</div>';
+        return true;
+      }
+      $('sectionTitle').textContent=t.name||'Сонсох материал';
+      $('content').innerHTML=`
+        <div class="player-card">
+          <div class="now-title">${esc(t.name||'')}</div>
+          <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
+        </div>`;
+      return true;
+    }
+
+    // 2) Group QR = all listening tracks OR all songs
+    if(group==='listening' || group==='songs'){
+      const selected=tracks.filter(t=>t.type===group);
+      const label=group==='listening'?'Сонсох хөгжим':'Дуу';
+      $('kicker').textContent=label.toUpperCase();
+      $('sectionTitle').textContent=label;
+      $('count').textContent=selected.length?selected.length+' материал':'';
+
+      if(!selected.length){
+        $('content').innerHTML='<div class="empty">Материал хараахан нэмэгдээгүй байна.</div>';
+        return true;
+      }
+
+      // Preserve current selected track if a fresh rerender comes in.
+      const previousKey=currentTrackKey;
+
+      $('content').innerHTML=`
+        <div class="track-list" id="groupTracks">
+          ${selected.map((t,i)=>`
+            <div class="track-select" data-row="${i}">
+              <div class="track-select-head">
+                <span class="num">${i+1}</span>
+                <span class="track-name">${esc(t.name||'Нэргүй')}</span>
+                <button class="play" type="button" data-play="${i}" aria-label="Сонсох">▶</button>
+              </div>
+              <div class="active-player-slot" data-slot="${i}"></div>
+            </div>`).join('')}
+        </div>`;
+
+      const buttons=[...document.querySelectorAll('[data-play]')];
+
+      function openPlayer(i, autoplay=true){
+        const t=selected[i];
+        const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|'+i;
+
+        stopCurrent();
+        currentTrackKey=key;
+
+        document.querySelectorAll('.active-player-slot').forEach(x=>x.innerHTML='');
+        buttons.forEach((b,j)=>{
+          b.classList.toggle('active',j===i);
+          b.textContent=j===i?'❚❚':'▶';
+        });
+
+        const slot=document.querySelector(`[data-slot="${i}"]`);
+        slot.innerHTML=`
+          <div class="active-inline-player">
+            <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
+          </div>`;
+
+        currentAudio=slot.querySelector('audio');
+        currentAudio.addEventListener('pause',()=>{
+          if(currentAudio && currentAudio.paused){
+            const b=buttons[i];
+            if(b)b.textContent='▶';
+          }
+        });
+        currentAudio.addEventListener('play',()=>{
+          const b=buttons[i];
+          if(b)b.textContent='❚❚';
+        });
+        currentAudio.addEventListener('ended',()=>{
+          const b=buttons[i];
+          if(b)b.textContent='▶';
+        });
+
+        if(autoplay && (t.audio||t.url)){
+          currentAudio.play().catch(()=>{});
+        }
+      }
+
+      buttons.forEach(btn=>btn.onclick=()=>{
+        const i=+btn.dataset.play;
+        const t=selected[i];
+        const key=(t.code||'')+'|'+(t.audio||t.url||'')+'|'+i;
+
+        // Clicking the active row toggles play/pause without moving the player.
+        if(currentAudio && currentTrackKey===key){
+          if(currentAudio.paused) currentAudio.play().catch(()=>{});
+          else currentAudio.pause();
+          return;
+        }
+        openPlayer(i,true);
+      });
+
+      // After fresh data rerender, reopen the same active track if it still exists.
+      if(previousKey){
+        const idx=selected.findIndex((t,i)=>((t.code||'')+'|'+(t.audio||t.url||'')+'|'+i)===previousKey);
+        if(idx>=0) openPlayer(idx,false);
+      }
+
+      return true;
+    }
+
+    // 3) Public page = names only, no audio
+    $('kicker').textContent='СОНСОХ ХӨГЖМИЙН ЖАГСААЛТ';
+    $('sectionTitle').textContent='Нэрс';
+    $('count').textContent=tracks.length?tracks.length+' материал':'';
+
+    const groups=[
+      ['listening','🎧 Сонсох хөгжим'],
+      ['songs','🎤 Дуу'],
+      ['assessment','📝 Гүйцэтгэлийн үнэлгээ']
+    ];
+
+    const html=groups.map(([type,label])=>{
+      const arr=tracks.filter(t=>t.type===type);
+      if(!arr.length)return '';
+      return `<div class="group-block">
+        <div class="group-title">${label}</div>
+        <ol class="track-list">
+          ${arr.map((t,i)=>`
+            <li class="track" style="grid-template-columns:38px minmax(0,1fr)">
+              <span class="num">${i+1}</span>
+              <span class="track-name">${esc(t.name||'Нэргүй')}</span>
+            </li>`).join('')}
+        </ol>
+      </div>`;
+    }).join('');
+
+    $('content').innerHTML=html||'<div class="empty">Сонсох материал хараахан нэмэгдээгүй байна.</div>';
+    return true;
+  }
+
+  // -------- INSTANT RENDER from existing in-page/local cache --------
+  let DATA=window.MYDEWTER_DATA||{};
+  let rendered=render(DATA);
+
+  try{
+    const cached=localStorage.getItem('mydewter_public_cache_v26');
+    if(cached){
+      const parsed=JSON.parse(cached);
+      if(parsed && typeof parsed==='object'){
+        DATA=Object.assign({},DATA,parsed);
+        rendered=render(DATA)||rendered;
+      }
+    }
+  }catch(e){}
+
+  // -------- FRESH RENDER from Apps Script, no reload, no blank flash --------
+  await (window.MYDEWTER_READY || Promise.resolve());
+
+  DATA=Object.assign({},DATA,window.MYDEWTER_DATA||{});
+  rendered=render(DATA)||rendered;
+
+  try{
+    const api=DATA.orderApiUrl||'';
+    if(api){
+      const res=await fetch(
+        api+(api.includes('?')?'&':'?')+'action=getSiteData&_='+Date.now(),
+        {cache:'no-store'}
+      );
+      const fresh=await res.json();
+
+      if(fresh&&fresh.ok&&fresh.data){
+        DATA=Object.assign({},DATA,fresh.data);
+        window.MYDEWTER_DATA=DATA;
+        try{
+          localStorage.setItem('mydewter_public_cache_v26',JSON.stringify(DATA));
+        }catch(e){}
+        render(DATA);
+      }
+    }
+  }catch(e){
+    console.warn('Fresh audio data fetch failed',e);
+    if(!rendered){
+      $('content').innerHTML='<div class="empty">Материал ачаалж чадсангүй. Хуудсыг дахин нээнэ үү.</div>';
+    }
+  }
 
   function esc(v){
-    return String(v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+    return String(v||'')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;');
   }
   function escAttr(v){return esc(v)}
 })();
