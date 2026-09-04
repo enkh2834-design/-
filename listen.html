@@ -4,85 +4,49 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2469eb">
-<title>Сонсох хөгжим — MY ДЭВТЭР</title>
-
-<script>
-(function(){
-  const p=new URLSearchParams(location.search);
-  const grade=Math.max(1,Math.min(5,Number(p.get('grade'))||2));
-  const track=(p.get('track')||'').trim();
-
-  document.documentElement.dataset.grade=String(grade);
-  document.documentElement.dataset.mode=track ? 'track' : 'public';
-
-  // Preload the obvious grade cover before site-data/backend arrives.
-  const img=new Image();
-  img.src='grade'+grade+'.png';
-})();
-</script>
-
+<title>Сонсох материал — MY ДЭВТЭР</title>
 <style>
 :root{
   --accent:#2469eb;--soft:#eaf2ff;--ink:#17213a;--muted:#70788a;--line:#e3e7ee;
   --bg:#f7f4ef;--card:#fff;--shadow:0 18px 42px rgba(25,39,73,.08)
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}
+*{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
 background:radial-gradient(circle at 10% 8%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 28%),linear-gradient(180deg,#fbfaf7,var(--bg))}
 a,button{font:inherit}a{text-decoration:none;color:inherit}
-.wrap{width:min(760px,calc(100% - 24px));margin:auto;padding:20px 0 70px}
+.wrap{width:min(820px,calc(100% - 24px));margin:auto;padding:20px 0 70px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .brand{display:flex;gap:10px;align-items:center;font-weight:950}
 .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,var(--accent),#4bc9d5);box-shadow:0 10px 20px color-mix(in srgb,var(--accent) 22%,transparent)}
 .back{padding:10px 13px;border-radius:13px;background:#fff;border:1px solid var(--line);color:#46516a;font-size:13px;font-weight:800}
-.hero{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:var(--shadow);display:grid;grid-template-columns:126px 1fr;gap:18px;align-items:center}
-.hero:after{content:"♪ ♫ ♬";position:absolute;right:14px;top:8px;font-size:38px;letter-spacing:9px;color:color-mix(in srgb,var(--accent) 9%,transparent);pointer-events:none}
-.cover{width:126px;aspect-ratio:.76;border-radius:18px;overflow:hidden;background:var(--soft);border:1px solid color-mix(in srgb,var(--accent) 20%,white);box-shadow:0 12px 24px rgba(30,45,82,.08)}
+.hero{background:#fff;border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:var(--shadow);display:grid;grid-template-columns:126px 1fr;gap:18px;align-items:center}
+.cover{width:126px;aspect-ratio:.76;border-radius:18px;overflow:hidden;background:var(--soft);border:1px solid color-mix(in srgb,var(--accent) 20%,white)}
 .cover img{width:100%;height:100%;object-fit:cover}
-.kicker{font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-.hero h1{margin:7px 0 8px;font-size:30px;letter-spacing:-.045em;line-height:1.05}
-.hero p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+.kicker{font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.hero h1{margin:7px 0 0;font-size:30px;letter-spacing:-.045em;line-height:1.05}
 .section{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:var(--shadow)}
 .section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:8px}
 .section h2{margin:0;font-size:21px;letter-spacing:-.03em}
 .count{font-size:12px;color:var(--muted);font-weight:800}
+.group-block{margin-top:14px}
+.group-block:first-child{margin-top:0}
+.group-title{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:14px;font-weight:950;color:#2d3b58}
 .track-list{list-style:none;margin:0;padding:0}
-.track{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;padding:14px 4px;border-bottom:1px solid #edf0f4}
+.track{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 4px;border-bottom:1px solid #edf0f4}
 .track:last-child{border-bottom:0}
 .num{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--accent);font-size:12px;font-weight:950}
-.track-name{font-size:15px;font-weight:850;line-height:1.4}
-.empty{padding:28px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
-.private-card{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:26px;padding:22px;box-shadow:var(--shadow)}
-.private-label{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:10px;font-weight:950;letter-spacing:.06em}
-.private-card h2{margin:14px 0 8px;font-size:24px;letter-spacing:-.035em}
-.private-card p{margin:0 0 17px;color:var(--muted);font-size:13px;line-height:1.65}
-.audio-box{padding:14px;border:1px solid color-mix(in srgb,var(--accent) 18%,white);border-radius:18px;background:linear-gradient(135deg,#fff,var(--soft))}
+.track-name{font-size:14px;font-weight:850;line-height:1.4}
+.play{width:34px;height:34px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:950;cursor:pointer}
+.play.active{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 16%,transparent)}
+.player-card{margin-top:14px;padding:14px;border-radius:18px;border:1px solid color-mix(in srgb,var(--accent) 18%,white);background:linear-gradient(135deg,#fff,var(--soft))}
+.now{font-size:11px;color:var(--muted);margin-bottom:5px}
+.now-title{font-size:15px;font-weight:950;margin-bottom:9px}
 audio{width:100%;height:42px}
-.notice{margin-top:12px;color:#8a6b36;font-size:11px;line-height:1.6;background:#fff8e9;border:1px solid #f0dfbd;border-radius:12px;padding:10px 12px}
+.empty{padding:25px 10px;text-align:center;color:var(--muted);font-size:13px}
 @media(max-width:520px){
   .hero{grid-template-columns:88px 1fr;padding:15px;gap:13px}.cover{width:88px}.hero h1{font-size:23px}
+  .track{grid-template-columns:32px minmax(0,1fr) 34px}
 }
-
-/* V27.2 — DIRECT QR OPEN
-   URL mode is known before the first paint. */
-html[data-mode="track"] #publicSection{display:none!important}
-html[data-mode="track"] #privateSection{display:block!important}
-html[data-mode="public"] #privateSection{display:none!important}
-
-.track-loading{
-  display:flex;align-items:center;gap:10px;color:var(--muted);
-  font-size:13px;font-weight:700
-}
-.track-loading-dot{
-  width:9px;height:9px;border-radius:50%;
-  background:var(--accent);
-  animation:pulseDot .9s ease-in-out infinite alternate
-}
-@keyframes pulseDot{
-  from{opacity:.28;transform:scale(.8)}
-  to{opacity:1;transform:scale(1.15)}
-}
-
 </style>
 </head>
 <body>
@@ -94,98 +58,51 @@ html[data-mode="public"] #privateSection{display:none!important}
   </div>
 
   <section class="hero">
-    <div class="cover" id="cover"><img id="initialCover" src="grade2.png" alt="Дэвтрийн нүүр"></div>
+    <div class="cover" id="cover"></div>
     <div>
-      <div class="kicker" id="kicker">Сонсох хөгжмийн жагсаалт</div>
-      <h1 id="title">2-р ангийн дэвтэр</h1>
-      <p id="heroText" style="display:none"></p>
+      <div class="kicker" id="kicker"></div>
+      <h1 id="title">Дэвтэр</h1>
     </div>
   </section>
 
-  <section class="section" id="publicSection">
+  <section class="section">
     <div class="section-head">
-      <h2>Сонсох хөгжмийн нэрс</h2>
+      <h2 id="sectionTitle">Сонсох материал</h2>
       <span class="count" id="count"></span>
     </div>
-    <ol class="track-list" id="tracks"></ol>
-  </section>
-
-  <section class="private-card" id="privateSection" style="display:none">
-    <span class="private-label">🔒 ДЭВТЭРИЙН QR ХОЛБООС</span>
-    <h2 id="privateTitle">Сонсох материалыг нээж байна…</h2>
-    <p id="privateDescription" style="display:none"></p>
-    <div class="audio-box" id="audioBox">
-      <div class="track-loading" id="trackLoading">
-        <span class="track-loading-dot"></span>
-        <span>Дууг ачаалж байна…</span>
-      </div>
-      <audio id="audio" controls preload="metadata" controlsList="nodownload" style="display:none"></audio>
-    </div>
-    
+    <div id="content"></div>
   </section>
 </div>
 
 <script>
 (async()=>{
+  await (window.MYDEWTER_READY || Promise.resolve());
+
   const $=id=>document.getElementById(id);
   const params=new URLSearchParams(location.search);
   const gradeNumber=Math.max(1,Math.min(5,Number(params.get('grade'))||2));
+  const group=(params.get('group')||'').trim();
   const trackCode=(params.get('track')||'').trim();
 
-  // Correct first-paint UI immediately from the URL.
-  $('title').textContent=gradeNumber+'-р ангийн дэвтэр';
-  const initialCover=$('initialCover');
-  if(initialCover) initialCover.src='grade'+gradeNumber+'.png';
-
-  if(trackCode){
-    $('kicker').style.display='none';
-    $('heroText').style.display='none';
-    $('publicSection').style.display='none';
-    $('privateSection').style.display='block';
-  }else{
-    $('kicker').textContent='Сонсох хөгжмийн жагсаалт';
-    $('heroText').style.display='none';
-    $('publicSection').style.display='block';
-    $('privateSection').style.display='none';
-  }
-
-  await (window.MYDEWTER_READY || Promise.resolve());
-
-  // Start with whatever site-data.js already has.
   let DATA=window.MYDEWTER_DATA||{};
 
-  // IMPORTANT:
-  // For a QR track link, do NOT trust browser cache.
-  // Always ask Apps Script for the latest published Studio data first.
-  if(trackCode){
+  // QR/group pages always ask backend for newest published Studio data.
+  if(group || trackCode){
     try{
       const api=DATA.orderApiUrl||'';
       if(api){
-        const url=api + (api.includes('?')?'&':'?') +
-          'action=getSiteData&_=' + Date.now();
-        const res=await fetch(url,{cache:'no-store'});
+        const res=await fetch(api+(api.includes('?')?'&':'?')+'action=getSiteData&_='+Date.now(),{cache:'no-store'});
         const fresh=await res.json();
-
-        if(fresh && fresh.ok && fresh.data){
+        if(fresh&&fresh.ok&&fresh.data){
           DATA=Object.assign({},DATA,fresh.data);
           window.MYDEWTER_DATA=DATA;
-
-          // Update public cache as well so later visits are current.
-          try{
-            localStorage.setItem(
-              'mydewter_public_cache_v26',
-              JSON.stringify(DATA)
-            );
-          }catch(e){}
+          try{localStorage.setItem('mydewter_public_cache_v26',JSON.stringify(DATA))}catch(e){}
         }
       }
-    }catch(e){
-      console.warn('QR fresh-data fetch failed:',e);
-    }
+    }catch(e){console.warn('Fresh audio data fetch failed',e)}
   }
 
   const grade=(DATA.grades||[]).find(g=>Number(g.grade)===gradeNumber);
-
   const theme={
     1:{accent:'#57c8d4',soft:'#e8fbff'},
     2:{accent:'#f0a24e',soft:'#fff2e3'},
@@ -197,62 +114,115 @@ html[data-mode="public"] #privateSection{display:none!important}
   document.documentElement.style.setProperty('--accent',theme.accent);
   document.documentElement.style.setProperty('--soft',theme.soft);
   $('brand').textContent=DATA.brand||'Хөгжмийн дасгал ажлын дэвтэр';
+  $('title').textContent=(grade&&grade.title)||gradeNumber+'-р ангийн дэвтэр';
+  if(grade&&grade.image)$('cover').innerHTML=`<img src="${escAttr(grade.image)}" alt="">`;
 
   if(!grade){
-    $('title').textContent=gradeNumber+'-р анги';
-    $('tracks').innerHTML='<li class="empty">Энэ ангийн мэдээлэл олдсонгүй.</li>';
+    $('content').innerHTML='<div class="empty">Мэдээлэл олдсонгүй.</div>';
     return;
   }
 
-  $('title').textContent=grade.title||gradeNumber+'-р ангийн дэвтэр';
-  if(grade.image) $('cover').innerHTML=`<img src="${grade.image}" alt="${grade.title||''}">`;
-
   const tracks=(Array.isArray(grade.listeningTracks)?grade.listeningTracks:[]).map(t=>{
-    if(typeof t==='string') return {name:t,audio:'',code:''};
-    return t||{};
+    if(typeof t==='string')return {name:t,audio:'',type:'assessment',code:''};
+    const x=Object.assign({},t||{});
+    if(!x.type)x.type='assessment';
+    return x;
   });
 
-  // QR MODE: one link = one song, and no other list is shown.
+  // 1) One assessment QR = one track.
   if(trackCode){
-    const track=tracks.find(t=>String(t.code||'')===trackCode);
+    $('kicker').textContent='';
+    const t=tracks.find(x=>String(x.code||'')===trackCode);
+    $('sectionTitle').textContent=t&&t.name?t.name:'Сонсох материал';
+    $('count').textContent='';
+    if(!t || !(t.audio||t.url)){
+      $('content').innerHTML='<div class="empty">Сонсох материал олдсонгүй.</div>';
+      return;
+    }
+    $('content').innerHTML=`
+      <div class="player-card">
+        <div class="now">Сонсох материал</div>
+        <div class="now-title">${esc(t.name||'')}</div>
+        <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
+      </div>`;
+    return;
+  }
 
-    if(!track || !(track.audio||track.url)){
-      $('privateTitle').textContent='Сонсох материал олдсонгүй';
-      $('privateDescription').style.display='none';
-      $('trackLoading').style.display='none';
+  // 2) One group QR = all listening tracks OR all songs.
+  if(group==='listening' || group==='songs'){
+    const selected=tracks.filter(t=>t.type===group);
+    const label=group==='listening'?'Сонсох хөгжим':'Дуу';
+    $('kicker').textContent=label.toUpperCase();
+    $('sectionTitle').textContent=label;
+    $('count').textContent=selected.length?selected.length+' материал':'';
+
+    if(!selected.length){
+      $('content').innerHTML='<div class="empty">Материал хараахан нэмэгдээгүй байна.</div>';
       return;
     }
 
-    $('title').textContent=gradeNumber+'-р ангийн дэвтэр';
-    $('privateTitle').textContent=track.name||'Сонсох хөгжим';
-    $('privateDescription').style.display='none';
-    $('trackLoading').style.display='none';
-    $('audio').style.display='block';
-    $('audio').src=track.audio||track.url||'';
+    $('content').innerHTML=`
+      <ol class="track-list" id="groupTracks">
+        ${selected.map((t,i)=>`
+          <li class="track">
+            <span class="num">${i+1}</span>
+            <span class="track-name">${esc(t.name||'Нэргүй')}</span>
+            <button class="play" type="button" data-play="${i}" aria-label="Сонсох">▶</button>
+          </li>`).join('')}
+      </ol>
+      <div class="player-card">
+        <div class="now">Одоо сонсож байна</div>
+        <div class="now-title" id="nowTitle">${esc(selected[0].name||'')}</div>
+        <audio id="groupAudio" controls preload="metadata" controlsList="nodownload"></audio>
+      </div>`;
+
+    const audio=$('groupAudio');
+    const buttons=[...document.querySelectorAll('[data-play]')];
+
+    function loadTrack(i,autoplay=false){
+      const t=selected[i];
+      audio.src=t.audio||t.url||'';
+      $('nowTitle').textContent=t.name||'';
+      buttons.forEach((b,j)=>b.classList.toggle('active',j===i));
+      if(autoplay && audio.src)audio.play().catch(()=>{});
+    }
+    buttons.forEach(btn=>btn.onclick=()=>loadTrack(+btn.dataset.play,true));
+    loadTrack(0,false);
     return;
   }
 
-  // PUBLIC MODE: names only. No play button, no audio URL, no audio player.
-  $('heroText').textContent='Олон нийтэд сонсох хөгжмийн зөвхөн нэрс харагдана. Дууг дэвтэр дээрх тухайн хөгжмийн QR кодоор нээж сонсоно.';
-  $('count').textContent=tracks.length?tracks.length+' бүтээл':'';
+  // 3) Public page = names only, no audio.
+  $('kicker').textContent='СОНСОХ ХӨГЖМИЙН ЖАГСААЛТ';
+  $('sectionTitle').textContent='Нэрс';
+  $('count').textContent=tracks.length?tracks.length+' материал':'';
 
-  if(!tracks.length){
-    $('tracks').innerHTML='<li class="empty">Сонсох хөгжмийн нэрс хараахан нэмэгдээгүй байна.</li>';
-  }else{
-    $('tracks').innerHTML=tracks.map((t,i)=>`
-      <li class="track">
-        <span class="num">${i+1}</span>
-        <span class="track-name">${escapeHtml(t.name||'Нэргүй бүтээл')}</span>
-      </li>`).join('');
-  }
+  const groups=[
+    ['listening','🎧 Сонсох хөгжим'],
+    ['songs','🎤 Дуу'],
+    ['assessment','📝 Гүйцэтгэлийн үнэлгээ']
+  ];
 
-  function escapeHtml(v){
-    return String(v||'')
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;');
+  const html=groups.map(([type,label])=>{
+    const arr=tracks.filter(t=>t.type===type);
+    if(!arr.length)return '';
+    return `<div class="group-block">
+      <div class="group-title">${label}</div>
+      <ol class="track-list">
+        ${arr.map((t,i)=>`
+          <li class="track" style="grid-template-columns:38px minmax(0,1fr)">
+            <span class="num">${i+1}</span>
+            <span class="track-name">${esc(t.name||'Нэргүй')}</span>
+          </li>`).join('')}
+      </ol>
+    </div>`;
+  }).join('');
+
+  $('content').innerHTML=html||'<div class="empty">Сонсох материал хараахан нэмэгдээгүй байна.</div>';
+
+  function esc(v){
+    return String(v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
   }
+  function escAttr(v){return esc(v)}
 })();
 </script>
 </body>

@@ -38,6 +38,69 @@
   color:#76613d;font-size:10px;line-height:1.5
 }
 
+
+/* =========================================================
+   V28 — GROUPED AUDIO / QR ARCHITECTURE
+   Listening = one QR for the whole list
+   Songs     = one QR for the whole list
+   Assessment = one QR per track
+   ========================================================= */
+.listen-grade-card{
+  border:1px solid #dde3ec;border-radius:18px;padding:13px;margin-bottom:13px;background:#fff
+}
+.listen-grade-top{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:11px
+}
+.listen-grade-top b{font-size:15px}
+.listen-category{
+  border:1px solid #e2e7ef;border-radius:15px;padding:11px;margin-top:9px;background:#fbfcfe
+}
+.listen-category-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px
+}
+.listen-category-title{font-size:12px;font-weight:950;color:#273651}
+.listen-category-desc{font-size:9.5px;line-height:1.5;color:#7b8495;margin-top:3px}
+.listen-count{
+  flex:none;border-radius:999px;padding:5px 8px;background:#eef4ff;color:#3564b0;
+  font-size:9px;font-weight:900
+}
+.group-qr{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;
+  margin:8px 0;padding:8px;border:1px solid #d9e7fb;border-radius:11px;background:#f1f7ff
+}
+.group-qr .url{min-width:0;word-break:break-all;color:#49617f;font-size:9.5px;line-height:1.45}
+.group-qr .copy-group{
+  border:1px solid #cfe0f7;background:#fff;color:#2469eb;border-radius:9px;
+  padding:8px 9px;font-size:9.5px;font-weight:900;white-space:nowrap
+}
+.listen-category.listening{border-color:#ccecf0;background:#f8feff}
+.listen-category.songs{border-color:#f4ddbd;background:#fffdf8}
+.listen-category.assessment{border-color:#ddd8f6;background:#fcfbff}
+.listen-category.listening .listen-category-title{color:#238da4}
+.listen-category.songs .listen-category-title{color:#c37b24}
+.listen-category.assessment .listen-category-title{color:#5949bd}
+.group-track{
+  margin-top:7px;padding:8px;border:1px solid #e4e8ef;border-radius:11px;background:#fff
+}
+.group-track .track-row{margin-top:0}
+.assessment-track{
+  margin-top:8px;padding:9px;border:1px solid #e1e6ee;border-radius:12px;background:#fff
+}
+.assessment-track .track-row{margin-top:0}
+.assessment-track .track-qr-row{margin-top:6px}
+.bulk-box{
+  margin-top:8px;padding:8px;border-radius:10px;background:#f6f8fb;border:1px dashed #cbd5e3
+}
+.bulk-box summary{cursor:pointer;font-size:9.5px;font-weight:900;color:#56657c}
+.bulk-box textarea{
+  width:100%;min-height:74px;margin-top:7px;padding:8px;border:1px solid #dde4ed;
+  border-radius:9px;font:10px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical
+}
+.bulk-box button{
+  margin-top:6px;border:0;border-radius:9px;padding:8px 10px;background:#eef4ff;
+  color:#315e9f;font-size:9.5px;font-weight:900
+}
+
 </style>
 </head>
 <body>
@@ -103,7 +166,7 @@
         </section>
 
         <section class="pane" data-pane="listen">
-          <h2 class="section-title">Сонсох хөгжмийн жагсаалт</h2>
+          <h2 class="section-title">Аудио & QR удирдлага</h2>
           <div id="listenControls"></div>
         </section>
 
@@ -235,83 +298,204 @@ function makeTrackCode(){
     return (Date.now().toString(36)+Math.random().toString(36).slice(2)).slice(0,16);
   }
 }
-function trackLink(grade,code){
+function assessmentTrackLink(grade,code){
   return `https://mydewter.mn/listen.html?grade=${encodeURIComponent(grade)}&track=${encodeURIComponent(code)}`;
 }
-function normalizeTrack(t){
+function groupLink(grade,type){
+  return `https://mydewter.mn/listen.html?grade=${encodeURIComponent(grade)}&group=${encodeURIComponent(type)}`;
+}
+function publicListLink(grade){
+  return `https://mydewter.mn/listen.html?grade=${encodeURIComponent(grade)}`;
+}
+function normalizeTrack(t,defaultType='assessment'){
   if(typeof t==='string') t={name:t,audio:''};
   if(!t || typeof t!=='object') t={name:'',audio:''};
+  if(!t.type) t.type=defaultType; // old V27 tracks stay individual assessment QR tracks
+  if(!['listening','songs','assessment'].includes(t.type)) t.type=defaultType;
   if(!t.code) t.code=makeTrackCode();
   return t;
+}
+async function copyText(text,btn){
+  try{
+    await navigator.clipboard.writeText(text);
+    const old=btn.textContent;btn.textContent='Хууллаа ✓';
+    setTimeout(()=>btn.textContent=old,1300);
+  }catch(e){prompt('QR болгох холбоос:',text)}
 }
 function buildListening(){
   const box=$('listenControls');box.innerHTML='';
   let generated=false;
+
   (data.grades||[]).forEach((g,i)=>{
     if(!Array.isArray(g.listeningTracks))g.listeningTracks=[];
     g.listeningTracks=g.listeningTracks.map(t=>{
-      const had=!!(t&&typeof t==='object'&&t.code);
-      const nt=normalizeTrack(t);
+      const had=!!(t&&typeof t==='object'&&t.code&&t.type);
+      const nt=normalizeTrack(t,'assessment');
       if(!had)generated=true;
       return nt;
     });
-    const card=document.createElement('div');card.className='card';
+
+    const listeningCount=g.listeningTracks.filter(t=>t.type==='listening').length;
+    const songCount=g.listeningTracks.filter(t=>t.type==='songs').length;
+    const assessmentCount=g.listeningTracks.filter(t=>t.type==='assessment').length;
+
+    const card=document.createElement('div');
+    card.className='listen-grade-card';
     card.innerHTML=`
-      <div class="grade-head"><b>${g.grade}-р анги</b><span>${g.listeningTracks.length} хөгжим</span></div>
-      <div class="qr"><b>Нийтийн жагсаалт:</b><br>https://mydewter.mn/listen.html?grade=${g.grade}</div>
-      <div class="public-list-note">Нийтийн жагсаалт дээр зөвхөн хөгжмийн <b>нэр</b> харагдана. Дуу тоглуулахгүй. Дуу бүрийн доорх тусгай холбоосыг QR болгож дэвтэр дээр байрлуулна.</div>
-      <div id="tr${i}"></div>
-      <button class="add" data-add="${i}">+ Сонсох хөгжим нэмэх</button>`;
-    box.appendChild(card);renderTracks(i)
+      <div class="listen-grade-top">
+        <b>${g.grade}-р анги</b>
+        <span style="font-size:9px;color:#7b8495">${g.listeningTracks.length} нийт аудио</span>
+      </div>
+
+      <div class="qr"><b>Олон нийтэд харагдах нэрс:</b><br>${publicListLink(g.grade)}</div>
+
+      <section class="listen-category listening">
+        <div class="listen-category-head">
+          <div>
+            <div class="listen-category-title">🎧 Сонсох хөгжим</div>
+            <div class="listen-category-desc">Бүх сонсох хөгжим НЭГ QR холбоосоор нээгдэнэ.</div>
+          </div>
+          <span class="listen-count">${listeningCount}</span>
+        </div>
+        <div class="group-qr">
+          <div class="url">${groupLink(g.grade,'listening')}</div>
+          <button type="button" class="copy-group" data-copygroup="${i}:listening">QR link хуулах</button>
+        </div>
+        <div id="grp-${i}-listening"></div>
+        <button class="add" data-addgroup="${i}:listening">+ Сонсох хөгжим нэмэх</button>
+        <details class="bulk-box">
+          <summary>Олон хөгжмийг бөөнөөр нэмэх</summary>
+          <textarea id="bulk-${i}-listening" placeholder="Мөр бүрт: Нэр | audio/2/file.mp3"></textarea>
+          <button type="button" data-bulk="${i}:listening">Бөөнөөр нэмэх</button>
+        </details>
+      </section>
+
+      <section class="listen-category songs">
+        <div class="listen-category-head">
+          <div>
+            <div class="listen-category-title">🎤 Дуу</div>
+            <div class="listen-category-desc">Бүх дуу НЭГ QR холбоосоор нээгдэнэ.</div>
+          </div>
+          <span class="listen-count">${songCount}</span>
+        </div>
+        <div class="group-qr">
+          <div class="url">${groupLink(g.grade,'songs')}</div>
+          <button type="button" class="copy-group" data-copygroup="${i}:songs">QR link хуулах</button>
+        </div>
+        <div id="grp-${i}-songs"></div>
+        <button class="add" data-addgroup="${i}:songs">+ Дуу нэмэх</button>
+        <details class="bulk-box">
+          <summary>Олон дууг бөөнөөр нэмэх</summary>
+          <textarea id="bulk-${i}-songs" placeholder="Мөр бүрт: Нэр | audio/2/file.mp3"></textarea>
+          <button type="button" data-bulk="${i}:songs">Бөөнөөр нэмэх</button>
+        </details>
+      </section>
+
+      <section class="listen-category assessment">
+        <div class="listen-category-head">
+          <div>
+            <div class="listen-category-title">📝 Гүйцэтгэлийн үнэлгээ</div>
+            <div class="listen-category-desc">Эдгээр нь өмнөх шигээ НЭГ ДУУ = НЭГ QR холбоостой.</div>
+          </div>
+          <span class="listen-count">${assessmentCount}</span>
+        </div>
+        <div id="grp-${i}-assessment"></div>
+        <button class="add" data-addgroup="${i}:assessment">+ Үнэлгээний сонсох материал нэмэх</button>
+      </section>`;
+
+    box.appendChild(card);
+    renderCategory(i,'listening');
+    renderCategory(i,'songs');
+    renderCategory(i,'assessment');
   });
-  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.add;
-    data.grades[i].listeningTracks.push({name:'',audio:'',code:makeTrackCode()});
-    renderTracks(i);markDirty()
+
+  box.querySelectorAll('[data-copygroup]').forEach(btn=>btn.onclick=()=>{
+    const [i,type]=btn.dataset.copygroup.split(':');
+    copyText(groupLink(data.grades[+i].grade,type),btn);
   });
+
+  box.querySelectorAll('[data-addgroup]').forEach(btn=>btn.onclick=()=>{
+    const [i,type]=btn.dataset.addgroup.split(':');
+    data.grades[+i].listeningTracks.push({
+      name:'',audio:'',type,code:makeTrackCode()
+    });
+    buildListening();markDirty();
+  });
+
+  box.querySelectorAll('[data-bulk]').forEach(btn=>btn.onclick=()=>{
+    const [i,type]=btn.dataset.bulk.split(':');
+    const ta=$(`bulk-${i}-${type}`);
+    const rows=(ta.value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(!rows.length)return;
+
+    rows.forEach(row=>{
+      const parts=row.split('|');
+      const name=(parts[0]||'').trim();
+      const audio=(parts.slice(1).join('|')||'').trim();
+      data.grades[+i].listeningTracks.push({
+        name,audio,type,code:makeTrackCode()
+      });
+    });
+    ta.value='';
+    buildListening();markDirty();
+  });
+
   if(generated){
     dirty=true;
-    setStatus('QR холбоосууд үүслээ · Хадгалах & Нийтлэх дарна уу','unsaved');
+    setStatus('Аудио ангилал/QR шинэчлэгдлээ · Хадгалах & Нийтлэх дарна уу','unsaved');
   }
 }
-function renderTracks(i){
-  const box=$('tr'+i),g=data.grades[i],tracks=g.listeningTracks;
-  box.innerHTML=tracks.map((raw,j)=>{
-    const t=tracks[j]=normalizeTrack(raw);
-    const link=trackLink(g.grade,t.code);
-    return `<div class="track-editor">
+function renderCategory(i,type){
+  const g=data.grades[i];
+  const box=$(`grp-${i}-${type}`);
+  if(!box)return;
+
+  const indexed=g.listeningTracks
+    .map((t,j)=>({t:normalizeTrack(t,'assessment'),j}))
+    .filter(x=>x.t.type===type);
+
+  box.innerHTML=indexed.map(({t,j},k)=>{
+    if(type==='assessment'){
+      const link=assessmentTrackLink(g.grade,t.code);
+      return `<div class="assessment-track">
+        <div class="track-row">
+          <input placeholder="Нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+          <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+          <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
+        </div>
+        <div class="track-qr-row">
+          <div class="track-qr-link">${esc(link)}</div>
+          <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+        </div>
+      </div>`;
+    }
+
+    return `<div class="group-track">
       <div class="track-row">
-        <input placeholder="Хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
-        <input placeholder="audio/2/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+        <input placeholder="${type==='listening'?'Сонсох хөгжмийн нэр':'Дууны нэр'}" data-tn="${i}:${j}" value="${esc(t.name)}">
+        <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
         <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
-      </div>
-      <div class="track-qr-row">
-        <div class="track-qr-link">${esc(link)}</div>
-        <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
       </div>
     </div>`;
   }).join('');
+
   box.querySelectorAll('[data-tn]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.tn.split(':').map(Number);
-    data.grades[a].listeningTracks[b].name=x.value;markDirty()
+    data.grades[a].listeningTracks[b].name=x.value;markDirty();
   });
   box.querySelectorAll('[data-ta]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.ta.split(':').map(Number);
-    data.grades[a].listeningTracks[b].audio=x.value.trim();markDirty()
+    data.grades[a].listeningTracks[b].audio=x.value.trim();markDirty();
   });
   box.querySelectorAll('[data-tx]').forEach(x=>x.onclick=()=>{
     const [a,b]=x.dataset.tx.split(':').map(Number);
-    data.grades[a].listeningTracks.splice(b,1);renderTracks(a);markDirty()
+    data.grades[a].listeningTracks.splice(b,1);
+    buildListening();markDirty();
   });
-  box.querySelectorAll('[data-copytrack]').forEach(btn=>btn.onclick=async()=>{
+  box.querySelectorAll('[data-copytrack]').forEach(btn=>btn.onclick=()=>{
     const [a,b]=btn.dataset.copytrack.split(':').map(Number);
-    const gg=data.grades[a],tt=gg.listeningTracks[b];
-    const link=trackLink(gg.grade,tt.code);
-    try{
-      await navigator.clipboard.writeText(link);
-      const old=btn.textContent;btn.textContent='Хууллаа ✓';
-      setTimeout(()=>btn.textContent=old,1300);
-    }catch(e){prompt('QR болгох холбоос:',link)}
+    const gg=data.grades[a],tt=normalizeTrack(gg.listeningTracks[b],'assessment');
+    copyText(assessmentTrackLink(gg.grade,tt.code),btn);
   });
 }
 
