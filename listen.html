@@ -378,8 +378,11 @@ audio{width:100%;height:42px}
       $('count').textContent='';
       $('kicker').textContent='';
 
-      const exerciseTitle=t ? (t.exercise||t.name||'Дасгал') : 'Сонсох материал';
-      const fullTitle=t && t.page ? `${exerciseTitle} · Хуудас ${t.page}` : exerciseTitle;
+      const fullTitle = t
+        ? (t.type==='exercise'
+            ? ((t.exercise||t.name||'Дасгал') + (t.page?` · Хуудас ${t.page}`:''))
+            : (t.name||'Сонсох материал'))
+        : 'Сонсох материал';
 
       if(!t || !(t.audio||t.url)){
         $('sectionTitle').textContent=fullTitle;
@@ -553,6 +556,7 @@ audio{width:100%;height:42px}
     const groups=[
       ['listening','🎧 Сонсох хөгжим'],
       ['songs','🎤 Дагаад дуулаарай'],
+      ['exercise','✏️ Дасгал'],
       ['assessment','📝 Гүйцэтгэлийн үнэлгээ']
     ];
 
@@ -588,7 +592,7 @@ audio{width:100%;height:42px}
             <li class="track" style="grid-template-columns:38px minmax(0,1fr)">
               <span class="num">${i+1}</span>
               <span class="track-name">${esc(
-                type==='assessment'
+                type==='exercise'
                   ? ((t.exercise||t.name||'Дасгал') + (t.page?` · Хуудас ${t.page}`:''))
                   : (t.name||'Нэргүй')
               )}</span>

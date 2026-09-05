@@ -390,7 +390,7 @@ function normalizeTrack(t,defaultType='assessment'){
   if(typeof t==='string') t={name:t,audio:''};
   if(!t || typeof t!=='object') t={name:'',audio:''};
   if(!t.type) t.type=defaultType; // old V27 tracks stay individual assessment QR tracks
-  if(!['listening','songs','assessment'].includes(t.type)) t.type=defaultType;
+  if(!['listening','songs','exercise','assessment'].includes(t.type)) t.type=defaultType;
   if(t.lyricist===undefined) t.lyricist='';
   if(t.composer===undefined) t.composer='';
   if(t.exercise===undefined) t.exercise='';
@@ -420,6 +420,7 @@ function buildListening(){
 
     const listeningCount=g.listeningTracks.filter(t=>t.type==='listening').length;
     const songCount=g.listeningTracks.filter(t=>t.type==='songs').length;
+    const exerciseCount=g.listeningTracks.filter(t=>t.type==='exercise').length;
     const assessmentCount=g.listeningTracks.filter(t=>t.type==='assessment').length;
 
     const card=document.createElement('div');
@@ -474,6 +475,18 @@ function buildListening(){
         </details>
       </section>
 
+      <section class="listen-category exercise">
+        <div class="listen-category-head">
+          <div>
+            <div class="listen-category-title">✏️ Дасгал</div>
+            <div class="listen-category-desc">Дасгал бүр өөрийн тусдаа QR холбоостой. Дасгалын нэр, хуудасны дугаар оруулна.</div>
+          </div>
+          <span class="listen-count">${exerciseCount}</span>
+        </div>
+        <div id="grp-${i}-exercise"></div>
+        <button class="add" data-addgroup="${i}:exercise">+ Дасгал нэмэх</button>
+      </section>
+
       <section class="listen-category assessment">
         <div class="listen-category-head">
           <div>
@@ -489,6 +502,7 @@ function buildListening(){
     box.appendChild(card);
     renderCategory(i,'listening');
     renderCategory(i,'songs');
+    renderCategory(i,'exercise');
     renderCategory(i,'assessment');
   });
 
@@ -500,7 +514,14 @@ function buildListening(){
   box.querySelectorAll('[data-addgroup]').forEach(btn=>btn.onclick=()=>{
     const [i,type]=btn.dataset.addgroup.split(':');
     data.grades[+i].listeningTracks.push({
-      name:'',lyricist:'',composer:'',audio:'',type,code:makeTrackCode()
+      name:'',
+      lyricist:'',
+      composer:'',
+      exercise:'',
+      page:'',
+      audio:'',
+      type,
+      code:makeTrackCode()
     });
     buildListening();markDirty();
   });
@@ -565,41 +586,58 @@ function renderCategory(i,type){
           <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
         </div>
       </div>`).join('');
-  }else{
-    box.innerHTML=indexed.map(({t,j})=>{
-      if(type==='assessment'){
-        const link=assessmentTrackLink(g.grade,t.code);
-        const exerciseText=t.exercise||t.name||'';
-        const titleText=exerciseText + (t.page?` · Хуудас ${t.page}`:'');
-        return `<div class="assessment-track">
-          <div class="assessment-meta-head">
-            <div>Дасгал</div>
-            <div>Хуудас</div>
-            <div>Audio файл</div>
-            <div></div>
-          </div>
-          <div class="assessment-meta-row">
-            <input placeholder="Ж: Дасгал 1" data-te="${i}:${j}" value="${esc(exerciseText)}">
-            <input placeholder="Ж: 2" data-tp="${i}:${j}" value="${esc(t.page||'')}">
-            <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
-            <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
-          </div>
-          <div class="assessment-link-label">${esc(titleText||'Тусдаа сонсох материал')}</div>
-          <div class="track-qr-row">
-            <div class="track-qr-link">${esc(link)}</div>
-            <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
-          </div>
-        </div>`;
-      }
 
-      return `<div class="group-track">
-        <div class="track-row">
-          <input placeholder="Сонсох хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+  }else if(type==='exercise'){
+    box.innerHTML=indexed.map(({t,j})=>{
+      const link=assessmentTrackLink(g.grade,t.code);
+      const exerciseText=t.exercise||t.name||'';
+      const titleText=exerciseText + (t.page?` · Хуудас ${t.page}`:'');
+      return `<div class="assessment-track">
+        <div class="assessment-meta-head">
+          <div>Дасгал</div>
+          <div>Хуудас</div>
+          <div>Audio файл</div>
+          <div></div>
+        </div>
+        <div class="assessment-meta-row">
+          <input placeholder="Ж: Дасгал 1" data-te="${i}:${j}" value="${esc(exerciseText)}">
+          <input placeholder="Ж: 2" data-tp="${i}:${j}" value="${esc(t.page||'')}">
           <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
           <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
         </div>
+        <div class="assessment-link-label">${esc(titleText||'Тусдаа дасгал')}</div>
+        <div class="track-qr-row">
+          <div class="track-qr-link">${esc(link)}</div>
+          <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+        </div>
       </div>`;
     }).join('');
+
+  }else if(type==='assessment'){
+    box.innerHTML=indexed.map(({t,j})=>{
+      const link=assessmentTrackLink(g.grade,t.code);
+      return `<div class="assessment-track">
+        <div class="track-row">
+          <input placeholder="Үнэлгээний материалын нэр" data-tn="${i}:${j}" value="${esc(t.name||'')}">
+          <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+          <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
+        </div>
+        <div class="track-qr-row">
+          <div class="track-qr-link">${esc(link)}</div>
+          <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
+        </div>
+      </div>`;
+    }).join('');
+
+  }else{
+    box.innerHTML=indexed.map(({t,j})=>`
+      <div class="group-track">
+        <div class="track-row">
+          <input placeholder="Сонсох хөгжмийн нэр" data-tn="${i}:${j}" value="${esc(t.name||'')}">
+          <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
+          <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
+        </div>
+      </div>`).join('');
   }
 
   box.querySelectorAll('[data-tn]').forEach(x=>x.oninput=()=>{
