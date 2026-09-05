@@ -322,7 +322,7 @@ audio{width:100%;height:42px}
     $('sectionTitle').textContent='Дагаад дуулаарай';
   }else if(trackCode){
     $('kicker').textContent='';
-    $('sectionTitle').textContent='Сонсох материал';
+    $('sectionTitle').textContent='';
   }else{
     $('kicker').textContent='СОНСОХ ХӨГЖМИЙН ЖАГСААЛТ';
     $('sectionTitle').textContent='Нэрс';
@@ -344,6 +344,8 @@ audio{width:100%;height:42px}
       if(!x.type)x.type='assessment';
       if(x.lyricist===undefined)x.lyricist='';
       if(x.composer===undefined)x.composer='';
+      if(x.exercise===undefined)x.exercise='';
+      if(x.page===undefined)x.page='';
       return x;
     });
   }
@@ -370,19 +372,25 @@ audio{width:100%;height:42px}
 
     const tracks=normalizeTracks(grade);
 
-    // 1) Individual assessment QR = one track
+    // 1) Individual QR = one exercise/page track.
     if(trackCode){
       const t=tracks.find(x=>String(x.code||'')===trackCode);
       $('count').textContent='';
+      $('kicker').textContent='';
+
+      const exerciseTitle=t ? (t.exercise||t.name||'Дасгал') : 'Сонсох материал';
+      const fullTitle=t && t.page ? `${exerciseTitle} · Хуудас ${t.page}` : exerciseTitle;
+
       if(!t || !(t.audio||t.url)){
-        $('sectionTitle').textContent=t?.name||'Сонсох материал';
+        $('sectionTitle').textContent=fullTitle;
         $('content').innerHTML='<div class="empty">Сонсох материал олдсонгүй.</div>';
         return true;
       }
-      $('sectionTitle').textContent=t.name||'Сонсох материал';
+
+      $('sectionTitle').textContent=fullTitle;
       $('content').innerHTML=`
         <div class="player-card">
-          <div class="now-title">${esc(t.name||'')}</div>
+          <div class="now-title">${esc(fullTitle)}</div>
           <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
         </div>`;
       return true;
@@ -579,7 +587,11 @@ audio{width:100%;height:42px}
           ${arr.map((t,i)=>`
             <li class="track" style="grid-template-columns:38px minmax(0,1fr)">
               <span class="num">${i+1}</span>
-              <span class="track-name">${esc(t.name||'Нэргүй')}</span>
+              <span class="track-name">${esc(
+                type==='assessment'
+                  ? ((t.exercise||t.name||'Дасгал') + (t.page?` · Хуудас ${t.page}`:''))
+                  : (t.name||'Нэргүй')
+              )}</span>
             </li>`).join('')}
         </ol>
       </div>`;

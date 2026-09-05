@@ -144,6 +144,42 @@
   .song-meta-row{grid-template-columns:1fr}
 }
 
+
+/* V28.6 — Exercise/Page fields for individual QR materials */
+.assessment-meta-head,
+.assessment-meta-row{
+  display:grid;
+  grid-template-columns:minmax(160px,1fr) minmax(90px,.42fr) minmax(220px,1.25fr) 34px;
+  gap:7px;
+  align-items:center;
+}
+.assessment-meta-head{
+  margin:7px 0 4px;
+  padding:0 2px;
+  color:#7b8495;
+  font-size:9px;
+  font-weight:900;
+}
+.assessment-meta-row input{
+  width:100%;
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid #dfe5ee;
+  border-radius:10px;
+  background:#fff;
+  font-size:10.5px;
+}
+.assessment-link-label{
+  margin-top:7px;
+  color:#536078;
+  font-size:10px;
+  font-weight:900;
+}
+@media(max-width:800px){
+  .assessment-meta-head{display:none}
+  .assessment-meta-row{grid-template-columns:1fr}
+  .assessment-meta-row .x{width:100%}
+}
 </style>
 </head>
 <body>
@@ -357,6 +393,8 @@ function normalizeTrack(t,defaultType='assessment'){
   if(!['listening','songs','assessment'].includes(t.type)) t.type=defaultType;
   if(t.lyricist===undefined) t.lyricist='';
   if(t.composer===undefined) t.composer='';
+  if(t.exercise===undefined) t.exercise='';
+  if(t.page===undefined) t.page='';
   if(!t.code) t.code=makeTrackCode();
   return t;
 }
@@ -531,12 +569,22 @@ function renderCategory(i,type){
     box.innerHTML=indexed.map(({t,j})=>{
       if(type==='assessment'){
         const link=assessmentTrackLink(g.grade,t.code);
+        const exerciseText=t.exercise||t.name||'';
+        const titleText=exerciseText + (t.page?` · Хуудас ${t.page}`:'');
         return `<div class="assessment-track">
-          <div class="track-row">
-            <input placeholder="Нэр" data-tn="${i}:${j}" value="${esc(t.name)}">
+          <div class="assessment-meta-head">
+            <div>Дасгал</div>
+            <div>Хуудас</div>
+            <div>Audio файл</div>
+            <div></div>
+          </div>
+          <div class="assessment-meta-row">
+            <input placeholder="Ж: Дасгал 1" data-te="${i}:${j}" value="${esc(exerciseText)}">
+            <input placeholder="Ж: 2" data-tp="${i}:${j}" value="${esc(t.page||'')}">
             <input placeholder="audio/${g.grade}/file.mp3" data-ta="${i}:${j}" value="${esc(t.audio||t.url||'')}">
             <button class="x" data-tx="${i}:${j}" title="Устгах">×</button>
           </div>
+          <div class="assessment-link-label">${esc(titleText||'Тусдаа сонсох материал')}</div>
           <div class="track-qr-row">
             <div class="track-qr-link">${esc(link)}</div>
             <button class="copy-track" type="button" data-copytrack="${i}:${j}">QR link хуулах</button>
@@ -565,6 +613,17 @@ function renderCategory(i,type){
   box.querySelectorAll('[data-tc]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.tc.split(':').map(Number);
     data.grades[a].listeningTracks[b].composer=x.value;markDirty();
+  });
+  box.querySelectorAll('[data-te]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.te.split(':').map(Number);
+    data.grades[a].listeningTracks[b].exercise=x.value;
+    data.grades[a].listeningTracks[b].name=x.value;
+    markDirty();
+  });
+  box.querySelectorAll('[data-tp]').forEach(x=>x.oninput=()=>{
+    const [a,b]=x.dataset.tp.split(':').map(Number);
+    data.grades[a].listeningTracks[b].page=x.value.trim();
+    markDirty();
   });
   box.querySelectorAll('[data-ta]').forEach(x=>x.oninput=()=>{
     const [a,b]=x.dataset.ta.split(':').map(Number);
