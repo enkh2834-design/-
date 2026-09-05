@@ -180,6 +180,66 @@
   .assessment-meta-row{grid-template-columns:1fr}
   .assessment-meta-row .x{width:100%}
 }
+
+/* V28.8 — audio category tabs: all 4 sections are always visible as choices */
+.audio-tabs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  margin:10px 0 12px;
+}
+.audio-tab{
+  border:1px solid #dfe5ee;
+  background:#fff;
+  color:#46546e;
+  border-radius:12px;
+  padding:9px 10px;
+  font-size:10px;
+  font-weight:900;
+  text-align:left;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.audio-tab:hover{transform:translateY(-1px);border-color:#bfd3f4}
+.audio-tab.active{
+  background:linear-gradient(135deg,#eef5ff,#f8fbff);
+  border-color:#a9c8f8;
+  color:#1f5fc7;
+  box-shadow:0 7px 18px rgba(39,103,205,.10);
+}
+.audio-tab .n{
+  float:right;
+  display:inline-grid;
+  place-items:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#eef2f7;
+  color:#5f6d84;
+  font-size:9px;
+}
+.audio-tab.active .n{
+  background:#dceaff;
+  color:#1f5fc7;
+}
+.listen-category[data-audio-panel]{
+  display:none;
+}
+.listen-category[data-audio-panel].active{
+  display:block;
+}
+.listen-category.exercise{
+  border-color:#cfe2bd;
+  background:#fbfff7;
+}
+.listen-category.exercise .listen-category-title{
+  color:#548a2f;
+}
+@media(max-width:560px){
+  .audio-tabs{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -433,7 +493,14 @@ function buildListening(){
 
       <div class="qr"><b>Олон нийтэд харагдах нэрс:</b><br>${publicListLink(g.grade)}</div>
 
-      <section class="listen-category listening">
+      <div class="audio-tabs" data-tabs="${i}">
+        <button type="button" class="audio-tab" data-audiotab="${i}:listening">🎧 Сонсох хөгжим <span class="n">${listeningCount}</span></button>
+        <button type="button" class="audio-tab" data-audiotab="${i}:songs">🎤 Дагаад дуулаарай <span class="n">${songCount}</span></button>
+        <button type="button" class="audio-tab" data-audiotab="${i}:exercise">✏️ Дасгал <span class="n">${exerciseCount}</span></button>
+        <button type="button" class="audio-tab" data-audiotab="${i}:assessment">📝 Гүйцэтгэлийн үнэлгээ <span class="n">${assessmentCount}</span></button>
+      </div>
+
+      <section class="listen-category listening" data-audio-panel="${i}:listening">
         <div class="listen-category-head">
           <div>
             <div class="listen-category-title">🎧 Сонсох хөгжим</div>
@@ -454,7 +521,7 @@ function buildListening(){
         </details>
       </section>
 
-      <section class="listen-category songs">
+      <section class="listen-category songs" data-audio-panel="${i}:songs">
         <div class="listen-category-head">
           <div>
             <div class="listen-category-title">🎤 Дагаад дуулаарай</div>
@@ -475,7 +542,7 @@ function buildListening(){
         </details>
       </section>
 
-      <section class="listen-category exercise">
+      <section class="listen-category exercise" data-audio-panel="${i}:exercise">
         <div class="listen-category-head">
           <div>
             <div class="listen-category-title">✏️ Дасгал</div>
@@ -487,7 +554,7 @@ function buildListening(){
         <button class="add" data-addgroup="${i}:exercise">+ Дасгал нэмэх</button>
       </section>
 
-      <section class="listen-category assessment">
+      <section class="listen-category assessment" data-audio-panel="${i}:assessment">
         <div class="listen-category-head">
           <div>
             <div class="listen-category-title">📝 Гүйцэтгэлийн үнэлгээ</div>
@@ -504,6 +571,34 @@ function buildListening(){
     renderCategory(i,'songs');
     renderCategory(i,'exercise');
     renderCategory(i,'assessment');
+
+    // Keep the four categories accessible at the top even if one has 25+ rows.
+    const savedTab=localStorage.getItem('mydewter_audio_tab_'+g.grade) || 'listening';
+    setAudioTab(i,savedTab);
+  });
+
+  function setAudioTab(i,type){
+    const gradeCard=[...box.querySelectorAll('.listen-grade-card')][i];
+    if(!gradeCard)return;
+
+    gradeCard.querySelectorAll('[data-audiotab]').forEach(btn=>{
+      const active=btn.dataset.audiotab===`${i}:${type}`;
+      btn.classList.toggle('active',active);
+    });
+    gradeCard.querySelectorAll('[data-audio-panel]').forEach(panel=>{
+      const active=panel.dataset.audioPanel===`${i}:${type}`;
+      panel.classList.toggle('active',active);
+    });
+
+    try{
+      const g=data.grades[i];
+      if(g)localStorage.setItem('mydewter_audio_tab_'+g.grade,type);
+    }catch(e){}
+  }
+
+  box.querySelectorAll('[data-audiotab]').forEach(btn=>btn.onclick=()=>{
+    const [i,type]=btn.dataset.audiotab.split(':');
+    setAudioTab(+i,type);
   });
 
   box.querySelectorAll('[data-copygroup]').forEach(btn=>btn.onclick=()=>{
