@@ -393,7 +393,6 @@ audio{width:100%;height:42px}
       $('sectionTitle').textContent=fullTitle;
       $('content').innerHTML=`
         <div class="player-card">
-          <div class="now-title">${esc(fullTitle)}</div>
           <audio controls preload="metadata" controlsList="nodownload" src="${escAttr(t.audio||t.url||'')}"></audio>
         </div>`;
       return true;
