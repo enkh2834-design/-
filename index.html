@@ -1499,6 +1499,88 @@ body{visibility:visible!important;opacity:1!important}
   font-size:11px;
 }
 
+
+/* V29 — header Facebook + clearer navigation */
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:none;
+}
+.facebook-link{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:46px;
+  padding:0 13px 0 9px;
+  border:1px solid #dce4f1;
+  border-radius:15px;
+  background:#fff;
+  color:#2458a7;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(31,87,212,.07);
+  transition:.18s ease;
+}
+.facebook-link:hover{
+  transform:translateY(-1px);
+  border-color:#aac8f4;
+  box-shadow:0 10px 22px rgba(31,87,212,.12);
+}
+.facebook-icon{
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  display:grid;
+  place-items:center;
+  background:#1877f2;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  font-size:21px;
+  font-weight:900;
+  line-height:1;
+}
+.facebook-text{white-space:nowrap}
+
+@media(max-width:980px){
+  .facebook-text{display:none}
+  .facebook-link{
+    width:42px;
+    padding:0;
+    justify-content:center;
+  }
+}
+@media(max-width:620px){
+  .nav{
+    gap:8px;
+    height:76px;
+  }
+  .brand{gap:9px;min-width:0}
+  .brand-mark{width:40px;height:40px;border-radius:14px}
+  .brand-text strong{
+    font-size:15px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:180px;
+  }
+  .brand-text small{font-size:10px}
+  .nav-actions{gap:6px}
+  .facebook-link{width:38px;height:42px;border-radius:13px}
+  .facebook-icon{width:25px;height:25px;border-radius:8px;font-size:18px}
+  .nav-actions .btn-primary{
+    padding:12px 13px;
+    border-radius:14px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+}
+@media(max-width:430px){
+  .brand-text strong{max-width:135px;font-size:13px}
+  .brand-text small{display:none}
+  .nav-actions .btn-primary{padding:11px 10px;font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -1519,7 +1601,13 @@ body{visibility:visible!important;opacity:1!important}
       <a href="#order">Захиалга</a>
       <a href="#about">Тухай</a>
     </nav>
-    <a href="#order" class="btn btn-primary">Захиалга өгөх</a>
+    <div class="nav-actions">
+      <a class="facebook-link" href="https://www.facebook.com/jamsranjaw.enhsaihan" target="_blank" rel="noopener noreferrer" aria-label="Facebook хуудас" title="Facebook">
+        <span class="facebook-icon">f</span>
+        <span class="facebook-text">Facebook</span>
+      </a>
+      <a href="#order" class="btn btn-primary">Захиалга өгөх</a>
+    </div>
   </div>
 </header>
 
@@ -1532,7 +1620,7 @@ body{visibility:visible!important;opacity:1!important}
           <h1 id="heroTitle">Цэгцтэй, ойлгомжтой дэвтэр хөтлөлт</h1>
           <p id="heroText">Бага боловсролын сургалтын агуулгын хүрээнд QR сонсох материал, насны онцлогт тохирсон даалгавар, хөгжмийн мэдрэмжийг хөгжүүлэх дасгал ажлын дэвтэр.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#collection">Дэвтэрүүдийг үзэх</a>
+            <a class="btn btn-primary" href="#collection">Ангиа сонгох</a>
             <a class="btn btn-soft" href="#order">Шууд захиалах</a>
           </div>
         </div>
@@ -1988,7 +2076,7 @@ grades.forEach((g,i) => {
       <div class="circle-grade" style="background:${t.badge}">${g.grade}-р анги</div>
     </div>
     <div class="product-body">
-      <div class="product-kicker">Music Workbook Series</div>
+      <div class="product-kicker">Цуврал ${i+1}</div>
       <h3>${g.title}</h3>
       <p class="product-desc">${safe(g.description,'')}</p>
       <ul class="feature-list">${bullets.map(x=>`<li>${x}</li>`).join('')}</ul>
