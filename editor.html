@@ -240,6 +240,47 @@
   .audio-tabs{grid-template-columns:1fr}
 }
 
+
+/* V28.10 — reorder exercises */
+.exercise-orderbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 0 8px;
+  padding:7px 9px;
+  border-radius:10px;
+  background:#f6f9f2;
+  border:1px solid #dce8d1;
+}
+.exercise-order-label{
+  font-size:9.5px;
+  font-weight:900;
+  color:#5b7550;
+}
+.exercise-order-actions{
+  display:flex;
+  gap:6px;
+}
+.exercise-move{
+  width:34px;
+  height:30px;
+  border:1px solid #cfdcc4;
+  border-radius:9px;
+  background:#fff;
+  color:#4f6f43;
+  font-size:15px;
+  font-weight:950;
+  cursor:pointer;
+}
+.exercise-move:hover{
+  background:#eff7e8;
+}
+.exercise-move:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
 </style>
 </head>
 <body>
@@ -683,11 +724,20 @@ function renderCategory(i,type){
       </div>`).join('');
 
   }else if(type==='exercise'){
-    box.innerHTML=indexed.map(({t,j})=>{
+    box.innerHTML=indexed.map(({t,j},exercisePos)=>{
       const link=assessmentTrackLink(g.grade,t.code);
       const exerciseText=t.exercise||t.name||'';
       const titleText=exerciseText + (t.page?` · Хуудас ${t.page}`:'');
+      const isFirst=exercisePos===0;
+      const isLast=exercisePos===indexed.length-1;
       return `<div class="assessment-track">
+        <div class="exercise-orderbar">
+          <span class="exercise-order-label">Дараалал: ${exercisePos+1}</span>
+          <div class="exercise-order-actions">
+            <button type="button" class="exercise-move" data-moveup="${i}:${j}" ${isFirst?'disabled':''} title="Дээш зөөх">↑</button>
+            <button type="button" class="exercise-move" data-movedown="${i}:${j}" ${isLast?'disabled':''} title="Доош зөөх">↓</button>
+          </div>
+        </div>
         <div class="assessment-meta-head">
           <div>Дасгал</div>
           <div>Хуудас</div>
@@ -762,6 +812,41 @@ function renderCategory(i,type){
     const [a,b]=x.dataset.ta.split(':').map(Number);
     data.grades[a].listeningTracks[b].audio=x.value.trim();markDirty();
   });
+
+  function moveExercise(a,b,direction){
+    const arr=data.grades[a].listeningTracks;
+    const exerciseIndexes=arr
+      .map((t,idx)=>({t:normalizeTrack(t,'assessment'),idx}))
+      .filter(x=>x.t.type==='exercise')
+      .map(x=>x.idx);
+
+    const currentPos=exerciseIndexes.indexOf(b);
+    if(currentPos<0)return;
+
+    const targetPos=currentPos+direction;
+    if(targetPos<0 || targetPos>=exerciseIndexes.length)return;
+
+    const targetIndex=exerciseIndexes[targetPos];
+
+    // Swap only the two exercise objects.
+    const tmp=arr[b];
+    arr[b]=arr[targetIndex];
+    arr[targetIndex]=tmp;
+
+    buildListening();
+    markDirty();
+  }
+
+  box.querySelectorAll('[data-moveup]').forEach(btn=>btn.onclick=()=>{
+    const [a,b]=btn.dataset.moveup.split(':').map(Number);
+    moveExercise(a,b,-1);
+  });
+
+  box.querySelectorAll('[data-movedown]').forEach(btn=>btn.onclick=()=>{
+    const [a,b]=btn.dataset.movedown.split(':').map(Number);
+    moveExercise(a,b,1);
+  });
+
   box.querySelectorAll('[data-tx]').forEach(x=>x.onclick=()=>{
     const [a,b]=x.dataset.tx.split(':').map(Number);
     data.grades[a].listeningTracks.splice(b,1);
