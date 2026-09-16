@@ -1581,9 +1581,53 @@ body{visibility:visible!important;opacity:1!important}
   .nav-actions .btn-primary{padding:11px 10px;font-size:11px}
 }
 
+
+/* Site data load gate: never flash the hard-coded initial/demo design. */
+html:not(.myd-site-ready){overflow:hidden}
+html:not(.myd-site-ready) body > :not(#myd-loading){visibility:hidden !important}
+#myd-loading{
+  position:fixed;inset:0;z-index:20000;display:grid;place-items:center;
+  background:linear-gradient(145deg,#f7fbff,#fffcf7);padding:24px;
+  color:#18233c;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+}
+#myd-loading .myd-load-card{
+  width:min(100%,420px);padding:36px 26px;text-align:center;background:#fff;
+  border:1px solid #e5eaf3;border-radius:26px;box-shadow:0 15px 45px rgba(29,60,112,.08)
+}
+#myd-loading .myd-load-icon{
+  margin:0 auto 17px;width:52px;height:52px;border-radius:17px;display:grid;
+  place-items:center;color:#fff;font-size:27px;
+  background:linear-gradient(135deg,#2467db,#4ac6d0)
+}
+#myd-loading .myd-load-title{font-size:19px;font-weight:900;margin:0 0 9px}
+#myd-loading .myd-load-message{font-size:13px;line-height:1.7;color:#59657b;margin:0}
+#myd-loading .myd-load-spinner{
+  width:26px;height:26px;border:3px solid #dfeaf9;border-top-color:#2467db;
+  border-radius:50%;margin:20px auto 0;animation:mydSpin .9s linear infinite
+}
+@keyframes mydSpin{to{transform:rotate(360deg)}}
+#myd-retry{
+  display:none;margin:18px auto 0;border:0;border-radius:12px;padding:12px 22px;
+  background:#2467db;color:white;font-weight:800;cursor:pointer
+}
+#myd-loading.myd-load-failed .myd-load-spinner{display:none}
+#myd-loading.myd-load-failed #myd-retry{display:block}
+html.myd-site-ready #myd-loading{display:none}
+@media(prefers-reduced-motion:reduce){#myd-loading .myd-load-spinner{animation:none}}
+
 </style>
 </head>
 <body>
+<div id="myd-loading" role="status" aria-live="polite">
+  <div class="myd-load-card">
+    <div class="myd-load-icon" aria-hidden="true">♫</div>
+    <p class="myd-load-title">Хөгжмийн дасгал ажлын дэвтэр</p>
+    <p class="myd-load-message" id="myd-loading-text">Нийтэлсэн мэдээллийг ачаалж байна...</p>
+    <div class="myd-load-spinner" aria-hidden="true"></div>
+    <button id="myd-retry" type="button" onclick="location.reload()">Дахин оролдох</button>
+  </div>
+</div>
+
 <div class="scroll-progress" id="scrollProgress"></div>
 <div class="floating-note" style="left:2vw;top:22vh;--dur:13s;font-size:54px">♫</div>
 <div class="floating-note" style="right:3vw;top:62vh;--dur:16s;font-size:46px">♪</div>
@@ -2396,7 +2440,16 @@ if(confirmEl){
 }
 
 
-})();
+})().then(() => {
+  // Reveal once the current server data has actually been rendered.
+  document.documentElement.classList.add('myd-site-ready');
+}, err => {
+  console.error('MY Dewter render failed:', err);
+  const loading = document.getElementById('myd-loading');
+  const msg = document.getElementById('myd-loading-text');
+  if (loading) loading.classList.add('myd-load-failed');
+  if (msg) msg.textContent = 'Одоогийн мэдээллийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.';
+});
 </script>
 
 </body>

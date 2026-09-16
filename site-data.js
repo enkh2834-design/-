@@ -137,32 +137,49 @@ window.MYDEWTER_READY = (async function(){
     return merged;
   }
 
-  try {
-    const params = new URLSearchParams(location.search);
-
-    if (params.get('editorPreview') === '1') {
-      const preview = localStorage.getItem('mydewter_editor_preview_data');
-      if (preview) {
-        window.MYDEWTER_DATA = migrateOldPublished(JSON.parse(preview));
-      }
-      return window.MYDEWTER_DATA;
-    }
-
-    const api = STATIC && STATIC.orderApiUrl;
-    if (!api) return window.MYDEWTER_DATA;
-
-    const r = await fetch(api + '?action=getSiteData&_=' + Date.now(), {cache:'no-store'});
-    const result = await r.json();
-
-    if (result && result.ok && result.data) {
-      window.MYDEWTER_DATA = migrateOldPublished(result.data);
-      if (!window.MYDEWTER_DATA.orderApiUrl) {
-        window.MYDEWTER_DATA.orderApiUrl = api;
-      }
-    }
-  } catch (e) {
-    console.warn('Published site data fallback:', e);
+  // Preview is intentionally separate from the published website.
+  const params = new URLSearchParams(location.search);
+  if (params.get('editorPreview') === '1') {
+    const preview = localStorage.getItem('mydewter_editor_preview_data');
+    if (preview) window.MYDEWTER_DATA = migrateOldPublished(JSON.parse(preview));
+    return window.MYDEWTER_DATA;
   }
 
-  return window.MYDEWTER_DATA;
+  const api = STATIC && STATIC.orderApiUrl;
+  if (!api) throw new Error('Published data API URL is missing');
+
+  // Do not show initial V22/demo data as if it were the currently published content.
+  // The index.html loading screen remains visible until the current response is valid.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+  try {
+    const separator = api.includes('?') ? '&' : '?';
+    const r = await fetch(api + separator + 'action=getSiteData&_=' + Date.now(), {
+      cache:'no-store', signal:controller.signal
+    });
+    if (!r.ok) throw new Error('Published data HTTP ' + r.status);
+    const result = await r.json();
+    const remote = result && result.ok && result.data;
+    if (!remote || typeof remote !== 'object' || Array.isArray(remote)) {
+      throw new Error('Published data missing (data:null or invalid JSON)');
+    }
+    if (!Array.isArray(remote.grades) || remote.grades.length < 5 ||
+        new Set(remote.grades.map(g => Number(g && g.grade))).size < 5) {
+      throw new Error('Published data missing grade records');
+    }
+    const audioCount = remote.grades.reduce((sum,g) =>
+      sum + (Array.isArray(g.listeningTracks) ? g.listeningTracks.length : 0), 0);
+    if (audioCount === 0) {
+      throw new Error('Published audio list unexpectedly empty');
+    }
+
+    window.MYDEWTER_DATA = migrateOldPublished(remote);
+    if (!window.MYDEWTER_DATA.orderApiUrl) window.MYDEWTER_DATA.orderApiUrl = api;
+    return window.MYDEWTER_DATA;
+  } catch (e) {
+    console.error('MY Dewter: current published data could not be loaded.', e);
+    throw e; // The site displays a retry message, NEVER its original/demo data.
+  } finally {
+    clearTimeout(timeoutId);
+  }
 })();
